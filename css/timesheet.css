@@ -1,0 +1,413 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html {
+    background: #c8c8c8;
+    min-height: 100%;
+  }
+
+  body {
+    background: #c8c8c8;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .page {
+    width: 794px;
+    height: 1123px;
+    background: #fff;
+    padding: 0;
+    box-shadow: 0 6px 28px rgba(0,0,0,0.5);
+    box-sizing: border-box;
+    transform-origin: top center;
+    transform: scale(calc(75vh / 1123px));
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Border LUAR — mengelilingi seluruh lembar dari tepi .page */
+  .border-outer {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    bottom: 4px;
+    border: 2px solid #000;
+    box-sizing: border-box;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  /* Border DALAM — mengelilingi tabel isi, 4px di dalam border luar */
+  .border-frame {
+    border: 2px solid #000;
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    box-sizing: border-box;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .border-frame > table.waffle {
+    flex: 1;
+    min-height: 0;
+  }
+
+  table.waffle {
+    width: 100%;
+    height: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  table.waffle tr {
+    overflow: hidden;
+    max-height: inherit;
+  }
+  table.waffle td {
+    overflow: hidden;
+  }
+
+
+  col.cA { width: 6%; }
+  col.cB { width: 6.18%; }
+  col.cC { width: 6.18%; }
+  col.cD { width: 6.18%; }
+  col.cE { width: 6.18%; }
+  col.cF { width: 5.91%; }
+  col.cG { width: 5.91%; }
+  col.cH { width: 5.91%; }
+  col.cI { width: 5.91%; }
+  col.cJ { width: 5.91%; }
+  col.cK { width: 5.91%; }
+  col.cL { width: 8.67%; }
+  col.cM { width: 25.14%; }
+
+  .s0  { border-bottom:2px solid #000; background:#fff; text-align:center; font-weight:bold; color:#000; font-family:Arial; font-size:11pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
+  .s1  { border-bottom:2px solid #000; background:#fff; text-align:left; color:#000; font-family:Arial; font-size:10pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
+  .s2  { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:left; font-weight:bold; color:#000; font-family:Arial, sans-serif; font-size:7pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
+  .s3  { border-right:2px solid #000; background:#fff; text-align:left; font-weight:bold; color:#000; font-family:Arial, sans-serif; font-size:7pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
+  .s4  { background:#fff; text-align:left; font-weight:bold; color:#000; font-family:Arial, sans-serif; font-size:7pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
+  .s5  { border-bottom:2px solid #000; background:#fff; text-align:left; font-weight:bold; color:#000; font-family:Arial, sans-serif; font-size:7pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
+  .s6  { border-bottom:2px solid #000; background:#fff; text-align:left; font-weight:bold; color:#000; font-family:Arial, sans-serif; font-size:7pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
+  .s7  { border-right:none; border-bottom:2px solid #000; background:#fff; text-align:left; font-weight:bold; color:#000; font-family:Arial, sans-serif; font-size:9pt; vertical-align:middle; white-space:nowrap; padding:2px 1px 2px 3px; }
+  .s8  { border-left:none; border-bottom:2px solid #000; background:#fff; text-align:left; font-weight:bold; color:#000; font-family:Arial, sans-serif; font-size:9pt; vertical-align:middle; white-space:nowrap; padding:2px 3px 2px 0; }
+  .s9  { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:left; font-weight:bold; color:#000; font-family:Arial, sans-serif; font-size:9pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
+  .s10 { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:center; font-weight:bold; color:#000; font-family:Arial; font-size:7pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; overflow:hidden; }
+  .s11 { border-bottom:2px solid #000; background:#fff; text-align:center; font-weight:bold; color:#000; font-family:Arial; font-size:7pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; overflow:hidden; }
+  .s12 { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:left; font-weight:bold; color:#000; font-family:Arial; font-size:7pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
+  .s13 { border-bottom:1px solid #000; border-right:2px solid #000; background:#fff; text-align:center; color:#000; font-family:Arial; font-size:9pt; line-height:1; vertical-align:middle; white-space:nowrap; padding:0 2px; overflow:hidden; max-height:20px; }
+  .s14 { border-bottom:1px solid #000; border-right:1px solid #000; background:#fff; text-align:center; color:#000; font-family:Arial; font-size:9pt; line-height:1; vertical-align:middle; white-space:nowrap; padding:0 2px; overflow:hidden; max-height:20px; }
+  .s15 { border-bottom:1px solid #000; background:#fff; text-align:center; font-weight:bold; color:#ff0000; font-family:Arial; font-size:9pt; line-height:1; vertical-align:middle; white-space:nowrap; padding:0 2px; overflow:hidden; max-height:20px; }
+  .s16 { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:center; color:#000; font-family:Arial; font-size:9pt; line-height:1; vertical-align:middle; white-space:nowrap; padding:0 2px; overflow:hidden; max-height:20px; }
+  .s16b { border-bottom:2px solid #000; border-right:1px solid #000; background:#fff; text-align:center; color:#000; font-family:Arial; font-size:9pt; line-height:1; vertical-align:middle; white-space:nowrap; padding:0 2px; overflow:hidden; max-height:20px; }
+  .s17 { border-bottom:2px solid #000; background:#fff; text-align:center; font-weight:bold; color:#ff0000; font-family:Arial; font-size:9pt; line-height:1; vertical-align:middle; white-space:nowrap; padding:0 2px; overflow:hidden; max-height:20px; }
+  .s18 { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:right; color:#000; font-family:Arial; font-size:10pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
+  .s19 { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:left; color:#000; font-family:Arial; font-size:10pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
+  .s20 { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:right; color:#000; font-family:Arial; font-size:7pt; vertical-align:bottom; white-space:nowrap; padding:2px 3px; }
+  .s21 { border-bottom:2px solid #000; border-left:2px solid #000; background:#fff; text-align:left; font-weight:bold; color:#ff0000; font-family:Arial, sans-serif; font-size:7pt; vertical-align:top; white-space:nowrap; padding:2px 3px; }
+  .s22 { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:center; color:#000; font-family:Arial; font-size:11pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
+  .s23 { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:right; color:#000; font-family:Arial; font-size:6pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
+  .s23last { border-bottom:2px solid #000; background:#fff; text-align:right; color:#000; font-family:Arial; font-size:6pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
+  .s24 { background:#fff; text-align:left; color:#000; font-family:Arial; font-size:6pt; line-height:1; overflow:hidden; vertical-align:middle; white-space:nowrap; padding:0 3px; }
+  .s25 { border-bottom:2px solid #000; background:#fff; text-align:left; color:#000; font-family:Arial; font-size:6pt; line-height:16px; height:16px; overflow:hidden; white-space:nowrap; vertical-align:middle; padding:0 3px; }
+  .s25last { border-bottom:2px solid #000; background:#fff; text-align:left; color:#000; font-family:Arial; font-size:6pt; line-height:16px; height:16px; overflow:hidden; white-space:nowrap; vertical-align:middle; padding:0 3px; }
+  .s24mid { border-right:2px solid #000; background:#fff; font-size:6pt; line-height:1; overflow:hidden; padding:0; }
+  .s25mid { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; font-size:6pt; line-height:1; overflow:hidden; padding:0; }
+  .s25midlast { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; font-size:6pt; line-height:1; overflow:hidden; padding:0; }
+  .s26 { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:center; font-weight:bold; color:#000; font-family:Arial; font-size:6pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
+  .s26last { border-bottom:2px solid #000; background:#fff; text-align:center; font-weight:bold; color:#000; font-family:Arial; font-size:6pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
+  .s27 { border-right:2px solid #000; background:#fff; text-align:left; color:#000; font-family:Arial; font-size:10pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
+  .s28 { border-bottom:2px solid #000; background:#fff; text-align:center; font-weight:bold; color:#000; font-family:Arial; font-size:6pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
+  .s29 { border-bottom:2px solid #000;  border-right:2px solid #000; background:#fff; text-align:left; font-weight:bold; color:#0000ff; font-family:Arial; font-size:7pt; vertical-align:bottom; white-space:nowrap; padding:2px 3px; }
+  .s30 { border-bottom:2px solid #000; background:#fff; text-align:left; font-weight:bold; color:#000; font-family:Arial; font-size:10pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
+  .s30last { border-bottom:2px solid #000; background:#fff; text-align:left; font-weight:bold; color:#000; font-family:Arial; font-size:10pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
+  .s31 { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:left; font-weight:bold; color:#000; font-family:Arial; font-size:6pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
+  .s31last { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:left; font-weight:bold; color:#000; font-family:Arial; font-size:6pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
+  .s32 { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:center; font-weight:bold; color:#000; font-family:Arial; font-size:7pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
+  .s33 { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:left; font-weight:bold; color:#000; font-family:Arial; font-size:6pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
+  .s34 { border-bottom:2px solid #000; background:#fff; text-align:left; font-weight:bold; color:#000; font-family:Arial; font-size:10pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
+
+  .keterangan-sabtu  { color: #FF8C00; font-weight: bold; font-size: 7pt; text-align: center; }
+  .keterangan-minggu { color: #FF8C00; font-weight: bold; font-size: 7pt; text-align: center; }
+  .keterangan-off    { color: #FFFFFF; background: #000000; font-weight: bold; font-size: 7pt; padding: 2px 4px; border-radius: 2px; text-align: center; }
+  .keterangan-cuti   { color: #FFD700; font-weight: bold; font-size: 7pt; text-align: center; }
+  .keterangan-shift  { color: #000000; font-weight: bold; font-size: 7pt; text-align: center; }
+
+  .s24-spacer3 { border-bottom:2px solid #000; background:#fff; text-align:left; color:#000; font-family:Arial; font-size:6pt; line-height:1; overflow:hidden; vertical-align:middle; white-space:nowrap; padding:0 3px; }
+  .s13-summary { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:center; color:#000; font-family:Arial; font-size:9pt; line-height:1; vertical-align:middle; white-space:nowrap; padding:0 2px; overflow:hidden; max-height:20px; }
+
+  #fill-proyek, #fill-lokasi, #fill-periode,
+  #fill-nama, #fill-noreg, #fill-tglmasuk,
+  #fill-norek, #fill-bank, #fill-nohp, #fill-email {
+    font-size: 8pt;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    color: #000;
+  }
+
+  .tgl-empty   { color: #ccc !important; background: #fafafa !important; }
+  .tgl-weekend { color: #ff8800 !important; font-weight: bold !important; }
+
+  .panel {
+    height: 23vh;
+    background: #2c2c2c;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-content: start;
+    align-items: start;
+    justify-items: stretch;
+    gap: clamp(3px, 0.8vh, 10px) clamp(8px, 1.5vw, 20px);
+    padding: clamp(6px, 1vh, 14px) clamp(10px, 2vw, 24px);
+    overflow: hidden;
+  }
+
+  .panel-group {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(3px, 0.5vh, 8px);
+    width: 100%;
+  }
+
+  .panel-group label {
+    font-size: clamp(6px, 0.75vh, 10px);
+    font-weight: bold;
+    color: #6699cc;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+
+  .cdd {
+    position: relative;
+    width: 100%;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .cdd-disabled {
+    opacity: 0.3;
+    pointer-events: none;
+  }
+
+  .cdd-selected {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1.5px solid #445;
+    padding: clamp(3px, 0.5vh, 8px) 2px;
+    transition: border-color 0.2s;
+  }
+
+  .cdd:hover .cdd-selected,
+  .cdd.open .cdd-selected {
+    border-bottom-color: #6699cc;
+  }
+
+  /* CUSTOM ALERT */
+  #custom-alert {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999999;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+  #custom-alert.show {
+    display: flex;
+  }
+  #custom-alert-box {
+    background: #1e1e2e;
+    border: 1px solid #6699cc;
+    border-radius: 10px;
+    padding: 18px 28px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.7);
+    font-family: Arial, sans-serif;
+    font-size: 10pt;
+    color: #fff;
+    text-align: center;
+    max-width: 60vw;
+    animation: alertBlink 0.4s ease 0s 3 alternate;
+  }
+  @keyframes alertBlink {
+    from { opacity: 1; transform: scale(1); }
+    to   { opacity: 0.4; transform: scale(0.97); }
+  }
+
+  .cdd-text {
+    font-size: clamp(7px, 0.9vh, 11px);
+    color: #fff;
+    font-family: Arial, sans-serif;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 90%;
+  }
+
+  .cdd-arrow {
+    font-size: clamp(8px, 1vh, 12px);
+    color: #6699cc;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+
+  .cdd.open .cdd-arrow {
+    transform: rotate(180deg);
+  }
+
+  .cdd-list {
+    display: none;
+    position: fixed;
+    background: #1a1a2e;
+    border: 1px solid #445;
+    border-radius: 10px;
+    max-height: 35vh;
+    overflow-y: auto;
+    z-index: 99999;
+    box-shadow: 0 -8px 32px rgba(0,0,0,0.7);
+    scrollbar-width: thin;
+    scrollbar-color: #445 transparent;
+  }
+
+  .cdd-list::-webkit-scrollbar { width: 4px; }
+  .cdd-list::-webkit-scrollbar-thumb { background: #445; border-radius: 4px; }
+
+  .cdd.open .cdd-list {
+    display: block;
+    animation: cddFadeIn 0.15s ease;
+  }
+
+  @keyframes cddFadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .cdd-list-inner {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    padding: 4px;
+    background: #111;
+  }
+
+  .cdd-item {
+    padding: clamp(4px, 0.6vh, 8px) clamp(4px, 0.6vw, 8px);
+    font-size: clamp(7px, 0.85vh, 11px);
+    font-family: Arial, sans-serif;
+    color: #ccc;
+    cursor: pointer;
+    transition: background 0.1s, color 0.1s;
+    border-radius: 4px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .cdd-item:hover  { background: #6699cc33; color: #fff; }
+  .cdd-item.selected { color: #6699cc; font-weight: bold; background: #6699cc22; }
+
+  /* ================================================================
+     LOADING OVERLAY — selalu paling depan, blokir semua interaksi
+     ================================================================ */
+  .loading-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 99999999;        /* lebih tinggi dari modal (9999999) dan semua elemen */
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(3px);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 14px;
+    pointer-events: all;      /* blokir semua klik di bawahnya */
+    cursor: wait;
+  }
+
+  .loading-overlay.active {
+    display: flex;
+  }
+
+  .loading-overlay * {
+    pointer-events: none;     /* konten spinner tidak perlu menerima event */
+  }
+
+  .loading-spinner {
+    width: 42px;
+    height: 42px;
+    border: 3px solid #334;
+    border-top-color: #6699cc;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  .loading-text {
+    font-size: 11px;
+    color: #aac;
+    font-family: Arial, sans-serif;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .edit-group {
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+  }
+  .edit-label {
+    font-size:9px;
+    font-weight:bold;
+    color:#6699cc;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    font-family:Arial,sans-serif;
+  }
+  .edit-input {
+    background:#111827;
+    border:1px solid #445;
+    border-radius:5px;
+    color:#fff;
+    font-family:Arial,sans-serif;
+    font-size:10pt;
+    padding:6px 10px;
+    outline:none;
+    transition:border-color 0.2s;
+  }
+  .edit-input:focus {
+    border-color:#6699cc;
+  }
+  .edit-input::placeholder {
+    color:#555;
+  }
+
+  tr.sig-row { height: auto; }
+
+  @media print {
+    body { background: none; padding: 0; margin: 0; }
+    .page {
+      box-shadow: none;
+      width: 210mm;
+      min-width: 210mm;
+      min-height: 297mm;
+      padding: 6mm 8mm;
+      margin: 0;
+      transform: none !important;
+    }
+    .panel, #loading-overlay, #modal-overlay, #custom-alert { display: none !important; }
+  }
+  @page { size: A4 portrait; margin: 0; }

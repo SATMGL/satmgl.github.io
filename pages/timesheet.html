@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DATA ABSEN HARIAN LEMBUR - PT. BRAVO SATRIA PERKASA</title>
+<!-- dom-to-image + jsPDF for PDF generation -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<link rel="stylesheet" href="../css/timesheet.css">
+</head>
+<body>
+<div class="page">
+<div class="border-outer"></div>
+<div class="border-frame">
+<table class="waffle" cellspacing="0" cellpadding="0">
+  <colgroup>
+    <col class="cA"><col class="cB"><col class="cC"><col class="cD"><col class="cE">
+    <col class="cF"><col class="cG"><col class="cH"><col class="cI"><col class="cJ">
+    <col class="cK"><col class="cL"><col class="cM">
+  </colgroup>
+  <tbody>
+
+    <tr style="height:20px">
+      <td class="s0" colspan="13">DATA ABSEN HARIAN LEMBUR &amp; LATIHAN SECURITY</td>
+    </tr>
+    <tr style="height:20px">
+      <td class="s0" colspan="13">PT. BRAVO SATRIA PERKASA</td>
+    </tr>
+    <tr style="height:6px">
+      <td class="s1" colspan="13"></td>
+    </tr>
+
+    <tr style="height:25px">
+      <td class="s2">PROYEK</td>
+      <td class="s2" colspan="4" id="fill-proyek"></td>
+      <td class="s3"></td>
+      <td class="s2">NAMA</td>
+      <td class="s2" colspan="3" id="fill-nama"></td>
+      <td class="s4"></td>
+      <td class="s5"></td>
+      <td class="s6"></td>
+    </tr>
+    <tr style="height:25px">
+      <td class="s2">LOKASI</td>
+      <td class="s2" colspan="4" id="fill-lokasi"></td>
+      <td class="s3"></td>
+      <td class="s2">NO.REG</td>
+      <td class="s2" colspan="3" id="fill-noreg"></td>
+      <td class="s3"></td>
+      <td class="s2" style="overflow:visible;">TGL. MASUK</td>
+      <td class="s6" id="fill-tglmasuk"></td>
+    </tr>
+    <tr style="height:25px">
+      <td class="s2">PERIODE</td>
+      <td class="s9" colspan="4" id="fill-periode"></td>
+      <td class="s3"></td>
+      <td class="s2">NO. REK</td>
+      <td class="s2" colspan="3" id="fill-norek"></td>
+      <td class="s3"></td>
+      <td class="s2">BANK</td>
+      <td class="s6" id="fill-bank"></td>
+    </tr>
+    <tr style="height:25px">
+      <td class="s4"></td>
+      <td class="s4"></td>
+      <td class="s4"></td>
+      <td class="s4"></td>
+      <td class="s4"></td>
+      <td class="s3"></td>
+      <td class="s2">NO. HP</td>
+      <td class="s2" colspan="3" id="fill-nohp"></td>
+      <td class="s3"></td>
+      <td class="s2">EMAIL</td>
+      <td class="s6" id="fill-email"></td>
+    </tr>
+    <tr style="height:9px">
+      <td class="s1" colspan="13"></td>
+    </tr>
+
+    <tr style="height:20px">
+      <td class="s10" rowspan="3">TGL</td>
+      <td class="s10" colspan="2" rowspan="2">JAM KERJA</td>
+      <td class="s10" colspan="2" rowspan="2">JAM LEMBUR</td>
+      <td class="s10">JUMLAH</td>
+      <td class="s10" colspan="5">PERINCIAN LEMBUR</td>
+      <td class="s10">PARAF</td>
+      <td class="s11" rowspan="3">KETERANGAN LEMBUR</td>
+    </tr>
+    <tr style="height:20px">
+      <td class="s10">LEMBUR</td>
+      <td class="s10" colspan="2">RUTIN</td>
+      <td class="s10" colspan="3">KHUSUS</td>
+      <td class="s10">USER</td>
+    </tr>
+    <tr style="height:18px">
+      <td class="s10">MULAI</td>
+      <td class="s10">SELESAI</td>
+      <td class="s10">MULAI</td>
+      <td class="s10">SELESAI</td>
+      <td class="s10">(JAM)</td>
+      <td class="s10">I</td>
+      <td class="s10">II</td>
+      <td class="s10">II</td>
+      <td class="s10">III</td>
+      <td class="s10">IV</td>
+      <td class="s12"></td>
+    </tr>
+
+    <tr style="height:20px"><td class="s13" id="tgl-1"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+    <tr style="height:20px"><td class="s13" id="tgl-2"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+    <tr style="height:20px"><td class="s13" id="tgl-3"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+    <tr style="height:20px"><td class="s13" id="tgl-4"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+    <tr style="height:20px"><td class="s13" id="tgl-5"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+    <tr style="height:20px"><td class="s13" id="tgl-6"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+    <tr style="height:20px"><td class="s13" id="tgl-7"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+    <tr style="height:20px"><td class="s13" id="tgl-8"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+    <tr style="height:20px"><td class="s13" id="tgl-9"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+    <tr style="height:20px"><td class="s13" id="tgl-10"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+    <tr style="height:20px"><td class="s13" id="tgl-11"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+    <tr style="height:20px"><td class="s13" id="tgl-12"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+    <tr style="height:20px"><td class="s13" id="tgl-13"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+    <tr style="height:20px"><td class="s13" id="tgl-14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+    <tr style="height:20px"><td class="s13" id="tgl-15"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+    <tr style="height:20px"><td class="s13" id="tgl-16"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+    <tr style="height:20px"><td class="s13" id="tgl-17"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+    <tr style="height:20px"><td class="s13" id="tgl-18"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+    <tr style="height:20px"><td class="s13" id="tgl-19"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+    <tr style="height:20px"><td class="s13" id="tgl-20"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+    <tr style="height:20px"><td class="s13" id="tgl-21"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+    <tr style="height:20px"><td class="s13" id="tgl-22"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+    <tr style="height:20px"><td class="s13" id="tgl-23"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+    <tr style="height:20px"><td class="s13" id="tgl-24"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+    <tr style="height:20px"><td class="s13" id="tgl-25"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+    <tr style="height:20px"><td class="s13" id="tgl-26"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+    <tr style="height:20px"><td class="s13" id="tgl-27"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+    <tr style="height:20px"><td class="s13" id="tgl-28"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+    <tr style="height:20px"><td class="s13" id="tgl-29"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+    <tr style="height:20px"><td class="s13" id="tgl-30"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+    <tr style="height:20px"><td class="s16" id="tgl-31"></td><td class="s16b"></td><td class="s16b"></td><td class="s16b"></td><td class="s16b"></td><td class="s16b"></td><td class="s16b"></td><td class="s16b"></td><td class="s16b"></td><td class="s16b"></td><td class="s16b"></td><td class="s16b"></td><td class="s17"></td></tr>
+
+    <tr style="height:18px">
+      <td class="s13-summary" colspan="4">JUMLAH HARI KERJA</td>
+      <td class="s18" id="fill-harikerja">0</td>
+      <td class="s19">Hari</td>
+      <td class="s20">&nbsp;X1,5</td>
+      <td class="s20">&nbsp;X2&nbsp;</td>
+      <td class="s20">X 2</td>
+      <td class="s20">X3</td>
+      <td class="s20">X4</td>
+      <td class="s19"></td>
+      <td class="s21" rowspan="2"></td>
+    </tr>
+    <tr style="height:20px">
+      <td class="s22" colspan="6">JUMLAH JAM LEMBUR</td>
+      <td class="s23">&nbsp;jam</td>
+      <td class="s23">&nbsp;jam</td>
+      <td class="s23">jam</td>
+      <td class="s23">jam</td>
+      <td class="s23">jam</td>
+      <td class="s23last">&nbsp;</td>
+    </tr>
+
+    <tr style="height:9px">
+      <td class="s24-spacer3" colspan="13"></td>
+    </tr>
+    <tr style="height:16px">
+      <td class="s25" colspan="13">1. Data absen harian ini diisi secara harian sesuai aktivitas kerjanya dengan lengkap, sesuai kolom yang telah disediakan.</td>
+    </tr>
+    <tr style="height:16px">
+      <td class="s25last" colspan="13">2. Anggota wajib memintakan paraf user untuk diisi sesuai aktivitas kerjanya pada kolom yang tersedia.</td>
+    </tr>
+    <tr style="height:25px">
+      <td class="s26" colspan="2">DIBUAT</td>
+      <td class="s26" colspan="3">MENYETUJUI</td>
+      <td class="s26" colspan="2">MENGETAHUI</td>
+      <td class="s27" rowspan="7"></td>
+      <td class="s26last" colspan="5">KODE CABANG</td>
+    </tr>
+    <tr class="sig-row" style="height:25px">
+      <td class="s29" colspan="7" rowspan="5" style="position:relative; padding:0;">
+        <div style="position:absolute; bottom:4px; left:4px;" id="fill-security-nama"></div>
+      </td>
+      <td class="s26last" colspan="5">(cost center penanggung biaya)</td>
+    </tr>
+    <tr style="height:25px">
+      <td class="s30" colspan="5"></td>
+    </tr>
+    <tr style="height:25px">
+      <td class="s26last" colspan="5">KONTAK CABANG</td>
+    </tr>
+    <tr style="height:25px">
+      <td class="s31">NAMA</td>
+      <td class="s30" colspan="4"></td>
+    </tr>
+    <tr style="height:25px">
+      <td class="s31last">TELP</td>
+      <td class="s30last" colspan="4"></td>
+    </tr>
+    <tr style="height:25px">
+      <td class="s32" colspan="2">SECURITY</td>
+      <td class="s32" colspan="3">CABANG /USER&nbsp;</td>
+      <td class="s32" colspan="2">PT. BSP</td>
+      <td class="s33">FAX</td>
+      <td class="s34" colspan="5"></td>
+    </tr>
+
+  </tbody>
+</table>
+</div>
+</div>
+
+<div class="loading-overlay" id="loading-overlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Memuat data...</div>
+</div>
+
+<div class="panel" id="panel">
+  <div class="panel-group">
+    <label>Periode</label>
+    <div class="cdd" id="cdd-periode">
+      <div class="cdd-selected"><span class="cdd-text">— Pilih —</span><span class="cdd-arrow">&#9662;</span></div>
+      <div class="cdd-list"></div>
+    </div>
+    <button id="btn-pdf" onclick="downloadPDF()" style="
+      margin-top:6px;
+      width:100%;
+      padding:5px 0;
+      background:#e74c3c;
+      color:#fff;
+      border:none;
+      border-radius:4px;
+      font-size:clamp(7px,0.85vh,11px);
+      font-family:Arial,sans-serif;
+      font-weight:bold;
+      letter-spacing:1px;
+      cursor:pointer;
+      opacity:0.5;
+      pointer-events:none;
+      transition:opacity 0.2s;
+    ">⬇ PDF</button>
+  </div>
+  <div class="panel-group">
+    <label>Unit</label>
+    <div class="cdd" id="cdd-unit">
+      <div class="cdd-selected"><span class="cdd-text">— Pilih Unit —</span><span class="cdd-arrow">&#9662;</span></div>
+      <div class="cdd-list"></div>
+    </div>
+    <button id="btn-print" onclick="cetakForm()" style="
+      margin-top:6px;
+      width:100%;
+      padding:5px 0;
+      background:#27ae60;
+      color:#fff;
+      border:none;
+      border-radius:4px;
+      font-size:clamp(7px,0.85vh,11px);
+      font-family:Arial,sans-serif;
+      font-weight:bold;
+      letter-spacing:1px;
+      cursor:pointer;
+      opacity:0.5;
+      pointer-events:none;
+      transition:opacity 0.2s;
+    ">🖨 CETAK</button>
+  </div>
+  <div class="panel-group">
+    <label>Nama</label>
+    <div class="cdd cdd-disabled" id="cdd-nama">
+      <div class="cdd-selected"><span class="cdd-text">— Pilih Nama —</span><span class="cdd-arrow">&#9662;</span></div>
+      <div class="cdd-list"></div>
+    </div>
+    <button id="btn-edit-data" onclick="openEditModal()" style="
+      margin-top:6px;
+      width:100%;
+      padding:5px 0;
+      background:#6699cc;
+      color:#fff;
+      border:none;
+      border-radius:4px;
+      font-size:clamp(7px,0.85vh,11px);
+      font-family:Arial,sans-serif;
+      font-weight:bold;
+      letter-spacing:1px;
+      cursor:pointer;
+      opacity:0.5;
+      pointer-events:none;
+      transition:opacity 0.2s;
+    ">✏ EDIT DATA</button>
+  </div>
+  <!-- Baris 2: KEMBALI | (kosong) | ADMIN MODE -->
+  <div class="panel-group">
+    <button onclick="kembali()" style="
+      width:100%;
+      padding:5px 0;
+      background:#444;
+      color:#fff;
+      border:none;
+      border-radius:4px;
+      font-size:clamp(7px,0.85vh,11px);
+      font-family:Arial,sans-serif;
+      font-weight:bold;
+      letter-spacing:1px;
+      cursor:pointer;
+    ">◀ KEMBALI</button>
+  </div>
+  <div class="panel-group"></div>
+  <div class="panel-group">
+    <button onclick="adminMode()" style="
+      width:100%;
+      padding:5px 0;
+      background:#8e44ad;
+      color:#fff;
+      border:none;
+      border-radius:4px;
+      font-size:clamp(7px,0.85vh,11px);
+      font-family:Arial,sans-serif;
+      font-weight:bold;
+      letter-spacing:1px;
+      cursor:pointer;
+    ">⚙ ADMIN MODE</button>
+    <button id="btn-admin-menu" onclick="toggleAdminPanel()" style="
+      display:none;
+      margin-top:4px;
+      width:100%;
+      padding:5px 0;
+      background:#2c2c3e;
+      color:#aaa;
+      border:1px solid #445;
+      border-radius:4px;
+      font-size:16px;
+      font-family:Arial,sans-serif;
+      cursor:pointer;
+      letter-spacing:4px;
+      transition:all 0.2s;
+    ">⋮</button>
+  </div>
+</div>
+
+<!-- MODAL ADMIN MODE -->
+<div id="modal-admin" style="
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:9999999;
+  background:rgba(0,0,0,0.7);
+  align-items:center;
+  justify-content:center;
+">
+  <div style="
+    width:320px;
+    background:#1e1e2e;
+    border-radius:10px;
+    box-shadow:0 8px 32px rgba(0,0,0,0.8);
+    overflow:hidden;
+    font-family:Arial,sans-serif;
+  ">
+    <div style="padding:14px 18px;background:#2c2c3e;border-bottom:1px solid #445;display:flex;align-items:center;justify-content:space-between;">
+      <span style="color:#8e44ad;font-weight:bold;font-size:11pt;letter-spacing:1px;">⚙ ADMIN MODE</span>
+      <button onclick="closeAdminModal()" style="background:none;border:none;color:#aaa;font-size:18px;cursor:pointer;padding:0 4px;">&times;</button>
+    </div>
+    <div style="padding:20px 18px;">
+      <label style="font-size:9px;font-weight:bold;color:#8e44ad;letter-spacing:1px;display:block;margin-bottom:6px;">PASSWORD</label>
+      <input id="admin-password-input" type="password" placeholder="Masukkan password..."
+        onkeydown="if(event.key==='Enter')verifyAdminPassword()"
+        oninput="_adminInputEffect(this)"
+        onfocus="_adminInputFocus(this,true)"
+        onblur="_adminInputFocus(this,false)"
+        style="
+          width:100%;
+          box-sizing:border-box;
+          background:#111827;
+          border:2px solid #445;
+          border-radius:5px;
+          color:#fff;
+          font-family:Arial,sans-serif;
+          font-size:10pt;
+          padding:8px 10px;
+          outline:none;
+          transition:border-color 0.2s,box-shadow 0.2s;
+        ">
+      <div id="admin-error" style="color:#e74c3c;font-size:8pt;margin-top:6px;display:none;animation:adminShake 0.4s ease;">Password salah.</div>
+    </div>
+    <div style="padding:10px 18px 14px;display:flex;justify-content:flex-end;gap:10px;">
+      <button onclick="closeAdminModal()"
+        onmousedown="this.style.transform='scale(0.95)'" onmouseup="this.style.transform=''"
+        style="padding:7px 16px;background:transparent;border:1px solid #445;color:#aaa;border-radius:5px;font-family:Arial;font-size:9pt;cursor:pointer;transition:background 0.15s,color 0.15s;"
+        onmouseover="this.style.background='#445';this.style.color='#fff'"
+        onmouseout="this.style.background='transparent';this.style.color='#aaa'">BATAL</button>
+      <button id="btn-masuk-admin" onclick="verifyAdminPassword()"
+        onmousedown="this.style.transform='scale(0.95)'" onmouseup="this.style.transform=''"
+        style="padding:7px 16px;background:#8e44ad;border:none;color:#fff;border-radius:5px;font-family:Arial;font-size:9pt;font-weight:bold;cursor:pointer;transition:background 0.15s,transform 0.1s;letter-spacing:0.5px;"
+        onmouseover="this.style.background='#a55dc8'"
+        onmouseout="this.style.background='#8e44ad'">MASUK</button>
+    </div>
+    <style>
+      @keyframes adminShake {
+        0%,100%{transform:translateX(0)}
+        20%{transform:translateX(-6px)}
+        40%{transform:translateX(6px)}
+        60%{transform:translateX(-4px)}
+        80%{transform:translateX(4px)}
+      }
+      @keyframes adminSuccess {
+        0%{background:#8e44ad}
+        50%{background:#27ae60;transform:scale(1.05)}
+        100%{background:#27ae60}
+      }
+    </style>
+  </div>
+</div>
+
+<!-- MODAL EDIT DATA -->
+<div id="modal-overlay" style="
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:999999;
+  background:rgba(0,0,0,0.6);
+  align-items:center;
+  justify-content:center;
+">
+  <div id="modal-box" style="
+    width:635px;
+    height:50vh;
+    background:#1e1e2e;
+    border-radius:10px;
+    box-shadow:0 8px 32px rgba(0,0,0,0.7);
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    position:relative;
+  ">
+    <!-- Header -->
+    <div style="
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:12px 18px;
+      background:#2c2c3e;
+      border-bottom:1px solid #445;
+      flex-shrink:0;
+    ">
+      <span style="color:#6699cc;font-weight:bold;font-family:Arial;font-size:11pt;letter-spacing:1px;">EDIT DATA PERSONIL</span>
+      <button onclick="closeEditModal()" style="
+        background:none;
+        border:none;
+        color:#aaa;
+        font-size:18px;
+        cursor:pointer;
+        line-height:1;
+        padding:0 4px;
+      ">&times;</button>
+    </div>
+    <!-- Body -->
+    <div style="
+      flex:1;
+      overflow-y:auto;
+      padding:16px 20px;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px 24px;
+      align-content:start;
+    ">
+      <div class="edit-group">
+        <label class="edit-label">NO. REG</label>
+        <input class="edit-input" id="edit-noreg" type="text" placeholder="No. Registrasi">
+      </div>
+      <div class="edit-group">
+        <label class="edit-label">TGL. MASUK</label>
+        <input class="edit-input" id="edit-tglmasuk" type="text" placeholder="cth: 1 JANUARI 2020">
+      </div>
+      <div class="edit-group">
+        <label class="edit-label">NO. REKENING</label>
+        <input class="edit-input" id="edit-norek" type="text" placeholder="No. Rekening">
+      </div>
+      <div class="edit-group">
+        <label class="edit-label">BANK</label>
+        <input class="edit-input" id="edit-bank" type="text" placeholder="Nama Bank">
+      </div>
+      <div class="edit-group">
+        <label class="edit-label">NO. HP</label>
+        <input class="edit-input" id="edit-nohp" type="text" placeholder="No. HP">
+      </div>
+      <div class="edit-group">
+        <label class="edit-label">EMAIL</label>
+        <input class="edit-input" id="edit-email" type="text" placeholder="Alamat Email">
+      </div>
+    </div>
+    <!-- Footer -->
+    <div style="
+      padding:10px 20px;
+      background:#2c2c3e;
+      border-top:1px solid #445;
+      display:flex;
+      justify-content:flex-end;
+      gap:10px;
+      flex-shrink:0;
+    ">
+      <button onclick="closeEditModal()" style="
+        padding:7px 20px;
+        background:transparent;
+        border:1px solid #445;
+        color:#aaa;
+        border-radius:5px;
+        font-family:Arial;
+        font-size:9pt;
+        cursor:pointer;
+      ">BATAL</button>
+      <button onclick="applyEditData()" style="
+        padding:7px 20px;
+        background:#6699cc;
+        border:none;
+        color:#fff;
+        border-radius:5px;
+        font-family:Arial;
+        font-size:9pt;
+        font-weight:bold;
+        cursor:pointer;
+      ">TERAPKAN &amp; SIMPAN</button>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ PANEL ADMIN — lebar & posisi dikontrol penuh oleh _positionAdminPanel() di JS -->
+<div id="admin-panel" style="
+  position:fixed;
+  bottom:0;
+  right:-100vw;
+  width:794px;
+  height:50vh;
+  background:#1e1e2e;
+  box-shadow:-4px 0 24px rgba(0,0,0,0.5);
+  z-index:999998;
+  display:flex;
+  flex-direction:column;
+  transition:right 0.35s cubic-bezier(0.4,0,0.2,1);
+  font-family:Arial,sans-serif;
+  border-radius:12px 0 0 0;
+  overflow:hidden;
+">
+  <!-- Header -->
+  <div style="padding:12px 16px;background:#2c2c3e;border-bottom:1px solid #445;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+    <span style="color:#8e44ad;font-weight:bold;font-size:10pt;letter-spacing:1px;">📋 DAFTAR CETAK</span>
+    <button onclick="toggleAdminPanel()" style="background:none;border:none;color:#aaa;font-size:18px;cursor:pointer;">&times;</button>
+  </div>
+  <!-- Filter Unit -->
+  <div style="padding:10px 14px;border-bottom:1px solid #2a2a3e;flex-shrink:0;">
+    <label style="font-size:8px;color:#8e44ad;font-weight:bold;letter-spacing:1px;display:block;margin-bottom:4px;">UNIT</label>
+    <select id="admin-unit-select" onchange="loadAdminNama()" style="
+      width:100%;background:#111827;border:1px solid #445;border-radius:5px;
+      color:#fff;font-family:Arial;font-size:9pt;padding:5px 8px;outline:none;
+    ">
+      <option value="">— Pilih Unit —</option>
+    </select>
+  </div>
+  <!-- Daftar nama terpilih -->
+  <div style="flex:1;overflow-y:auto;padding:10px 14px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <label style="font-size:8px;color:#6699cc;font-weight:bold;letter-spacing:1px;">NAMA</label>
+      <button onclick="pilihSemuaNama()" style="font-size:8px;background:none;border:none;color:#6699cc;cursor:pointer;text-decoration:underline;">PILIH SEMUA</button>
+    </div>
+    <div id="admin-nama-list" style="display:flex;flex-direction:column;gap:5px;"></div>
+  </div>
+  <!-- Daftar terpilih -->
+  <div style="padding:8px 14px;border-top:1px solid #2a2a3e;flex-shrink:0;">
+    <div style="font-size:8px;color:#aaa;font-weight:bold;letter-spacing:1px;margin-bottom:4px;">TERPILIH: <span id="admin-count">0</span> orang</div>
+    <div id="admin-selected-tags" style="display:flex;flex-wrap:wrap;gap:4px;max-height:50px;overflow-y:auto;"></div>
+  </div>
+  <!-- Tombol aksi -->
+  <div style="padding:10px 14px;background:#2c2c3e;border-top:1px solid #445;display:flex;gap:8px;flex-shrink:0;">
+    <button onclick="adminDownloadPDF()" style="flex:1;padding:7px 0;background:#e74c3c;color:#fff;border:none;border-radius:5px;font-family:Arial;font-size:8pt;font-weight:bold;cursor:pointer;">⬇ PDF</button>
+    <button onclick="adminCetak()" style="flex:1;padding:7px 0;background:#27ae60;color:#fff;border:none;border-radius:5px;font-family:Arial;font-size:8pt;font-weight:bold;cursor:pointer;">🖨 CETAK</button>
+    <button onclick="simpanDaftarCetak()" style="flex:1;padding:7px 0;background:#6699cc;color:#fff;border:none;border-radius:5px;font-family:Arial;font-size:8pt;font-weight:bold;cursor:pointer;">💾 SIMPAN</button>
+  </div>
+</div>
+
+<div id="custom-alert">
+  <div id="custom-alert-box"></div>
+</div>
+
+<!-- ✅ timesheet.js dulu, lalu timesheetDC.js -->
+<script src="../js/timesheet.js"></script>
+<script src="../js/timesheetDC.js"></script>
+
+</body>
+</html>

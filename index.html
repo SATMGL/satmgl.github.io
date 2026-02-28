@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>SATPAM MAGELANG</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4846256718164486" crossorigin="anonymous"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #f7f9ff, #eef3ff);
+  color: #2b2f4b;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  padding: clamp(12px, 3vh, 28px) 20px;
+  text-align: center;
+  background: linear-gradient(120deg, #5f7cff, #8aa6ff, #ff9acb);
+  color: white;
+  flex-shrink: 0;
+}
+
+header h1 {
+  font-size: clamp(16px, 2.5vh, 26px);
+  font-weight: 600;
+}
+
+header p {
+  margin-top: 4px;
+  font-size: clamp(11px, 1.6vh, 14px);
+  opacity: 0.95;
+}
+
+.menu {
+  flex: 1;
+  padding: clamp(12px, 2vh, 28px) clamp(12px, 3vw, 25px);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: clamp(10px, 1.8vh, 22px);
+  align-content: center;
+}
+
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: clamp(14px, 2.2vh, 26px) 16px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: clamp(11px, 1.5vh, 14px);
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 30px rgba(0,0,0,0.12);
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent, rgba(0,0,0,0.05), transparent);
+  opacity: 0;
+  transition: .3s;
+}
+.card:hover::before { opacity: 1; }
+
+.kerja     { color: #3f51b5; }
+.absensi   { color: #009688; }
+.backup    { color: #ff7043; }
+.timesheet { color: #8e24aa; }
+.personil  { color: #2e7d32; }
+
+.admin-wrap {
+  padding: clamp(6px, 1vh, 14px) 25px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.admin {
+  display: inline-block;
+  background: white;
+  padding: clamp(8px, 1.2vh, 14px) 24px;
+  border-radius: 12px;
+  font-size: clamp(11px, 1.4vh, 13px);
+  font-weight: 600;
+  text-decoration: none;
+  color: #d81b60;
+  box-shadow: 0 5px 14px rgba(0,0,0,0.08);
+  transition: 0.3s;
+}
+.admin:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 22px rgba(0,0,0,0.12);
+}
+
+footer {
+  text-align: center;
+  padding: clamp(6px, 1vh, 12px) 16px;
+  font-size: clamp(10px, 1.2vh, 12px);
+  color: #777;
+  flex-shrink: 0;
+}
+
+.ads-wrapper {
+  padding: 0 20px clamp(4px, 0.8vh, 8px);
+  flex-shrink: 0;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Selamat Datang</h1>
+  <p>Manajemen Jadwal & Manajemen Personil</p>
+</header>
+
+<section class="menu">
+  <a href="pages/jadwal-kerja.html"     class="card kerja">JADWAL PELAKSANAAN KERJA</a>
+  <a href="pages/jadwal-absensi.html"   class="card absensi">JADWAL PENGIRIMAN ABSENSI</a>
+  <a href="pages/database.html"         class="card personil">DATA PERSONIL</a>
+  <a href="pages/backup-personil.html"  class="card backup">FORM PERSONIL BACKUP</a>
+  <a href="pages/timesheet.html"        class="card timesheet">TIMESHEET MAKER</a>
+</section>
+
+<div class="admin-wrap">
+  <a href="pages/hubungi-admin.html" class="admin">HUBUNGI ADMIN</a>
+</div>
+
+<footer>© 2026 "Langkah kecil hari ini adalah kemenangan besar di masa depan"</footer>
+
+<!-- IKLAN DI FOOTER -->
+<div class="ads-wrapper">
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-4846256718164486"
+       data-ad-slot="ISI_DENGAN_AD_SLOT"
+       data-ad-format="horizontal"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+
+</body>
+</html>

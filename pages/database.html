@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Database Personil</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="stylesheet" href="../css/database.css">
+</head>
+<body>
+<header>
+  <a href="../index.html" class="back-btn">← Kembali</a>
+  <h1>📊 Database Personil</h1>
+</header>
+
+<div class="container">
+  <div class="control-panel">
+    <div class="button-group">
+      <select class="filter-select" id="unitFilter" onchange="filterByUnit()">
+        <option value="">🔍 Filter Unit Kerja</option>
+        <option value="AKMIL">AKMIL</option>
+        <option value="BANDONGAN">BANDONGAN</option>
+        <option value="BOROBUDUR">BOROBUDUR</option>
+        <option value="BOTTON">BOTTON</option>
+        <option value="CANDIMULYO">CANDIMULYO</option>
+        <option value="GLAGAH">GLAGAH</option>
+        <option value="GRABAG">GRABAG</option>
+        <option value="KAJORAN">KAJORAN</option>
+        <option value="KALIANGKRIK">KALIANGKRIK</option>
+        <option value="KARANGGADING">KARANGGADING</option>
+        <option value="KC MAGELANG">KC MAGELANG</option>
+        <option value="KCP SHOPPING">KCP SHOPPING</option>
+        <option value="KRASAK">KRASAK</option>
+        <option value="MAGELANG SELATAN">MAGELANG SELATAN</option>
+        <option value="MAGELANG UTARA">MAGELANG UTARA</option>
+        <option value="MERTOYUDAN">MERTOYUDAN</option>
+        <option value="NGABLAK">NGABLAK</option>
+        <option value="PAKIS">PAKIS</option>
+        <option value="PAYAMAN">PAYAMAN</option>
+        <option value="REJOWINANGUN">REJOWINANGUN</option>
+        <option value="SALAMAN">SALAMAN</option>
+        <option value="SECANG">SECANG</option>
+        <option value="SUKARNO HATTA">SUKARNO HATTA</option>
+        <option value="TEGALREJO">TEGALREJO</option>
+        <option value="TEMPURAN">TEMPURAN</option>
+        <option value="WINDUSARI">WINDUSARI</option>
+      </select>
+      
+      <button class="btn btn-primary" onclick="showAllUnits()">📋 Lihat Semua</button>
+      <button class="btn btn-success" onclick="resetView()">🔄 Reset</button>
+      <a href="data-personil.html" class="btn btn-secondary">➕ Tambah / Ubah Data</a>
+    </div>
+  </div>
+</div>
+
+<div class="content-area" id="contentArea">
+  <div class="grid-container">
+    <!-- Skeleton Loading -->
+    <div class="unit-card skeleton-card">
+      <div class="unit-card-header skeleton-shimmer">
+        <div class="skeleton-text" style="width: 60%; margin: 0 auto;"></div>
+      </div>
+      <div class="unit-card-body">
+        <div class="skeleton-text" style="width: 80%; margin-bottom: 10px;"></div>
+        <div class="skeleton-text" style="width: 90%; margin-bottom: 10px;"></div>
+        <div class="skeleton-text" style="width: 75%; margin-bottom: 10px;"></div>
+        <div class="skeleton-text" style="width: 85%; margin-bottom: 10px;"></div>
+      </div>
+    </div>
+    <div class="unit-card skeleton-card">
+      <div class="unit-card-header skeleton-shimmer">
+        <div class="skeleton-text" style="width: 60%; margin: 0 auto;"></div>
+      </div>
+      <div class="unit-card-body">
+        <div class="skeleton-text" style="width: 85%; margin-bottom: 10px;"></div>
+        <div class="skeleton-text" style="width: 70%; margin-bottom: 10px;"></div>
+        <div class="skeleton-text" style="width: 90%; margin-bottom: 10px;"></div>
+        <div class="skeleton-text" style="width: 75%; margin-bottom: 10px;"></div>
+      </div>
+    </div>
+    <div class="unit-card skeleton-card">
+      <div class="unit-card-header skeleton-shimmer">
+        <div class="skeleton-text" style="width: 60%; margin: 0 auto;"></div>
+      </div>
+      <div class="unit-card-body">
+        <div class="skeleton-text" style="width: 90%; margin-bottom: 10px;"></div>
+        <div class="skeleton-text" style="width: 70%; margin-bottom: 10px;"></div>
+        <div class="skeleton-text" style="width: 85%; margin-bottom: 10px;"></div>
+        <div class="skeleton-text" style="width: 80%; margin-bottom: 10px;"></div>
+      </div>
+    </div>
+    <div class="unit-card skeleton-card">
+      <div class="unit-card-header skeleton-shimmer">
+        <div class="skeleton-text" style="width: 60%; margin: 0 auto;"></div>
+      </div>
+      <div class="unit-card-body">
+        <div class="skeleton-text" style="width: 75%; margin-bottom: 10px;"></div>
+        <div class="skeleton-text" style="width: 90%; margin-bottom: 10px;"></div>
+        <div class="skeleton-text" style="width: 80%; margin-bottom: 10px;"></div>
+        <div class="skeleton-text" style="width: 85%; margin-bottom: 10px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Detail Personil -->
+<div id="detailModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Detail Personil</h2>
+      <span class="close" onclick="closeModal()">&times;</span>
+    </div>
+    <div class="modal-body" id="modalBody">
+      <!-- Content will be inserted by JavaScript -->
+    </div>
+  </div>
+</div>
+
+<!-- Modal Perbandingan Foto -->
+<div id="photoComparisonModal" class="modal-comparison" style="display: none;">
+  <div class="modal-comparison-content">
+    <div class="modal-comparison-header">
+      <h2>📸 Perbandingan Foto</h2>
+      <span class="close" onclick="closePhotoComparisonModal()">&times;</span>
+    </div>
+    <div class="modal-comparison-body">
+      <div class="photo-comparison-grid">
+        <div class="photo-compare-box">
+          <div class="photo-label-top">FOTO LAMA</div>
+          <img id="photoOldModal" class="photo-compare-img" alt="Foto Lama">
+        </div>
+        <div class="photo-compare-arrow">
+          <div class="arrow-icon">→</div>
+          <div class="arrow-text">Akan Diganti</div>
+        </div>
+        <div class="photo-compare-box photo-compare-box-new">
+          <img id="photoNewModal" class="photo-compare-img" alt="Foto Baru">
+          <div class="photo-label-bottom">FOTO BARU</div>
+        </div>
+      </div>
+      <div class="comparison-actions">
+        <button class="btn-comparison btn-cancel" onclick="cancelPhotoChangeModal()">❌ Batalkan</button>
+        <button class="btn-comparison btn-confirm" onclick="confirmPhotoChangeModal()">✅ Gunakan Foto Baru</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div id="confirmModal" class="confirm-modal">
+  <div class="confirm-modal-content">
+    <div class="confirm-modal-header">
+      <div class="confirm-modal-icon">📸</div>
+      <h3 class="confirm-modal-title">Request Cetak ID Card</h3>
+    </div>
+    <div class="confirm-modal-body">
+      <p class="confirm-modal-message">Apakah Anda yakin ingin menambahkan personil ini ke daftar request cetak ID Card?</p>
+      <div class="confirm-modal-personil">
+        <div class="confirm-modal-personil-name" id="confirmPersonilName">-</div>
+        <div class="confirm-modal-personil-unit" id="confirmPersonilUnit">-</div>
+      </div>
+      <p class="confirm-modal-message" style="font-size: 13px; color: #999;">Foto akan di-copy ke folder REQ_CETAK</p>
+      <div class="confirm-modal-buttons">
+        <button class="btn-confirm btn-confirm-no" onclick="closeConfirmModal()">Batal</button>
+        <button class="btn-confirm btn-confirm-yes" onclick="confirmRequestIdCard()">Ya, Request</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="toast">
+  <div class="toast-icon" id="toastIcon">✓</div>
+  <div class="toast-message" id="toastMessage">Success</div>
+</div>
+
+<!-- Info Modal (for duplicate/warning messages) -->
+<div id="infoModal" class="confirm-modal">
+  <div class="confirm-modal-content">
+    <div class="confirm-modal-header" id="infoModalHeader" style="background: linear-gradient(120deg, #ff9800, #ffa726);">
+      <div class="confirm-modal-icon" id="infoModalIcon">⚠️</div>
+      <h3 class="confirm-modal-title" id="infoModalTitle">Informasi</h3>
+    </div>
+    <div class="confirm-modal-body">
+      <p class="confirm-modal-message" id="infoModalMessage">-</p>
+      <div style="margin-top: 20px;">
+        <button class="btn-confirm btn-confirm-yes" onclick="closeInfoModal()" style="width: 100%;">OK, Mengerti</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>© 2026 Database Personil - BRI Magelang</p>
+  <button id="adminToggle" class="admin-toggle" onclick="toggleAdminMode()" title="Admin Mode">🔒</button>
+</footer>
+
+<script src="../js/database.js"></script>
+
+</body>
+</html>

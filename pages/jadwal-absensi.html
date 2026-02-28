@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Jadwal Pengiriman Absensi</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <link rel="stylesheet" href="../css/jadwal-absensi.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxgw52KWciMrHdI4_49CRDnlE7Vu0lz2RwGFDoHBC-aEBbkBegolNF3DQEHGehW-sdL/exec';
+    const MODE    = 'PEN';
+  </script>
+</head>
+<body>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay" style="display:none;">
+  <div class="loading-spinner">
+    <div class="spinner-core"></div>
+  </div>
+  <span class="loading-text">Memuat data</span>
+  <span class="loading-subtitle">Sedang mengambil jadwal absensi Anda...</span>
+</div>
+
+<!-- Error Toast -->
+<div id="errorToast" class="error-toast"></div>
+
+<header>
+  <h1>📅 Jadwal Pengiriman Absensi</h1>
+</header>
+
+<div class="control">
+  <h2>Pilih Periode dan Unit Kerja</h2>
+  <div class="dropdowns">
+
+    <!-- Picker Bulan -->
+    <div class="dropdown-item">
+      <div class="picker-wrap" id="bulanWrap">
+        <button id="bulanBtn" class="picker-btn" onclick="toggleBulanPanel()">
+          <span class="picker-icon">📅</span>
+          <span id="bulanLabel" class="picker-label placeholder">Pilih Bulan</span>
+          <span class="picker-arrow">▾</span>
+        </button>
+
+        <!-- Panel Bulan -->
+        <div id="bulanPanel" class="dropdown-panel">
+          <div class="dropdown-panel-header">
+            <span>📅 Periode</span>
+            <button class="panel-close-btn" onclick="closeBulanPanel()">✕</button>
+          </div>
+          <div id="bulanList" class="bulan-list">
+            <div class="sheet-loading">Memuat bulan...</div>
+          </div>
+        </div>
+      </div>
+      <button id="resetBulanBtn" class="reset-btn" style="display:none;" onclick="resetBulan()">✕</button>
+    </div>
+
+    <!-- Picker Unit -->
+    <div class="dropdown-item">
+      <div class="picker-wrap" id="unitWrap">
+        <button id="unitBtn" class="picker-btn" disabled onclick="toggleUnitPanel()">
+          <span class="picker-icon">🏦</span>
+          <span id="unitLabel" class="picker-label placeholder">Pilih Unit</span>
+          <span class="picker-arrow">▾</span>
+        </button>
+
+        <!-- Panel Unit -->
+        <div id="unitPanel" class="dropdown-panel unit-panel">
+          <div class="dropdown-panel-header">
+            <span>🏦 Unit Kerja</span>
+            <button class="panel-close-btn" onclick="closeUnitPanel()">✕</button>
+          </div>
+          <div class="unit-search-wrap">
+            <input id="unitSearchInput" class="unit-search" type="text"
+              placeholder="🔍 Cari unit..."
+              oninput="filterUnitList(this.value)">
+          </div>
+          <div id="unitGrid" class="unit-grid"></div>
+        </div>
+      </div>
+      <button id="resetUnitBtn" class="reset-btn" style="display:none;" onclick="resetUnit()">✕</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Backdrop: klik di luar untuk tutup panel -->
+<div id="dropdownBackdrop" class="dropdown-backdrop" onclick="closeAllPanels()"></div>
+
+<!-- Hidden selects untuk kompatibilitas logika JS -->
+<select id="bulanSelect" style="display:none;"></select>
+<select id="unitSelect"  style="display:none;" disabled></select>
+
+<p class="keterangan">Silakan pilih bulan dan unit kerja</p>
+
+<main>
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table>
+        <colgroup>
+          <col class="col-nama">
+        </colgroup>
+        <thead id="tableThead"></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<!-- Edit + Undo Section -->
+<div class="edit-section" id="editSection" style="display:none;">
+  <div class="edit-action-bar">
+
+    <!-- Tombol Undo (muncul saat edit mode) -->
+    <button class="btn-action btn-undo-action" data-action="undo"
+      id="undoBtn" onclick="doUndo()" disabled style="display:none;">
+      <span class="btn-icon">↩️</span>
+      <span class="btn-text">Undo</span>
+      <span class="undo-badge" id="undoCount"></span>
+    </button>
+
+    <!-- Tombol Batal (muncul saat edit mode) -->
+    <button class="btn-action btn-cancel-action"
+      id="cancelBtn" onclick="cancelEdit()" style="display:none;">
+      <span class="btn-icon">✕</span>
+      <span class="btn-text">Batal</span>
+    </button>
+
+    <!-- Tombol Edit Jadwal -->
+    <button id="editBtn" class="btn-action btn-edit" onclick="toggleEditMode()">
+      <span class="btn-icon">✏️</span>
+      <span class="btn-text">Edit Jadwal</span>
+    </button>
+
+    <!-- Tombol Redo (muncul saat edit mode) -->
+    <button class="btn-action btn-redo-action" data-action="redo"
+      id="redoBtn" onclick="doRedo()" disabled style="display:none;">
+      <span class="btn-icon">↪️</span>
+      <span class="btn-text">Redo</span>
+      <span class="undo-badge" id="redoCount"></span>
+    </button>
+
+
+  </div>
+</div>
+
+<!-- Tombol Download -->
+<div class="download" id="downloadSection" style="display:none;">
+  <button id="downloadBtn" class="btn-action btn-download">
+    <span class="btn-icon">⬇️</span>
+    <span class="btn-text">Download Jadwal</span>
+  </button>
+</div>
+
+<!-- Save Status Indicator -->
+<div id="saveStatusIndicator"></div>
+
+<footer>
+  <p>© 2026 Jadwal Pengiriman Absensi – BRI Magelang</p>
+</footer>
+
+<!-- Modal Password Unit -->
+<div id="passwordModal" class="admin-modal">
+  <div class="admin-modal-content">
+    <div class="admin-modal-header">
+      <h3>🔒 Verifikasi Unit</h3>
+      <span class="close" onclick="cancelPasswordModal()">&times;</span>
+    </div>
+    <div class="admin-modal-body">
+      <p id="passwordModalLabel">Masukkan password unit:</p>
+      <input type="password" id="unitPasswordInput" class="admin-password-input"
+        placeholder="Password..."
+        onkeydown="if(event.key==='Enter') submitUnitPassword()">
+      <div id="unitPasswordError" class="admin-password-error"></div>
+      <div class="admin-modal-actions">
+        <button class="btn-admin-cancel" onclick="cancelPasswordModal()">Batal</button>
+        <button class="btn-admin-submit" onclick="submitUnitPassword()">Masuk</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/jadwal-absensi.js"></script>
+<script src="../js/jadwal-absensi-edit.js"></script>
+</body>
+</html>
