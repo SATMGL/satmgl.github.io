@@ -1,17 +1,6 @@
 /* ═══════════════════════════════════════════
-   TEMA: SKETCHY BRUTALIST — Caveat Bold
-   Font: Caveat 600/700
-   Warna: putih kertas, hitam tinta, kuning aksen
+   KONFIGURASI — edit di sini saja
 ═══════════════════════════════════════════ */
-@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&display=swap');
-
-/* SVG filter roughen — border bergoyang */
-body::before {
-  content: '';
-  position: fixed;
-  width: 0; height: 0;
-}
-
 :root {
   --lebar-no       : 8vw;
   --lebar-nama     : 30vw;
@@ -21,139 +10,86 @@ body::before {
   --tinggi-tanggal : 5vh;
   --tinggi-data    : 5vh;
 
-  --font-judul     : 3.2vh;
-  --font-header    : 2.6vh;
-  --font-data      : 2.6vh;
-
-  /* Palet */
-  --ink      : #111111;
-  --kertas   : #fffef5;
-  --aksen    : #ffe94d;
-  --aksen2   : #ffb347;
-  --shadow   : #111111;
-  --garis    : #333333;
-  --muted    : #666666;
-
-  /* Shift colors */
-  --c-p    : #fff9c4;
-  --c-s    : #ffe0b2;
-  --c-m    : #fce4ec;
-  --c-p12  : #e8f5e9;
-  --c-m12  : #f3e5f5;
-  --c-off  : #f5f5f5;
-  --c-cuti : #fff3e0;
+  --font-judul     : 3vh;
+  --font-header    : 2.5vh;
+  --font-data      : 2.5vh;
 }
-
-/* ── Global ──────────────────────────────── */
-* { box-sizing: border-box; }
+/* ═══════════════════════════════════════════ */
 
 body {
   margin: 0;
-  background-color: #e8e4da;
-  background-image:
-    radial-gradient(circle, rgba(0,0,0,0.04) 1px, transparent 1px);
-  background-size: 20px 20px;
-  font-family: 'Caveat', cursive;
-  filter: url(#roughen);
+  background-color: #f0f0f0;
+  /* background-image: url('../assets/spon.jpg'); */
+  /* background-size: cover; */
+  /* background-position: center; */
+  /* background-repeat: no-repeat; */
+  /* background-attachment: fixed; */
 }
 
-/* SVG filter inline di body */
-body > svg.sketch-filter {
-  position: fixed;
-  width: 0; height: 0;
-  pointer-events: none;
-}
-
-/* ── Header ──────────────────────────────── */
 header {
   height: 8vh;
   position: fixed;
   top: 1vh; left: 1vw; right: 1vw;
-  border: 3px solid var(--ink);
-  box-shadow: 4px 4px 0 var(--shadow);
+  border: 2px solid #000;
   display: flex; align-items: center; justify-content: center;
-  background: var(--aksen);
-  font-family: 'Caveat', cursive;
-  font-size: 3vh;
-  font-weight: 700;
-  color: var(--ink);
-  letter-spacing: 0.05em;
+  background: transparent;
 }
 
-/* ── Main ────────────────────────────────── */
 main {
   position: fixed;
   top: 10vh; bottom: 10vh; left: 1vw; right: 1vw;
-  border: 3px solid var(--ink);
-  box-shadow: 4px 4px 0 var(--shadow);
+  border: 2px solid #000;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
   padding: 1vh 0;
   box-sizing: border-box;
-  background: var(--kertas);
+  background: transparent;
 }
 
-/* ── Panel pilih bulan/unit ──────────────── */
 .panel {
   height: 16vh; width: 98%;
-  border: 2.5px solid var(--ink);
-  box-shadow: 3px 3px 0 var(--shadow);
+  border: 2px solid #000;
   flex-shrink: 0;
-  background: var(--kertas);
+  background: transparent;
 }
 
-/* ── Jadwal ──────────────────────────────── */
 .jadwal {
   width: 98%;
   height: calc(5vh + var(--tinggi-hari) + var(--tinggi-tanggal) + var(--tinggi-data) * 4 + 1px + 4px);
-  border: 2.5px solid var(--ink);
-  box-shadow: 3px 3px 0 var(--shadow);
+  border: 2px solid #000;
   flex-shrink: 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  background: var(--kertas);
-  font-family: 'Caveat', cursive;
+  background: #fff;
+  font-family: 'Share Tech Mono', monospace;
 }
 
-/* ── Panel bawah ─────────────────────────── */
 .panel-bottom {
   height: 8vh; width: 98%;
-  border: 2.5px solid var(--ink);
-  box-shadow: 3px 3px 0 var(--shadow);
+  border: 2px solid #000;
   flex-shrink: 0;
-  background: var(--kertas);
+  background: transparent;
 }
 
-/* ── Footer ──────────────────────────────── */
 footer {
   height: 8vh;
   position: fixed;
   bottom: 1vh; left: 1vw; right: 1vw;
-  border: 3px solid var(--ink);
-  box-shadow: 4px 4px 0 var(--shadow);
+  border: 2px solid #000;
   display: flex; align-items: center; justify-content: center;
-  background: var(--kertas);
-  font-family: 'Caveat', cursive;
-  font-size: 2.4vh;
-  font-weight: 600;
-  color: var(--ink);
+  background: transparent;
 }
 
-/* ── Judul jadwal ────────────────────────── */
+/* ── Judul ───────────────────────────────── */
 .jadwal-judul {
   height: 5vh;
-  border-bottom: 2.5px solid var(--ink);
+  border-bottom: 2px solid #000;
   display: flex; align-items: center; justify-content: center;
   box-sizing: border-box;
-  font-family: 'Caveat', cursive;
-  font-weight: 700;
-  font-size: var(--font-judul);
-  color: var(--ink);
-  letter-spacing: 0.04em;
-  background: var(--aksen);
+  font-weight: bold;
 }
 
 /* ── Scroll wrappers ─────────────────────── */
@@ -170,27 +106,10 @@ footer {
 }
 .jadwal-body-wrapper::-webkit-scrollbar { display: none; }
 
-/* ── Custom scrollbar horizontal ────────── */
-.jadwal-scrollbar {
-  height: 5px;
-  background: #e8e0c8;
-  position: relative;
-  flex-shrink: 0;
-}
-.jadwal-scrollbar-thumb {
-  height: 100%;
-  background: var(--aksen);
-  border: 1px solid var(--ink);
-  border-radius: 0;
-  position: absolute;
-  top: 0; left: 0;
-  cursor: pointer;
-}
-
 /* ── Custom scrollbar vertikal ──────────── */
 .jadwal-vscrollbar {
-  width: 5px;
-  background: #e8e0c8;
+  width: 4px;
+  background: #fff9c4;
   position: relative;
   flex-shrink: 0;
   display: none;
@@ -198,9 +117,22 @@ footer {
 .jadwal-vscrollbar.aktif { display: block; }
 .jadwal-vscrollbar-thumb {
   width: 100%;
-  background: var(--aksen);
-  border: 1px solid var(--ink);
-  border-radius: 0;
+  background: #FFE600;
+  border-radius: 2px;
+  position: absolute;
+  top: 0; left: 0;
+  cursor: pointer;
+}
+.jadwal-scrollbar {
+  height: 4px;
+  background: #fff9c4;
+  position: relative;
+  flex-shrink: 0;
+}
+.jadwal-scrollbar-thumb {
+  height: 100%;
+  background: #FFE600;
+  border-radius: 2px;
   position: absolute;
   top: 0; left: 0;
   cursor: pointer;
@@ -217,41 +149,31 @@ footer {
 }
 
 .jadwal table th {
-  border-right: 1.5px solid var(--garis);
-  border-bottom: 1.5px solid var(--garis);
-  border-left: none; border-top: none;
+  border-right: 2px solid #000;
+  border-bottom: 1px solid #000;
+  border-left: none;
+  border-top: none;
   text-align: center;
   white-space: nowrap;
   box-sizing: border-box;
-  background: #f5f0e0;
+  background: #fff;
   overflow: hidden;
-  font-family: 'Caveat', cursive;
-  font-weight: 700;
-  font-size: var(--font-header);
-  color: var(--ink);
 }
 .jadwal table td {
-  border-right: 1px solid #aaa;
-  border-bottom: 1px solid #aaa;
-  border-left: none; border-top: none;
+  border-right: 1px solid #000;
+  border-bottom: 1px solid #000;
+  border-left: none;
+  border-top: none;
   text-align: center;
   white-space: nowrap;
   box-sizing: border-box;
-  background: var(--kertas);
+  background: #fff;
   overflow: hidden;
-  font-family: 'Caveat', cursive;
-  font-weight: 600;
-  font-size: var(--font-data);
-  color: var(--ink);
-}
-
-/* Weekend header — sedikit berbeda */
-.jadwal table th.weekend {
-  background: #ffe8c0;
-  color: #8b3a00;
 }
 
 .jadwal-body-wrapper table tr td:first-child { border-left: none; }
+.jadwal table th { font-size: var(--font-header); }
+.jadwal table td { font-size: var(--font-data); }
 
 /* ── Lebar kolom ─────────────────────────── */
 .col-no   { width: var(--lebar-no);   min-width: var(--lebar-no); }
@@ -263,7 +185,8 @@ footer {
 }
 .col-hari.last-col { border-right: none !important; }
 .col-hari.hidden {
-  width: 0 !important; min-width: 0 !important;
+  width: 0 !important;
+  min-width: 0 !important;
   opacity: 0;
   border-right: none !important;
   border-bottom: none !important;
@@ -276,76 +199,49 @@ footer {
 .jadwal table tbody td               { height: var(--tinggi-data); }
 
 /* ── Sticky kiri ─────────────────────────── */
-.jadwal table .col-no {
-  position: sticky; left: 0; z-index: 2;
-  border-right: 2px solid var(--ink);
-  background: #f0ead8;
-}
-.jadwal table .col-nama {
-  position: sticky; left: var(--lebar-no); z-index: 2;
-  border-right: 2px solid var(--ink);
-  background: #f0ead8;
-  text-align: left;
-  padding-left: 0.8vw;
-}
+.jadwal table .col-no   { position: sticky; left: 0;               z-index: 2; border-right: 2px solid #000; }
+.jadwal table .col-nama { position: sticky; left: var(--lebar-no); z-index: 2; border-right: 2px solid #000; }
 
-/* ── Border tebal header ─────────────────── */
-.jadwal-header-wrapper table thead tr:first-child th.col-hari { border-bottom: 2px solid var(--ink); }
-.jadwal-header-wrapper table thead tr:last-child  th.col-hari { border-bottom: 2px solid var(--ink); }
-.jadwal-header-wrapper table thead .col-no,
-.jadwal-header-wrapper table thead .col-nama { border-bottom: 2px solid var(--ink); }
-.jadwal-body-wrapper table tbody tr:first-child .col-no,
-.jadwal-body-wrapper table tbody tr:first-child .col-nama { border-top: none; }
 
-/* ── Tombol global (dipakai di JS juga) ──── */
-.sketch-btn {
-  font-family: 'Caveat', cursive;
-  font-weight: 700;
-  font-size: clamp(13px, 2.2vh, 18px);
-  border: 2.5px solid var(--ink);
-  background: var(--kertas);
-  color: var(--ink);
-  cursor: pointer;
-  letter-spacing: 0.05em;
-  box-shadow: 3px 3px 0 var(--ink);
-  transition: transform 0.08s, box-shadow 0.08s;
-}
-.sketch-btn:hover {
-  background: var(--ink);
-  color: var(--kertas);
-  transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0 var(--ink);
-}
-.sketch-btn:active {
-  transform: translate(3px, 3px);
-  box-shadow: none;
-}
-
-/* ── Loading overlay ─────────────────────── */
+/* ── Loading overlay — animasi coretan ──── */
 #loading-overlay {
-  position: fixed; inset: 0; z-index: 9999;
-  background: rgba(255, 254, 245, 0.92);
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(255, 255, 255, 0.88);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 2vh;
-  opacity: 0; pointer-events: none;
+  opacity: 0;
+  pointer-events: none;
   transition: opacity 0.25s ease;
 }
-#loading-overlay.aktif { opacity: 1; pointer-events: all; }
+#loading-overlay.aktif {
+  opacity: 1;
+  pointer-events: all;
+}
 #loading-svg {
   width: clamp(120px, 25vw, 220px);
   height: clamp(120px, 25vw, 220px);
   overflow: visible;
+  filter: drop-shadow(2px 2px 0 rgba(0,0,0,0.12));
 }
 #loading-text {
-  font-family: 'Caveat', cursive;
-  font-weight: 700;
-  font-size: clamp(16px, 2.8vh, 24px);
-  letter-spacing: 0.2em;
-  color: var(--ink);
-  animation: loading-blink 0.9s step-end infinite;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: clamp(13px, 2.2vh, 18px);
+  letter-spacing: 0.25em;
+  color: #000;
+  animation: loading-blink 1s step-end infinite;
 }
 @keyframes loading-blink {
   0%, 100% { opacity: 1; }
-  50%       { opacity: 0.15; }
+  50%       { opacity: 0.2; }
 }
+.jadwal-header-wrapper table thead tr:first-child th.col-hari { border-bottom: 2px solid #000; }
+.jadwal-header-wrapper table thead tr:last-child th.col-hari  { border-bottom: 2px solid #000; }
+.jadwal-header-wrapper table thead .col-no,
+.jadwal-header-wrapper table thead .col-nama { border-bottom: 2px solid #000; }
+.jadwal-body-wrapper table tbody tr:first-child .col-no,
+.jadwal-body-wrapper table tbody tr:first-child .col-nama { border-top: none; }
