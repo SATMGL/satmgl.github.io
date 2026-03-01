@@ -1,837 +1,548 @@
-// ===================================================
-// editmode.js — Edit Mode Logic untuk Jadwal Kerja BRI Magelang
-// Pisahkan dari testtabel.js agar lebih modular
-//
-// Bergantung pada variabel global di testtabel.js:
-//   - MODE, API_URL
-//   - lastJadwalData, lastUnit, lastBulan, lastTahun
-//   - apiCall()
-//   - showToast(), showConfirm()
-// ===================================================
+/* ═══════════════════════════════════════════
+   EDIT JADWAL
+   Bergantung pada variabel global dari
+   jadwal-absensi.js:
+     GS_URL, MODE, selectedBulan, selectedUnit
+═══════════════════════════════════════════ */
+let modeEdit    = false;
+let dataAsli    = [];
+let tdAktif     = null; // cell yang sedang dipilih
+let _undoStack  = [];   // history perubahan
+let _redoStack  = [];   // history redo
 
-// ===================================================
-// KONSTANTA SHIFT
-// ===================================================
+const SHIFT_WEEKDAY  = ['P', 'S', 'M', 'OFF', 'CUTI'];
+const SHIFT_WEEKEND  = ['P12', 'M12', 'OFF', 'CUTI'];
 
-const SHIFT_OPTIONS_WEEKDAY = ['P', 'S', 'M', 'OFF'];
-const SHIFT_OPTIONS_WEEKEND = ['P12', 'M12', 'OFF'];
-
-const SHIFT_LABELS = {
-  P:   'PAGI',
-  S:   'SIANG',
-  M:   'MALAM',
-  SM:  'SIANG-MALAM',
-  P12: 'PAGI 12 JAM',
-  M12: 'MALAM 12 JAM',
-  OFF: 'LIBUR'
+const SHIFT_COLOR = {
+  'P'   : '#e3f2fd',
+  'S'   : '#fff9c4',
+  'M'   : '#fce4ec',
+  'P12' : '#e8f5e9',
+  'M12' : '#f3e5f5',
+  'OFF' : '#f5f5f5',
+  'CUTI': '#fff3e0',
+  ''    : '#fff'
 };
 
-// Warna tiap shift (untuk popup preview)
-const SHIFT_COLORS = {
-  P:   '#1565c0',
-  S:   '#f57f17',
-  M:   '#6a1b9a',
-  SM:  '#00695c',
-  P12: '#0277bd',
-  M12: '#4a148c',
-  OFF: '#424242'
-};
-
-// ===================================================
-// HITUNG HK STATS LOKAL
-// ===================================================
-
-// HK  : P(+1), S(+1), M(+1), SM(+2) — hari apapun
-// HL  : P12(+1), M12(+1)             — hari apapun (lembur weekend)
-// OFF : OFF                           — hari apapun
-// HW  : tetap dari lastHkData (dihitung spreadsheet, tidak berubah)
-
-const HK_WEIGHT = { P: 1, S: 1, M: 1, SM: 2 };
-const HL_SHIFTS = new Set(['P12', 'M12']);
-
-function hitungHkStats(pIdx) {
-  const row = lastJadwalData?.[pIdx];
-  if (!row) return null;
-
-  let hk = 0, hl = 0, off = 0;
-
-  Object.keys(row).forEach(key => {
-    if (!key.startsWith('day')) return;
-    const shift = row[key] || '';
-    if (!shift) return;
-
-    if (HK_WEIGHT[shift] !== undefined) {
-      hk += HK_WEIGHT[shift];
-    } else if (HL_SHIFTS.has(shift)) {
-      hl += 1;
-    } else if (shift === 'OFF') {
-      off += 1;
-    }
-  });
-
-  // HW tetap dari server — tidak berubah karena tidak bergantung shift
-  const hw = lastHkData[row.nama]?.hw ?? 0;
-
-  return { hk, hl, hw, off };
-}
-
-function updateHkStatsRow(pIdx) {
-  const stats = hitungHkStats(pIdx);
-  if (!stats) return;
-
-  const row = document.querySelector(`tbody tr[data-pidx="${pIdx}"]`);
-  if (!row) return;
-
-  const items = row.querySelectorAll('.hk-stats-item .value');
-  if (items.length < 4) return;
-
-  // Urutan: HK, HL, HW, OFF (sama dengan renderTable)
-  items[0].textContent = stats.hk;
-  items[1].textContent = stats.hl;
-  items[2].textContent = stats.hw;
-  items[3].textContent = stats.off;
-
-  // Juga update lastHkData supaya konsisten
-  if (lastHkData[lastJadwalData[pIdx]?.nama]) {
-    lastHkData[lastJadwalData[pIdx].nama].hk  = stats.hk;
-    lastHkData[lastJadwalData[pIdx].nama].hl  = stats.hl;
-    lastHkData[lastJadwalData[pIdx].nama].off = stats.off;
-  }
-}
-
-// ===================================================
-// STATE EDIT MODE
-// ===================================================
-
-let isEditMode      = false;
-let undoHistory     = [];
-let redoHistory     = [];
-let originalSnapshot = null; // snapshot data sebelum edit dimulai
-const MAX_UNDO      = 20;
-
-// ===================================================
-// ATURAN SHIFT — weekday vs weekend
-// ===================================================
-
-function getShiftOptions(dayOfWeek) {
-  // 0 = Minggu, 6 = Sabtu
-  return (dayOfWeek === 0 || dayOfWeek === 6)
-    ? SHIFT_OPTIONS_WEEKEND
-    : SHIFT_OPTIONS_WEEKDAY;
-}
-
-function getDayOfWeekFromCell(jIdx) {
-  // Ambil dari header tabel — th ke jIdx+1 (skip kolom NAMA)
-  const headerRow  = document.querySelector('thead tr:nth-child(2)');
-  const thElements = headerRow?.querySelectorAll('th') || [];
-  const dayText    = thElements[jIdx]?.textContent?.trim() || '';
-  const hariMap    = { MIN: 0, SEN: 1, SEL: 2, RAB: 3, KAM: 4, JUM: 5, SAB: 6 };
-  return hariMap[dayText] ?? 1; // default Senin
-}
-
-// ===================================================
-// UNDO / REDO
-// ===================================================
-
-function pushUndo(pIdx, jIdx, oldValue, newValue) {
-  undoHistory.push({ pIdx, jIdx, oldValue, newValue });
-  if (undoHistory.length > MAX_UNDO) undoHistory.shift();
-  // Setiap perubahan baru hapus redo history
-  redoHistory = [];
-  updateUndoRedoButtons();
-}
-
-function doUndo() {
-  if (!undoHistory.length) return;
-  const action = undoHistory.pop();
-  const { pIdx, jIdx, oldValue, newValue } = action;
-
-  // Simpan ke redo
-  redoHistory.push(action);
-
-  // Update cell di tabel
-  const cell = getCellElement(pIdx, jIdx);
-  if (cell) applyShiftToCell(cell, oldValue, false);
-
-  // Flash animasi
-  if (cell) flashCell(cell);
-
-  // Update data lokal
-  if (lastJadwalData?.[pIdx]) {
-    lastJadwalData[pIdx][`day${jIdx + 1}`] = oldValue;
-  }
-
-  // Update HK stats lokal
-  updateHkStatsRow(pIdx);
-
-  // Auto save hasil undo
-  autoSaveCell(pIdx, jIdx, oldValue);
-  updateUndoRedoButtons();
-}
-
-function doRedo() {
-  if (!redoHistory.length) return;
-  const action = redoHistory.pop();
-  const { pIdx, jIdx, newValue } = action;
-
-  // Kembalikan ke undo
-  undoHistory.push(action);
-
-  // Update cell di tabel
-  const cell = getCellElement(pIdx, jIdx);
-  if (cell) applyShiftToCell(cell, newValue, false);
-
-  // Flash animasi
-  if (cell) flashCell(cell);
-
-  // Update data lokal
-  if (lastJadwalData?.[pIdx]) {
-    lastJadwalData[pIdx][`day${jIdx + 1}`] = newValue;
-  }
-
-  // Update HK stats lokal
-  updateHkStatsRow(pIdx);
-
-  // Auto save hasil redo
-  autoSaveCell(pIdx, jIdx, newValue);
-  updateUndoRedoButtons();
-}
-
-function updateUndoRedoButtons() {
-  // Undo button
-  const undoBtn   = document.querySelector('[data-action="undo"]');
-  const undoBadge = document.getElementById('undoCount');
-  if (undoBtn) {
-    undoBtn.disabled      = undoHistory.length === 0;
-    undoBtn.style.opacity = undoHistory.length === 0 ? '0.4' : '1';
-    undoBtn.title         = undoHistory.length > 0
-      ? `Undo (${undoHistory.length} perubahan)`
-      : 'Tidak ada yang bisa di-undo';
-  }
-  if (undoBadge) {
-    if (undoHistory.length > 0) {
-      undoBadge.textContent   = undoHistory.length;
-      undoBadge.style.display = 'flex';
-    } else {
-      undoBadge.style.display = 'none';
-    }
-  }
-
-  // Redo button
-  const redoBtn   = document.querySelector('[data-action="redo"]');
-  const redoBadge = document.getElementById('redoCount');
-  if (redoBtn) {
-    redoBtn.disabled      = redoHistory.length === 0;
-    redoBtn.style.opacity = redoHistory.length === 0 ? '0.4' : '1';
-    redoBtn.title         = redoHistory.length > 0
-      ? `Redo (${redoHistory.length} perubahan)`
-      : 'Tidak ada yang bisa di-redo';
-  }
-  if (redoBadge) {
-    if (redoHistory.length > 0) {
-      redoBadge.textContent   = redoHistory.length;
-      redoBadge.style.display = 'flex';
-    } else {
-      redoBadge.style.display = 'none';
-    }
-  }
-}
-
-// ===================================================
-// POPUP SHIFT
-// ===================================================
-
-function closeAllPopups() {
-  document.querySelectorAll('.shift-popup').forEach(p => p.remove());
-  document.removeEventListener('click', onDocClickClosePopup);
-}
-
-function onDocClickClosePopup(e) {
-  document.querySelectorAll('.shift-popup').forEach(p => {
-    if (!p.contains(e.target)) p.remove();
-  });
-  document.removeEventListener('click', onDocClickClosePopup);
-}
-
-function showShiftPopup(cell, pIdx, jIdx) {
-  if (!isEditMode) return;
-  closeAllPopups();
-
-  const dayOfWeek    = getDayOfWeekFromCell(jIdx);
-  const options      = getShiftOptions(dayOfWeek);
-  const currentValue = cell.textContent.trim();
-  const isWeekend    = dayOfWeek === 0 || dayOfWeek === 6;
-
+/* ── Popup shift ─────────────────────────── */
+function _buatPopup() {
+  if (document.getElementById('shift-popup')) return;
   const popup = document.createElement('div');
-  popup.className = 'shift-popup';
-
-  // Header popup
-  const header = document.createElement('div');
-  header.className   = 'shift-popup-header';
-  header.textContent = isWeekend ? '📅 Hari Weekend' : '📅 Hari Kerja';
-  popup.appendChild(header);
-
-  // Opsi shift
-  options.forEach(opt => {
-    const div = document.createElement('div');
-    div.className = 'shift-option' + (opt === currentValue ? ' active' : '');
-
-    // Warna indikator
-    const dot = document.createElement('span');
-    dot.className   = 'shift-dot';
-    dot.style.background = SHIFT_COLORS[opt] || '#999';
-
-    const label = document.createElement('span');
-    label.textContent = `${SHIFT_LABELS[opt] || opt} [${opt}]`;
-
-
-    div.appendChild(dot);
-    div.appendChild(label);
-
-    div.onclick = e => {
-      e.stopPropagation();
-      selectShift(cell, pIdx, jIdx, opt, currentValue);
-      popup.remove();
-      document.removeEventListener('click', onDocClickClosePopup);
-    };
-
-    popup.appendChild(div);
-  });
-
-  // Posisi popup
-  const rect = cell.getBoundingClientRect();
-  const popupW = 200;
-  let left = rect.left;
-  let top  = rect.bottom + 4;
-
-  if (left + popupW > window.innerWidth - 8) {
-    left = window.innerWidth - popupW - 8;
-  }
-  if (top + 200 > window.innerHeight) {
-    top = rect.top - 200;
-  }
-
-  popup.style.top  = top  + 'px';
-  popup.style.left = left + 'px';
+  popup.id = 'shift-popup';
+  popup.style.cssText = `
+    position: fixed;
+    display: none;
+    z-index: 999;
+    background: #fff;
+    border: 2px solid #000;
+    font-family: 'Caveat', cursive;
+    box-shadow: 4px 4px 0 #111;
+  `;
   document.body.appendChild(popup);
 
-  setTimeout(() => document.addEventListener('click', onDocClickClosePopup), 100);
+  // Tutup popup saat klik di luar
+  document.addEventListener('mousedown', function(e) {
+    if (!popup.contains(e.target) && e.target !== tdAktif) {
+      _tutupPopup();
+    }
+  });
 }
 
-// ===================================================
-// SELECT SHIFT — ubah nilai cell
-// ===================================================
+function _tampilPopup(td, shifts) {
+  tdAktif = td;
+  const popup  = document.getElementById('shift-popup');
+  const nilaiSaat = td.textContent.trim().toUpperCase();
 
-function selectShift(cell, pIdx, jIdx, newValue, oldValue) {
-  if (newValue === oldValue) return;
+  popup.innerHTML = shifts.map(s => `
+    <button
+      onclick="pilihShift('${s}')"
+      style="
+        display: block;
+        width: 100%;
+        padding: 0.8vh 2vw;
+        border: none;
+        border-bottom: 1px solid #eee;
+        background: ${s === nilaiSaat ? '#000' : SHIFT_COLOR[s] || '#fff'};
+        color: ${s === nilaiSaat ? '#fff' : '#000'};
+        font-family: 'Caveat', cursive;
+        font-size: clamp(11px, 1.9vh, 15px);
+        cursor: pointer;
+        text-align: center;
+        letter-spacing: 0.05em;
+      "
+      onmouseover="if('${s}' !== '${nilaiSaat}'){this.style.background='#000';this.style.color='#fff'}"
+      onmouseout="if('${s}' !== '${nilaiSaat}'){this.style.background='${SHIFT_COLOR[s] || '#fff'}';this.style.color='#000'}"
+    >${s || '—'}</button>
+  `).join('') + `
+    <button
+      onclick="pilihShift('')"
+      style="
+        display: block;
+        width: 100%;
+        padding: 0.8vh 2vw;
+        border: none;
+        background: ${nilaiSaat === '' ? '#000' : '#fff'};
+        color: ${nilaiSaat === '' ? '#fff' : '#888'};
+        font-family: 'Caveat', cursive;
+        font-size: clamp(11px, 1.9vh, 15px);
+        cursor: pointer;
+        text-align: center;
+      "
+      onmouseover="this.style.background='#000';this.style.color='#fff'"
+      onmouseout="this.style.background='${nilaiSaat === '' ? '#000' : '#fff'}';this.style.color='${nilaiSaat === '' ? '#fff' : '#888'}'"
+    >— KOSONG —</button>
+  `;
 
-  // Terapkan ke cell
-  applyShiftToCell(cell, newValue, true);
+  // Posisi popup dekat cell
+  const rect    = td.getBoundingClientRect();
+  const popupW  = 120;
+  let   left    = rect.left;
+  let   top     = rect.bottom + 4;
 
-  // Flash animasi
-  flashCell(cell);
+  // Cegah keluar layar kanan
+  if (left + popupW > window.innerWidth - 8) left = window.innerWidth - popupW - 8;
+  // Cegah keluar layar bawah
+  const popupH  = shifts.length * 36 + 36;
+  if (top + popupH > window.innerHeight - 8) top = rect.top - popupH - 4;
 
-  // Push ke undo history
-  pushUndo(pIdx, jIdx, oldValue, newValue);
+  popup.style.left    = left + 'px';
+  popup.style.top     = top  + 'px';
+  popup.style.width   = popupW + 'px';
+  popup.style.display = 'block';
+}
 
-  // Update data lokal
-  if (lastJadwalData?.[pIdx]) {
-    lastJadwalData[pIdx][`day${jIdx + 1}`] = newValue;
+function _tutupPopup() {
+  const popup = document.getElementById('shift-popup');
+  if (popup) popup.style.display = 'none';
+  if (tdAktif) {
+    tdAktif.style.outline = '';
+    tdAktif = null;
   }
-
-  // Update HK stats lokal
-  updateHkStatsRow(pIdx);
-
-  // Auto save ke GAS
-  autoSaveCell(pIdx, jIdx, newValue);
 }
 
-function applyShiftToCell(cell, value, _pushUndoFlag) {
-  cell.textContent = value;
-  // Reset semua class shift, set yang baru
-  cell.className = cell.className
-    .split(' ')
-    .filter(c => !c.startsWith('shift-') && c !== 'save-flash')
-    .join(' ');
-  if (value) cell.classList.add(`shift-${value}`);
-}
+function pilihShift(nilai) {
+  if (!tdAktif) return;
+  const td    = tdAktif;
+  const col   = parseInt(td.dataset.col);
+  const tbody = document.getElementById('tbody-data');
 
-// ===================================================
-// FLASH ANIMASI SAAT CELL DIUBAH
-// ===================================================
+  // Hitung pIdx (hanya baris yang tampil)
+  let pIdx = 0;
+  let found = false;
+  tbody.querySelectorAll('tr').forEach((tr) => {
+    if (found) return;
+    if (tr.style.display === 'none') return;
+    if (tr.contains(td)) { found = true; return; }
+    pIdx++;
+  });
 
-function flashCell(cell) {
-  cell.classList.remove('save-flash');
-  // Trigger reflow agar animasi restart
-  void cell.offsetWidth;
-  cell.classList.add('save-flash');
-  setTimeout(() => cell.classList.remove('save-flash'), 700);
-}
+  // jIdx = 0-based index tanggal, sesuai mapping GS (col D=4 = tanggal 1 = jIdx 0)
+  const jIdx = col - 1;
 
-// ===================================================
-// AUTO SAVE KE GAS
-// ===================================================
+  // Simpan nilai sebelumnya untuk undo
+  const nilaiBefore = td.textContent.trim();
 
-let saveQueue    = [];
-let isSaving     = false;
-let saveDebounce = null;
+  // Update UI dulu
+  td.textContent      = nilai;
+  td.style.background = SHIFT_COLOR[nilai] || '#fff';
+  _tutupPopup();
 
-function autoSaveCell(pIdx, jIdx, value) {
-  // Tambah ke antrian
-  // Kalau ada antrian dengan pIdx+jIdx yang sama, replace
-  const existing = saveQueue.findIndex(q => q.pIdx === pIdx && q.jIdx === jIdx);
-  if (existing >= 0) {
-    saveQueue[existing].value = value;
-  } else {
-    saveQueue.push({ pIdx, jIdx, value });
-  }
+  // Push ke undo stack, reset redo stack
+  _undoStack.push({ td, pIdx, col, nilaiBefore, nilaiAfter: nilai });
+  _redoStack = [];
+  _updateUndoRedoBtn();
 
-  // Debounce: tunggu 300ms sebelum kirim (hindari spam request)
-  clearTimeout(saveDebounce);
-  saveDebounce = setTimeout(processSaveQueue, 300);
-}
+  // Tandai cell sedang saving
+  td.style.opacity = '0.5';
 
-async function processSaveQueue() {
-  if (isSaving || saveQueue.length === 0) return;
-  isSaving = true;
+  // Kirim saveSingleCell ke GS
+  // GS: row = startRow+3+pIdx, dimana personil pertama ada di startRow+4
+  // maka pIdx yang dikirim = pIdx + 1
+  const url = GS_URL + '?' + new URLSearchParams({
+    action : 'saveSingleCell',
+    mode   : MODE,
+    bulan  : selectedBulan.value,
+    tahun  : selectedBulan.tahun,
+    unit   : selectedUnit,
+    pIdx   : pIdx + 1,
+    jIdx,
+    value  : nilai
+  }).toString();
 
-  const { pIdx, jIdx, value } = saveQueue.shift();
-
-  const unit  = lastUnit;
-  const bulan = lastBulan;
-  const tahun = lastTahun;
-
-  // Tampilkan indikator saving
-  showSaveStatus('saving');
-
-  try {
-    const res = await apiCall({
-      action: 'saveSingleCell',
-      mode: MODE,
-      bulan,
-      tahun,
-      unit,
-      pIdx,
-      jIdx,
-      value
+  fetch(url)
+    .then(r => r.json())
+    .then(result => {
+      td.style.opacity = '1';
+      if (!result.success) {
+        // Rollback UI jika gagal
+        const nilaiLama = (dataAsli[pIdx] && dataAsli[pIdx][col - 1]) || '';
+        td.textContent      = nilaiLama;
+        td.style.background = SHIFT_COLOR[nilaiLama] || '#fffde7';
+        alert('Gagal simpan: ' + result.message);
+      }
+      // dataAsli TIDAK diupdate — tetap snapshot saat masuk mode edit
+      // agar batalEdit() selalu bisa rollback ke kondisi awal
+    })
+    .catch(err => {
+      td.style.opacity = '1';
+      console.error('saveSingleCell error:', err);
     });
-
-    if (res?.success) {
-      showSaveStatus('success');
-      // Sync cell lain dari server setelah save berhasil
-      syncOtherCellsFromServer();
-    } else {
-      showSaveStatus('error', res?.message);
-      console.warn('Save gagal:', res?.message);
-    }
-  } catch (err) {
-    showSaveStatus('error', err.message);
-    console.error('Save error:', err);
-  } finally {
-    isSaving = false;
-    // Proses antrian berikutnya jika ada
-    if (saveQueue.length > 0) {
-      setTimeout(processSaveQueue, 100);
-    }
-  }
 }
 
-// ===================================================
-// SAVE STATUS INDICATOR
-// ===================================================
+/* ── Mode Edit ───────────────────────────── */
+function editJadwal() {
+  if (modeEdit) return;
+  modeEdit = true;
+  _buatPopup();
+  if (typeof _pushState === 'function') _pushState('edit');
 
-let saveStatusTimeout = null;
+  // Backup data asli
+  dataAsli = [];
+  const tbody    = document.getElementById('tbody-data');
+  let pIdxBackup = 0;
+  tbody.querySelectorAll('tr').forEach((tr) => {
+    if (tr.style.display === 'none') return;
+    const baris = [];
+    tr.querySelectorAll('td.col-hari').forEach(td => {
+      const col = parseInt(td.dataset.col);
+      baris[col - 1] = td.textContent;
+    });
+    dataAsli[pIdxBackup] = baris;
+    pIdxBackup++;
+  });
 
-function showSaveStatus(status, msg = '') {
-  let indicator = document.getElementById('saveStatusIndicator');
-  if (!indicator) {
-    indicator = document.createElement('div');
-    indicator.id = 'saveStatusIndicator';
-    document.body.appendChild(indicator);
-  }
+  // Pasang listener klik pada cell jadwal
+  const hari = new Date(parseInt(selectedBulan.tahun), selectedBulan.value, 0).getDate();
+  tbody.querySelectorAll('tr').forEach((tr) => {
+    if (tr.style.display === 'none') return;
+    tr.querySelectorAll('td.col-hari').forEach((td) => {
+      const col     = parseInt(td.dataset.col);
+      if (col > hari) return;
 
-  clearTimeout(saveStatusTimeout);
+      // Warnai cell sesuai nilai saat ini
+      td.style.background = SHIFT_COLOR[td.textContent.trim()] || '#fffde7';
+      td.style.cursor     = 'pointer';
+      td.style.outline    = 'none';
 
-  if (status === 'saving') {
-    indicator.className   = 'save-status saving';
-    indicator.textContent = '💾 Menyimpan...';
-    indicator.style.display = 'flex';
-  } else if (status === 'success') {
-    indicator.className   = 'save-status success';
-    indicator.textContent = '✅ Tersimpan';
-    indicator.style.display = 'flex';
-    saveStatusTimeout = setTimeout(() => {
-      indicator.style.display = 'none';
-    }, 1500);
-  } else if (status === 'error') {
-    indicator.className   = 'save-status error';
-    indicator.textContent = '❌ Gagal simpan' + (msg ? ': ' + msg : '');
-    indicator.style.display = 'flex';
-    saveStatusTimeout = setTimeout(() => {
-      indicator.style.display = 'none';
-    }, 3000);
-  }
+      td.addEventListener('click', _onCellClick);
+    });
+  });
+
+  // Ubah tombol jadi SIMPAN & BATAL
+  _tampilTombolSimpanBatalUI();
+
+  // Kunci tombol bulan & unit
+  document.getElementById('btn-bulan').disabled = true;
+  document.getElementById('btn-unit').disabled  = true;
+  document.getElementById('x-bulan').style.pointerEvents = 'none';
+  document.getElementById('x-unit').style.pointerEvents  = 'none';
 }
 
-// ===================================================
-// TOGGLE EDIT MODE
-// ===================================================
+function _onCellClick(e) {
+  e.stopPropagation();
+  const td  = e.currentTarget;
+  const col = parseInt(td.dataset.col);
 
-function toggleEditMode() {
-  if (isEditMode) {
-    saveAndExitEdit();
-  } else {
-    enterEditMode();
+  // Tentukan hari (0=Min, 1=Sen, ... 6=Sab)
+  const hariAngka = new Date(parseInt(selectedBulan.tahun), selectedBulan.value - 1, col).getDay();
+  const isWeekend = hariAngka === 0 || hariAngka === 6;
+  const shifts    = isWeekend ? SHIFT_WEEKEND : SHIFT_WEEKDAY;
+
+  // Highlight cell aktif
+  if (tdAktif && tdAktif !== td) {
+    tdAktif.style.outline = '';
   }
+  td.style.outline = '2px solid #000';
+
+  _tampilPopup(td, shifts);
 }
 
-function enterEditMode() {
-  isEditMode       = true;
-  undoHistory      = [];
-  redoHistory      = [];
-  // Snapshot data saat ini — SEBELUM user mulai edit
-  // Termasuk perubahan orang lain yang sudah masuk via sync
-  originalSnapshot = lastJadwalData
-    ? JSON.parse(JSON.stringify(lastJadwalData))
-    : null;
-  updateUndoRedoButtons();
+/* ── Simpan ──────────────────────────────── */
+async function simpanJadwal() {
+  _tutupPopup();
 
-  const editBtn         = document.getElementById('editBtn');
-  const downloadSection = document.getElementById('downloadSection');
-  const tbody           = document.querySelector('table tbody');
-  const undoBtn         = document.querySelector('[data-action="undo"]');
+  // Cek apakah ada perubahan
+  const tbody  = document.getElementById('tbody-data');
+  const hari   = new Date(parseInt(selectedBulan.tahun), selectedBulan.value, 0).getDate();
+  let adaPerubahan = false;
+  let pChk = 0;
+  tbody.querySelectorAll('tr').forEach((tr) => {
+    if (adaPerubahan) return;
+    if (tr.style.display === 'none') return;
+    tr.querySelectorAll('td.col-hari').forEach((td) => {
+      if (adaPerubahan) return;
+      const col = parseInt(td.dataset.col);
+      if (col > hari) return;
+      const nilaiAsli = (dataAsli[pChk] && dataAsli[pChk][col - 1]) || '';
+      if (td.textContent.trim() !== nilaiAsli) adaPerubahan = true;
+    });
+    pChk++;
+  });
 
-  if (editBtn) {
-    editBtn.innerHTML = '<span class="btn-icon">💾</span><span class="btn-text">Simpan</span>';
-    editBtn.classList.add('editing');
-    editBtn.onclick = saveAndExitEdit;
-  }
-  if (downloadSection) downloadSection.style.display = 'none';
-  if (tbody) tbody.classList.add('edit-active');
-  const redoBtn = document.getElementById('redoBtn');
-  const cancelBtn = document.getElementById('cancelBtn');
-  if (undoBtn) undoBtn.style.display = 'flex';
-  if (cancelBtn) cancelBtn.style.display = 'flex';
-  if (redoBtn) redoBtn.style.display = 'flex';
-  updateUndoRedoButtons();
-
-  attachInlineEdit();
-  showToast('Mode edit aktif — ketuk cell untuk ubah shift', 'info', 2500);
+  keluarModeEdit();
+  _tampilToast(adaPerubahan ? '✔ Jadwal berhasil disimpan' : 'Tidak ada perubahan');
 }
 
-function exitEditMode() {
-  isEditMode       = false;
-  undoHistory      = [];
-  redoHistory      = [];
-  saveQueue        = [];
-  originalSnapshot = null;
+/* ── Batal ───────────────────────────────── */
+function batalEdit() {
+  _tutupPopup();
 
-  updateUndoRedoButtons();
-  closeAllPopups();
+  // Cek apakah ada perubahan dibanding dataAsli
+  const tbody  = document.getElementById('tbody-data');
+  const hari   = new Date(parseInt(selectedBulan.tahun), selectedBulan.value, 0).getDate();
+  let adaPerubahan = false;
+  let pChk = 0;
+  tbody.querySelectorAll('tr').forEach((tr) => {
+    if (adaPerubahan) return;
+    if (tr.style.display === 'none') return;
+    tr.querySelectorAll('td.col-hari').forEach((td) => {
+      if (adaPerubahan) return;
+      const col = parseInt(td.dataset.col);
+      if (col > hari) return;
+      const nilaiAsli = (dataAsli[pChk] && dataAsli[pChk][col - 1]) || '';
+      if (td.textContent.trim() !== nilaiAsli) adaPerubahan = true;
+    });
+    pChk++;
+  });
 
-  const editBtn         = document.getElementById('editBtn');
-  const downloadSection = document.getElementById('downloadSection');
-  const tbody           = document.querySelector('table tbody');
-  const undoBtn         = document.querySelector('[data-action="undo"]');
-
-  if (editBtn) {
-    editBtn.innerHTML = '<span class="btn-icon">✏️</span><span class="btn-text">Edit Jadwal</span>';
-    editBtn.classList.remove('editing');
-    editBtn.onclick = toggleEditMode;
-  }
-  if (downloadSection) downloadSection.style.display = 'grid';
-  if (tbody) tbody.classList.remove('edit-active');
-  const redoBtnExit  = document.getElementById('redoBtn');
-  const cancelBtnExit = document.getElementById('cancelBtn');
-  if (undoBtn) undoBtn.style.display = 'none';
-  if (redoBtnExit) redoBtnExit.style.display = 'none';
-  if (cancelBtnExit) cancelBtnExit.style.display = 'none';
-  const redoBtn3 = document.querySelector('[data-action="redo"]');
-  if (redoBtn3) redoBtn3.style.display = 'none';
-}
-
-function saveAndExitEdit() {
-  // Tunggu save queue selesai dulu kalau masih ada
-  if (saveQueue.length > 0 || isSaving) {
-    showToast('Menunggu proses simpan selesai...', 'info', 1500);
-    setTimeout(saveAndExitEdit, 800);
+  if (!adaPerubahan) {
+    // Tidak ada perubahan, langsung keluar
+    keluarModeEdit();
     return;
   }
 
-  showConfirm({
-    title     : 'Simpan Perubahan',
-    message   : 'Simpan semua perubahan dan keluar dari mode edit?',
-    icon      : '💾',
-    okText    : 'Simpan & Keluar',
-    cancelText: 'Batal',
-    okClass   : 'btn-confirm-ok btn-confirm-save',
-    onOk      : () => {
-      exitEditMode();
-      showToast('Perubahan berhasil disimpan!', 'success');
-    }
-  });
+  // Ada perubahan — tampilkan konfirmasi
+  _tampilKonfirmasiBatal();
 }
 
-// ===================================================
-// CANCEL EDIT — restore data asli ke spreadsheet
-// ===================================================
+function _tampilKonfirmasiBatal() {
+  if (typeof _pushState === 'function') _pushState('konfirmasi-batal');
+  // Nonaktifkan klik cell selama konfirmasi
+  document.getElementById('tbody-data').querySelectorAll('td.col-hari').forEach(td => {
+    td.removeEventListener('click', _onCellClick);
+    td.style.pointerEvents = 'none';
+    td.style.cursor        = 'default';
+  });
 
-function cancelEdit() {
-  if (!isEditMode) return;
+  const panelBottom = document.querySelector('.panel-bottom > div');
+  panelBottom.innerHTML = `
+    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.8vh; height:100%; padding:0.5vh 0; box-sizing:border-box;">
+      <span style="font-family:'Caveat',cursive; font-size:clamp(13px,2vh,17px); text-align:center; letter-spacing:0.03em;">
+        Semua perubahan yang baru saja dibuat akan dibatalkan.
+      </span>
+      <div style="display:flex; gap:2vw;">
+        <button onclick="_konfirmasiBatalYa()"
+          style="height:4vh; padding:0 2vw; border:2.5px solid #111; background:#000; color:#fff; font-family:'Caveat',cursive; font-size:clamp(13px,2vh,17px); cursor:pointer; letter-spacing:0.05em; white-space:nowrap;"
+          onmouseover="this.style.background='#333'"
+          onmouseout="this.style.background='#111'">Ya, Batalkan</button>
+        <button onclick="_konfirmasiBatalTidak()"
+          style="height:4vh; padding:0 2vw; border:2.5px solid #111; background:transparent; font-family:'Caveat',cursive; font-size:clamp(13px,2vh,17px); cursor:pointer; letter-spacing:0.05em; white-space:nowrap;"
+          onmouseover="this.style.background='#000';this.style.color='#fff'"
+          onmouseout="this.style.background='transparent';this.style.color='#111';this.style.transform='';this.style.boxShadow='3px 3px 0 #111'">Lanjut Edit</button>
+      </div>
+    </div>
+  `;
+}
 
-  const totalPerubahan = undoHistory.length;
+function _konfirmasiBatalYa() {
+  // Rollback UI ke dataAsli lalu keluar
+  const tbody = document.getElementById('tbody-data');
+  const hari  = new Date(parseInt(selectedBulan.tahun), selectedBulan.value, 0).getDate();
+  let pIdx = 0;
+  tbody.querySelectorAll('tr').forEach((tr) => {
+    if (tr.style.display === 'none') return;
+    tr.querySelectorAll('td.col-hari').forEach((td) => {
+      const col = parseInt(td.dataset.col);
+      if (col > hari) return;
+      td.textContent      = (dataAsli[pIdx] && dataAsli[pIdx][col - 1]) || '';
+      td.style.background = SHIFT_COLOR[td.textContent.trim()] || '#fffde7';
+    });
+    pIdx++;
+  });
+  keluarModeEdit();
+}
 
-  showConfirm({
-    title     : 'Batalkan Perubahan?',
-    message   : totalPerubahan > 0
-      ? `Ada ${totalPerubahan} perubahan yang akan dikembalikan ke data semula.`
-      : 'Tidak ada perubahan. Keluar dari mode edit?',
-    icon      : '⚠️',
-    okText    : 'Ya, Batalkan',
-    cancelText: 'Lanjut Edit',
-    okClass   : 'btn-confirm-ok btn-confirm-danger',
-    onOk      : () => {
-      if (!originalSnapshot) {
-        exitEditMode();
-        showToast('Keluar dari mode edit', 'info');
-        return;
+function _konfirmasiBatalTidak() {
+  // Aktifkan kembali klik cell
+  const hari = new Date(parseInt(selectedBulan.tahun), selectedBulan.value, 0).getDate();
+  document.getElementById('tbody-data').querySelectorAll('tr').forEach(tr => {
+    if (tr.style.display === 'none') return;
+    tr.querySelectorAll('td.col-hari').forEach(td => {
+      const col = parseInt(td.dataset.col);
+      if (col > hari) return;
+      td.style.pointerEvents = '';
+      td.style.cursor        = 'pointer';
+      td.addEventListener('click', _onCellClick);
+    });
+  });
+  // Kembali ke tampilan tombol SELESAI & BATAL
+  _tampilTombolSimpanBatalUI();
+}
+
+
+/* ── Undo / Redo ─────────────────────────── */
+function _updateUndoRedoBtn() {
+  const btnUndo = document.getElementById('btn-undo');
+  const btnRedo = document.getElementById('btn-redo');
+  if (!btnUndo || !btnRedo) return;
+
+  const bisaUndo = _undoStack.length > 0;
+  const bisaRedo = _redoStack.length > 0;
+
+  btnUndo.disabled = !bisaUndo;
+  btnUndo.style.opacity = bisaUndo ? '1'    : '0.35';
+  btnUndo.style.cursor  = bisaUndo ? 'pointer' : 'not-allowed';
+
+  btnRedo.disabled = !bisaRedo;
+  btnRedo.style.opacity = bisaRedo ? '1'    : '0.35';
+  btnRedo.style.cursor  = bisaRedo ? 'pointer' : 'not-allowed';
+}
+
+function _terapkanNilai(td, pIdx, col, nilai) {
+  // Update UI
+  td.textContent      = nilai;
+  td.style.background = SHIFT_COLOR[nilai] || '#fff';
+  td.style.opacity    = '0.5';
+
+  // Kirim ke GS
+  const jIdx = col - 1;
+  const url  = GS_URL + '?' + new URLSearchParams({
+    action : 'saveSingleCell',
+    mode   : MODE,
+    bulan  : selectedBulan.value,
+    tahun  : selectedBulan.tahun,
+    unit   : selectedUnit,
+    pIdx   : pIdx + 1,
+    jIdx,
+    value  : nilai
+  }).toString();
+
+  fetch(url)
+    .then(r => r.json())
+    .then(result => {
+      td.style.opacity = '1';
+      if (!result.success) {
+        alert('Gagal simpan: ' + result.message);
       }
-
-      // Bandingkan originalSnapshot (saat masuk edit) vs lastJadwalData (sekarang)
-      // Hanya kirim cell yang berbeda dari snapshot — HANYA perubahan ANDA
-      // Perubahan orang lain (yang masuk via sync) tidak ikut di-cancel
-      const changes = [];
-
-      originalSnapshot.forEach((snapRow, pIdx) => {
-        const curRow = lastJadwalData?.[pIdx];
-        if (!curRow) return;
-
-        Object.keys(snapRow).forEach(key => {
-          if (!key.startsWith('day')) return;
-          const jIdx    = parseInt(key.replace('day', '')) - 1;
-          const snapVal = snapRow[key] || '';
-          const curVal  = curRow[key]  || '';
-
-          if (snapVal !== curVal) {
-            // Cell ini berubah sejak edit dimulai — restore ke snapshot
-            changes.push({ pIdx, jIdx, value: snapVal });
-
-            // Update tampilan
-            const cell = getCellElement(pIdx, jIdx);
-            if (cell) applyShiftToCell(cell, snapVal, false);
-
-            // Update data lokal
-            lastJadwalData[pIdx][key] = snapVal;
-          }
-        });
-      });
-
-      // Kosongkan history
-      undoHistory = [];
-      redoHistory = [];
-      updateUndoRedoButtons();
-      exitEditMode();
-
-      if (changes.length === 0) {
-        showToast('Tidak ada perubahan untuk dibatalkan', 'info');
-        return;
-      }
-
-      // Kirim ke GAS via saveJadwalBatch
-      showSaveStatus('saving');
-      apiCall({
-        action  : 'saveJadwalBatch',
-        mode    : MODE,
-        bulan   : lastBulan,
-        tahun   : lastTahun,
-        unit    : lastUnit,
-        changes : JSON.stringify(changes)
-      })
-      .then(res => {
-        if (res?.success) {
-          showSaveStatus('success');
-          showToast(`${changes.length} perubahan Anda berhasil dibatalkan`, 'warning');
-        } else {
-          showSaveStatus('error', res?.message);
-          showToast('Gagal: ' + (res?.message || ''), 'error');
-        }
-      })
-      .catch(err => {
-        showSaveStatus('error');
-        showToast('Gagal: ' + err.message, 'error');
-      });
-    }
-  });
-}
-
-// Cek apakah sedang dalam edit mode (dipanggil dari testtabel.js)
-function isInEditMode() {
-  return isEditMode;
-}
-
-// Restore data ke snapshot awal dan save ke GAS — dipanggil dari testtabel.js
-// Return Promise agar caller bisa tunggu sebelum lanjut (misal clearTabel)
-function restoreToSnapshot() {
-  return new Promise((resolve) => {
-    if (!originalSnapshot) {
-      exitEditMode();
-      resolve();
-      return;
-    }
-
-    const changes = [];
-    originalSnapshot.forEach((snapRow, pIdx) => {
-      const curRow = lastJadwalData?.[pIdx];
-      if (!curRow) return;
-      Object.keys(snapRow).forEach(key => {
-        if (!key.startsWith('day')) return;
-        const jIdx    = parseInt(key.replace('day', '')) - 1;
-        const snapVal = snapRow[key] || '';
-        const curVal  = curRow[key]  || '';
-        if (snapVal !== curVal) {
-          changes.push({ pIdx, jIdx, value: snapVal });
-          // Update tampilan
-          const cell = getCellElement(pIdx, jIdx);
-          if (cell) applyShiftToCell(cell, snapVal, false);
-          lastJadwalData[pIdx][key] = snapVal;
-        }
-      });
-    });
-
-    undoHistory = [];
-    redoHistory = [];
-    updateUndoRedoButtons();
-    exitEditMode();
-
-    if (changes.length === 0) {
-      resolve();
-      return;
-    }
-
-    // Save restore ke GAS
-    showSaveStatus('saving');
-    apiCall({
-      action  : 'saveJadwalBatch',
-      mode    : MODE,
-      bulan   : lastBulan,
-      tahun   : lastTahun,
-      unit    : lastUnit,
-      changes : JSON.stringify(changes)
     })
-    .then(res => {
-      if (res?.success) showSaveStatus('success');
-      else showSaveStatus('error', res?.message);
-      resolve();
-    })
-    .catch(err => {
-      showSaveStatus('error');
-      resolve(); // tetap resolve agar clearTabel jalan
-    });
-  });
+    .catch(() => { td.style.opacity = '1'; });
 }
 
-// ===================================================
-// SYNC SETELAH SAVE — update cell lain dari server
-// ===================================================
+function aksiUndo() {
+  if (_undoStack.length === 0) return;
+  const aksi = _undoStack.pop();
+  _redoStack.push(aksi);
+  _terapkanNilai(aksi.td, aksi.pIdx, aksi.col, aksi.nilaiBefore);
+  _updateUndoRedoBtn();
+}
 
-async function syncOtherCellsFromServer() {
-  // Skip sync kalau masih ada antrian save — hindari konflik data
-  if (saveQueue.length > 0 || isSaving) return;
-  if (!lastUnit || !lastBulan || !lastTahun) return;
+function aksiRedo() {
+  if (_redoStack.length === 0) return;
+  const aksi = _redoStack.pop();
+  _undoStack.push(aksi);
+  _terapkanNilai(aksi.td, aksi.pIdx, aksi.col, aksi.nilaiAfter);
+  _updateUndoRedoBtn();
+}
+/* ── Keluar mode edit ────────────────────── */
+function keluarModeEdit() {
+  modeEdit    = false;
+  dataAsli    = [];
+  _undoStack  = [];
+  _redoStack  = [];
 
-  try {
-    const res = await apiCall({
-      action: 'getJadwal',
-      mode  : MODE,
-      bulan : lastBulan,
-      tahun : lastTahun,
-      unit  : lastUnit
-    });
+  // Lepas listener & reset style cell
+  const tbody = document.getElementById('tbody-data');
+  tbody.querySelectorAll('td.col-hari').forEach(td => {
+    td.removeEventListener('click', _onCellClick);
+    td.style.background = '';
+    td.style.cursor     = '';
+    td.style.outline    = '';
+  });
 
-    if (!res?.personil) return;
+  // Sembunyikan popup
+  const popup = document.getElementById('shift-popup');
+  if (popup) popup.style.display = 'none';
 
-    let adaPerubahan = false;
-    const changedPIdx = new Set();
+  // Kembalikan tombol DOWNLOAD & EDIT JADWAL
+  document.querySelector('.panel-bottom > div').innerHTML = `
+    <button id="btn-download" onclick="downloadJadwal()" style="width:25vw; height:5vh; border:2.5px solid #111; background:transparent; font-family:'Caveat',cursive; font-size:clamp(14px,2.4vh,20px); cursor:pointer; letter-spacing:0.05em; white-space:nowrap; overflow:hidden;" onmouseover="this.style.background='#000';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='#111';this.style.transform='';this.style.boxShadow='3px 3px 0 #111'">⬇ DOWNLOAD</button>
+    <button id="btn-edit" onclick="editJadwal()" style="width:25vw; height:5vh; border:2.5px solid #111; background:transparent; font-family:'Caveat',cursive; font-size:clamp(14px,2.4vh,20px); cursor:pointer; letter-spacing:0.05em; white-space:nowrap; overflow:hidden;" onmouseover="this.style.background='#000';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='#111';this.style.transform='';this.style.boxShadow='3px 3px 0 #111'">✎ EDIT JADWAL</button>
+  `;
 
-    // Buat set cell yang masih dalam antrian save — jangan ditimpa sync
-    const pendingKeys = new Set(saveQueue.map(q => `${q.pIdx}_${q.jIdx}`));
+  // Buka kembali tombol bulan & unit
+  document.getElementById('btn-bulan').disabled = false;
+  document.getElementById('btn-unit').disabled  = false;
+  document.getElementById('x-bulan').style.pointerEvents = '';
+  document.getElementById('x-unit').style.pointerEvents  = '';
+}
 
-    res.personil.forEach((personil, pIdx) => {
-      const localRow = lastJadwalData?.[pIdx];
-      if (!localRow) return;
+/* ── Helper UI tombol simpan/batal ──────── */
+function _tampilTombolSimpanBatalUI(pesan) {
+  const panelBottom = document.querySelector('.panel-bottom > div');
+  panelBottom.innerHTML = `
+    <div style="display:flex; align-items:center; justify-content:center; gap:1.5vw; height:100%; box-sizing:border-box; flex-wrap:nowrap;">
+      ${pesan ? `<span style="font-family:'Caveat',cursive; font-size:2vh; color:red;">${pesan}</span>` : ''}
+      <button id="btn-undo"
+        onclick="aksiUndo()"
+        disabled
+        style="height:5vh; padding:0 1.5vw; border:2.5px solid #111; background:transparent; font-family:'Caveat',cursive; font-size:clamp(14px,2.4vh,20px); cursor:not-allowed; opacity:0.35; letter-spacing:0.05em; white-space:nowrap;"
+        onmouseover="if(!this.disabled){this.style.background='#000';this.style.color='#fff'}"
+        onmouseout="this.style.background='transparent';this.style.color='#111';this.style.transform='';this.style.boxShadow='3px 3px 0 #111'">↩ UNDO</button>
+      <button id="btn-redo"
+        onclick="aksiRedo()"
+        disabled
+        style="height:5vh; padding:0 1.5vw; border:2.5px solid #111; background:transparent; font-family:'Caveat',cursive; font-size:clamp(14px,2.4vh,20px); cursor:not-allowed; opacity:0.35; letter-spacing:0.05em; white-space:nowrap;"
+        onmouseover="if(!this.disabled){this.style.background='#000';this.style.color='#fff'}"
+        onmouseout="this.style.background='transparent';this.style.color='#111';this.style.transform='';this.style.boxShadow='3px 3px 0 #111'">↪ REDO</button>
+      <button onclick="simpanJadwal()"
+        style="height:5vh; padding:0 1.5vw; border:2.5px solid #111; background:#000; color:#fff; font-family:'Caveat',cursive; font-size:clamp(14px,2.4vh,20px); cursor:pointer; letter-spacing:0.05em; white-space:nowrap;"
+        onmouseover="this.style.background='#333'"
+        onmouseout="this.style.background='#111'">✔ SELESAI</button>
+      <button onclick="batalEdit()"
+        style="height:5vh; padding:0 1.5vw; border:2.5px solid #111; background:transparent; font-family:'Caveat',cursive; font-size:clamp(14px,2.4vh,20px); cursor:pointer; letter-spacing:0.05em; white-space:nowrap;"
+        onmouseover="this.style.background='#000';this.style.color='#fff'"
+        onmouseout="this.style.background='transparent';this.style.color='#111';this.style.transform='';this.style.boxShadow='3px 3px 0 #111'">✕ BATAL</button>
+    </div>
+  `;
+}
 
-      personil.jadwal.forEach((serverVal, jIdx) => {
-        // Skip cell yang masih dalam antrian save
-        if (pendingKeys.has(`${pIdx}_${jIdx}`)) return;
-
-        const localVal = localRow[`day${jIdx + 1}`] || '';
-        const sVal     = String(serverVal || '');
-
-        if (sVal !== localVal) {
-          // Update data lokal
-          lastJadwalData[pIdx][`day${jIdx + 1}`] = sVal;
-
-          // Update tampilan cell
-          const cell = getCellElement(pIdx, jIdx);
-          if (cell) {
-            applyShiftToCell(cell, sVal, false);
-            // Highlight oranye — berubah oleh orang lain
-            cell.classList.remove('sync-flash');
-            void cell.offsetWidth;
-            cell.classList.add('sync-flash');
-            setTimeout(() => cell.classList.remove('sync-flash'), 2000);
-          }
-          adaPerubahan = true;
-          changedPIdx.add(pIdx);
-        }
-      });
-    });
-
-    if (adaPerubahan) {
-      changedPIdx.forEach(pIdx => updateHkStatsRow(pIdx));
-      showToast('Ada perubahan dari pengguna lain', 'info', 2500);
-    }
-
-  } catch (err) {
-    // Sync gagal — tidak perlu tampilkan error, biarkan saja
-    console.warn('Sync error:', err.message);
+/* ── Toast notifikasi ────────────────────── */
+function _tampilToast(pesan) {
+  let toast = document.getElementById('edit-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'edit-toast';
+    toast.style.cssText = `
+      position: fixed;
+      bottom: 12vh;
+      left: 50%;
+      transform: translateX(-50%) translateY(10px);
+      background: #111;
+      color: #fffef5;
+      font-family: 'Caveat', cursive;
+      font-size: clamp(12px, 1.9vh, 16px);
+      letter-spacing: 0.08em;
+      padding: 1.2vh 3vw;
+      border: 2px solid #000;
+      white-space: nowrap;
+      z-index: 9998;
+      opacity: 0;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      pointer-events: none;
+    `;
+    document.body.appendChild(toast);
   }
-}
 
-// ===================================================
-// ATTACH INLINE EDIT — event listener ke tbody
-// ===================================================
-
-function attachInlineEdit() {
-  const tbody = document.querySelector('table tbody');
-  if (!tbody) return;
-
-  // Clone untuk hapus listener lama
-  const newTbody = tbody.cloneNode(true);
-  tbody.replaceWith(newTbody);
-
-  newTbody.addEventListener('click', e => {
-    if (!isEditMode) return;
-    const td = e.target.closest('td');
-    if (!td || td.classList.contains('nama-col')) return;
-
-    const row  = td.closest('tr');
-    const pIdx = parseInt(row?.dataset.pidx ?? -1);
-    if (pIdx < 0) return;
-
-    const jIdx = Array.from(row.cells).indexOf(td) - 1;
-    if (jIdx < 0) return;
-
-    showShiftPopup(td, pIdx, jIdx);
+  toast.textContent = pesan;
+  // Muncul
+  requestAnimationFrame(() => {
+    toast.style.opacity   = '1';
+    toast.style.transform = 'translateX(-50%) translateY(0)';
   });
-}
-
-// ===================================================
-// HELPER — ambil element cell dari pIdx & jIdx
-// ===================================================
-
-function getCellElement(pIdx, jIdx) {
-  const row = document.querySelector(`tbody tr[data-pidx="${pIdx}"]`);
-  if (!row) return null;
-  return row.cells[jIdx + 1] || null; // +1 karena kolom pertama = NAMA
+  // Hilang setelah 2.5 detik
+  clearTimeout(toast._hideTimer);
+  toast._hideTimer = setTimeout(() => {
+    toast.style.opacity   = '0';
+    toast.style.transform = 'translateX(-50%) translateY(10px)';
+  }, 2500);
 }
