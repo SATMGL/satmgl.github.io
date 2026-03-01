@@ -300,10 +300,10 @@ function openModal(type) {
     content.style.gridTemplateColumns = 'repeat(3, 1fr)';
     content.innerHTML = cacheBulan.map(b =>
       `<button onclick="pilihBulan(${b.value},'${b.tahun}','${b.label}')"
-        style="border:2.5px solid #111; background:#fffef5; padding:1.2vh 0; font-family:'Caveat',cursive; font-size:2.4vh; font-weight:700; cursor:pointer; box-shadow:3px 3px 0 #111;"
-        onmouseover="this.style.background='#111';this.style.color='#fffef5';this.style.transform='translate(2px,2px)';this.style.boxShadow='1px 1px 0 #111'"
-        onmouseout="this.style.background='#fffef5';this.style.color='#111';this.style.transform='';this.style.boxShadow='3px 3px 0 #111'">
-        ${b.label}<br><span style="font-size:2vh;">${b.tahun}</span>
+        style="border:2px solid #000; background:#fff; padding:1.2vh 0; font-family:'Share Tech Mono',monospace; font-size:2vh; cursor:pointer;"
+        onmouseover="this.style.background='#000';this.style.color='#fff'"
+        onmouseout="this.style.background='#fff';this.style.color='#000'">
+        ${b.label}<br><span style="font-size:1.6vh;">${b.tahun}</span>
       </button>`
     ).join('');
   } else if (type === 'unit') {
@@ -315,9 +315,9 @@ function openModal(type) {
     content.style.gridTemplateColumns = 'repeat(3, 1fr)';
     content.innerHTML = cacheUnit.map(u =>
       `<button onclick="pilihUnit('${u.replace(/'/g,"\\'")}')"
-        style="border:2px solid #111; background:#fffef5; padding:1.4vh 0; font-family:'Caveat',cursive; font-size:clamp(14px,2.2vh,20px); font-weight:700; cursor:pointer; width:100%; letter-spacing:0.02em; box-shadow:2px 2px 0 #111;"
-        onmouseover="this.style.background='#111';this.style.color='#fffef5';this.style.transform='translate(2px,2px)';this.style.boxShadow='1px 1px 0 #111'"
-        onmouseout="this.style.background='#fffef5';this.style.color='#111';this.style.transform='';this.style.boxShadow='3px 3px 0 #111'">
+        style="border:2px solid #000; background:#fff; padding:1.4vh 0; font-family:'Share Tech Mono',monospace; font-size:clamp(11px,1.9vh,16px); cursor:pointer; width:100%; letter-spacing:0.04em;"
+        onmouseover="this.style.background='#000';this.style.color='#fff'"
+        onmouseout="this.style.background='#fff';this.style.color='#000'">
         ${u}
       </button>`
     ).join('');
@@ -396,13 +396,13 @@ function konfirmasiResetUnit() {
   document.getElementById('modal-title-text').textContent = 'KONFIRMASI';
   document.getElementById('modal-content').style.gridTemplateColumns = '1fr';
   document.getElementById('modal-content').innerHTML = `
-    <div style="text-align:center; padding:2vh 1vw; font-size:2.4vh; line-height:2;">
+    <div style="text-align:center; padding:2vh 1vw; font-size:2vh; line-height:2;">
       Anda sedang melihat jadwal<br><strong>${namaUnit}</strong>
     </div>
     <div style="display:flex; flex-direction:column; gap:1vh; padding:0 1vw 1.5vh;">
-      <button onclick="doResetUnit(false)" style="border:2px solid #000; background:#fff; padding:1.5vh; font-family:'Caveat',cursive; font-size:2.2vh; cursor:pointer;" onmouseover="this.style.background='#111';this.style.color='#fffef5';this.style.transform='translate(2px,2px)';this.style.boxShadow='1px 1px 0 #111'" onmouseout="this.style.background='#fffef5';this.style.color='#111';this.style.transform='';this.style.boxShadow='3px 3px 0 #111'">Tutup Jadwal ${namaUnit}</button>
-      <button onclick="doResetUnit(true)"  style="border:2px solid #000; background:#fff; padding:1.5vh; font-family:'Caveat',cursive; font-size:2.2vh; cursor:pointer;" onmouseover="this.style.background='#111';this.style.color='#fffef5';this.style.transform='translate(2px,2px)';this.style.boxShadow='1px 1px 0 #111'" onmouseout="this.style.background='#fffef5';this.style.color='#111';this.style.transform='';this.style.boxShadow='3px 3px 0 #111'">Ganti Jadwal Lain</button>
-      <button onclick="closeModal()" style="border:2px solid #000; background:#fff; padding:1.5vh; font-family:'Caveat',cursive; font-size:2.2vh; cursor:pointer; color:#888;" onmouseover="this.style.background='#111';this.style.color='#fffef5';this.style.transform='translate(2px,2px)';this.style.boxShadow='1px 1px 0 #111'" onmouseout="this.style.background='#fff';this.style.color='#888'">✕ Batal</button>
+      <button onclick="doResetUnit(false)" style="border:2px solid #000; background:#fff; padding:1.5vh; font-family:'Share Tech Mono',monospace; font-size:1.9vh; cursor:pointer;" onmouseover="this.style.background='#000';this.style.color='#fff'" onmouseout="this.style.background='#fff';this.style.color='#000'">Tutup Jadwal ${namaUnit}</button>
+      <button onclick="doResetUnit(true)"  style="border:2px solid #000; background:#fff; padding:1.5vh; font-family:'Share Tech Mono',monospace; font-size:1.9vh; cursor:pointer;" onmouseover="this.style.background='#000';this.style.color='#fff'" onmouseout="this.style.background='#fff';this.style.color='#000'">Ganti Jadwal Lain</button>
+      <button onclick="closeModal()" style="border:2px solid #000; background:#fff; padding:1.5vh; font-family:'Share Tech Mono',monospace; font-size:1.9vh; cursor:pointer; color:#888;" onmouseover="this.style.background='#000';this.style.color='#fff'" onmouseout="this.style.background='#fff';this.style.color='#888'">✕ Batal</button>
     </div>`;
   document.getElementById('modal-footer').style.display = 'none';
   _kunciModal();
@@ -423,12 +423,12 @@ function konfirmasiResetBulan() {
   document.getElementById('modal-title-text').textContent = 'KONFIRMASI';
   document.getElementById('modal-content').style.gridTemplateColumns = '1fr';
   document.getElementById('modal-content').innerHTML = `
-    <div style="text-align:center; padding:2vh 1vw; font-size:2.4vh; line-height:2;">
+    <div style="text-align:center; padding:2vh 1vw; font-size:2vh; line-height:2;">
       Anda sedang melihat jadwal bulan<br><strong>${namaBulan}</strong>
     </div>
     <div style="display:flex; flex-direction:column; gap:1vh; padding:0 1vw 1.5vh;">
-      <button onclick="doResetBulan()" style="border:2px solid #000; background:#fff; padding:1.5vh; font-family:'Caveat',cursive; font-size:2.2vh; cursor:pointer;" onmouseover="this.style.background='#111';this.style.color='#fffef5';this.style.transform='translate(2px,2px)';this.style.boxShadow='1px 1px 0 #111'" onmouseout="this.style.background='#fffef5';this.style.color='#111';this.style.transform='';this.style.boxShadow='3px 3px 0 #111'">Tutup Jadwal ${namaBulan}</button>
-      <button onclick="closeModal()" style="border:2px solid #000; background:#fff; padding:1.5vh; font-family:'Caveat',cursive; font-size:2.2vh; cursor:pointer; color:#888;" onmouseover="this.style.background='#111';this.style.color='#fffef5';this.style.transform='translate(2px,2px)';this.style.boxShadow='1px 1px 0 #111'" onmouseout="this.style.background='#fff';this.style.color='#888'">✕ Batal</button>
+      <button onclick="doResetBulan()" style="border:2px solid #000; background:#fff; padding:1.5vh; font-family:'Share Tech Mono',monospace; font-size:1.9vh; cursor:pointer;" onmouseover="this.style.background='#000';this.style.color='#fff'" onmouseout="this.style.background='#fff';this.style.color='#000'">Tutup Jadwal ${namaBulan}</button>
+      <button onclick="closeModal()" style="border:2px solid #000; background:#fff; padding:1.5vh; font-family:'Share Tech Mono',monospace; font-size:1.9vh; cursor:pointer; color:#888;" onmouseover="this.style.background='#000';this.style.color='#fff'" onmouseout="this.style.background='#fff';this.style.color='#888'">✕ Batal</button>
     </div>`;
   document.getElementById('modal-footer').style.display = 'none';
   _kunciModal();

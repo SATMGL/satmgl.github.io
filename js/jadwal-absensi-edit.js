@@ -35,8 +35,8 @@ function _buatPopup() {
     z-index: 999;
     background: #fff;
     border: 2px solid #000;
-    font-family: 'Caveat', cursive;
-    box-shadow: 4px 4px 0 #111;
+    font-family: 'Share Tech Mono', monospace;
+    box-shadow: 4px 4px 0 #000;
   `;
   document.body.appendChild(popup);
 
@@ -64,7 +64,7 @@ function _tampilPopup(td, shifts) {
         border-bottom: 1px solid #eee;
         background: ${s === nilaiSaat ? '#000' : SHIFT_COLOR[s] || '#fff'};
         color: ${s === nilaiSaat ? '#fff' : '#000'};
-        font-family: 'Caveat', cursive;
+        font-family: 'Share Tech Mono', monospace;
         font-size: clamp(11px, 1.9vh, 15px);
         cursor: pointer;
         text-align: center;
@@ -83,7 +83,7 @@ function _tampilPopup(td, shifts) {
         border: none;
         background: ${nilaiSaat === '' ? '#000' : '#fff'};
         color: ${nilaiSaat === '' ? '#fff' : '#888'};
-        font-family: 'Caveat', cursive;
+        font-family: 'Share Tech Mono', monospace;
         font-size: clamp(11px, 1.9vh, 15px);
         cursor: pointer;
         text-align: center;
@@ -327,18 +327,18 @@ function _tampilKonfirmasiBatal() {
   const panelBottom = document.querySelector('.panel-bottom > div');
   panelBottom.innerHTML = `
     <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.8vh; height:100%; padding:0.5vh 0; box-sizing:border-box;">
-      <span style="font-family:'Caveat',cursive; font-size:clamp(13px,2vh,17px); text-align:center; letter-spacing:0.03em;">
+      <span style="font-family:'Share Tech Mono',monospace; font-size:clamp(10px,1.7vh,14px); text-align:center; letter-spacing:0.03em;">
         Semua perubahan yang baru saja dibuat akan dibatalkan.
       </span>
       <div style="display:flex; gap:2vw;">
         <button onclick="_konfirmasiBatalYa()"
-          style="height:4vh; padding:0 2vw; border:2.5px solid #111; background:#000; color:#fff; font-family:'Caveat',cursive; font-size:clamp(13px,2vh,17px); cursor:pointer; letter-spacing:0.05em; white-space:nowrap;"
+          style="height:4vh; padding:0 2vw; border:2px solid #000; background:#000; color:#fff; font-family:'Share Tech Mono',monospace; font-size:clamp(10px,1.7vh,14px); cursor:pointer; letter-spacing:0.05em; white-space:nowrap;"
           onmouseover="this.style.background='#333'"
-          onmouseout="this.style.background='#111'">Ya, Batalkan</button>
+          onmouseout="this.style.background='#000'">Ya, Batalkan</button>
         <button onclick="_konfirmasiBatalTidak()"
-          style="height:4vh; padding:0 2vw; border:2.5px solid #111; background:transparent; font-family:'Caveat',cursive; font-size:clamp(13px,2vh,17px); cursor:pointer; letter-spacing:0.05em; white-space:nowrap;"
+          style="height:4vh; padding:0 2vw; border:2px solid #000; background:transparent; font-family:'Share Tech Mono',monospace; font-size:clamp(10px,1.7vh,14px); cursor:pointer; letter-spacing:0.05em; white-space:nowrap;"
           onmouseover="this.style.background='#000';this.style.color='#fff'"
-          onmouseout="this.style.background='transparent';this.style.color='#111';this.style.transform='';this.style.boxShadow='3px 3px 0 #111'">Lanjut Edit</button>
+          onmouseout="this.style.background='transparent';this.style.color='#000'">Lanjut Edit</button>
       </div>
     </div>
   `;
@@ -465,8 +465,8 @@ function keluarModeEdit() {
 
   // Kembalikan tombol DOWNLOAD & EDIT JADWAL
   document.querySelector('.panel-bottom > div').innerHTML = `
-    <button id="btn-download" onclick="downloadJadwal()" style="width:25vw; height:5vh; border:2.5px solid #111; background:transparent; font-family:'Caveat',cursive; font-size:clamp(14px,2.4vh,20px); cursor:pointer; letter-spacing:0.05em; white-space:nowrap; overflow:hidden;" onmouseover="this.style.background='#000';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='#111';this.style.transform='';this.style.boxShadow='3px 3px 0 #111'">⬇ DOWNLOAD</button>
-    <button id="btn-edit" onclick="editJadwal()" style="width:25vw; height:5vh; border:2.5px solid #111; background:transparent; font-family:'Caveat',cursive; font-size:clamp(14px,2.4vh,20px); cursor:pointer; letter-spacing:0.05em; white-space:nowrap; overflow:hidden;" onmouseover="this.style.background='#000';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='#111';this.style.transform='';this.style.boxShadow='3px 3px 0 #111'">✎ EDIT JADWAL</button>
+    <button id="btn-download" onclick="downloadJadwal()" style="width:25vw; height:5vh; border:2px solid #000; background:transparent; font-family:'Share Tech Mono',monospace; font-size:clamp(10px,1.8vh,16px); cursor:pointer; letter-spacing:0.05em; white-space:nowrap; overflow:hidden;" onmouseover="this.style.background='#000';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='#000'">⬇ DOWNLOAD</button>
+    <button id="btn-edit" onclick="editJadwal()" style="width:25vw; height:5vh; border:2px solid #000; background:transparent; font-family:'Share Tech Mono',monospace; font-size:clamp(10px,1.8vh,16px); cursor:pointer; letter-spacing:0.05em; white-space:nowrap; overflow:hidden;" onmouseover="this.style.background='#000';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='#000'">✎ EDIT JADWAL</button>
   `;
 
   // Buka kembali tombol bulan & unit
@@ -481,27 +481,27 @@ function _tampilTombolSimpanBatalUI(pesan) {
   const panelBottom = document.querySelector('.panel-bottom > div');
   panelBottom.innerHTML = `
     <div style="display:flex; align-items:center; justify-content:center; gap:1.5vw; height:100%; box-sizing:border-box; flex-wrap:nowrap;">
-      ${pesan ? `<span style="font-family:'Caveat',cursive; font-size:2vh; color:red;">${pesan}</span>` : ''}
+      ${pesan ? `<span style="font-family:'Share Tech Mono',monospace; font-size:1.6vh; color:red;">${pesan}</span>` : ''}
       <button id="btn-undo"
         onclick="aksiUndo()"
         disabled
-        style="height:5vh; padding:0 1.5vw; border:2.5px solid #111; background:transparent; font-family:'Caveat',cursive; font-size:clamp(14px,2.4vh,20px); cursor:not-allowed; opacity:0.35; letter-spacing:0.05em; white-space:nowrap;"
+        style="height:5vh; padding:0 1.5vw; border:2px solid #000; background:transparent; font-family:'Share Tech Mono',monospace; font-size:clamp(10px,1.8vh,16px); cursor:not-allowed; opacity:0.35; letter-spacing:0.05em; white-space:nowrap;"
         onmouseover="if(!this.disabled){this.style.background='#000';this.style.color='#fff'}"
-        onmouseout="this.style.background='transparent';this.style.color='#111';this.style.transform='';this.style.boxShadow='3px 3px 0 #111'">↩ UNDO</button>
+        onmouseout="this.style.background='transparent';this.style.color='#000'">↩ UNDO</button>
       <button id="btn-redo"
         onclick="aksiRedo()"
         disabled
-        style="height:5vh; padding:0 1.5vw; border:2.5px solid #111; background:transparent; font-family:'Caveat',cursive; font-size:clamp(14px,2.4vh,20px); cursor:not-allowed; opacity:0.35; letter-spacing:0.05em; white-space:nowrap;"
+        style="height:5vh; padding:0 1.5vw; border:2px solid #000; background:transparent; font-family:'Share Tech Mono',monospace; font-size:clamp(10px,1.8vh,16px); cursor:not-allowed; opacity:0.35; letter-spacing:0.05em; white-space:nowrap;"
         onmouseover="if(!this.disabled){this.style.background='#000';this.style.color='#fff'}"
-        onmouseout="this.style.background='transparent';this.style.color='#111';this.style.transform='';this.style.boxShadow='3px 3px 0 #111'">↪ REDO</button>
+        onmouseout="this.style.background='transparent';this.style.color='#000'">↪ REDO</button>
       <button onclick="simpanJadwal()"
-        style="height:5vh; padding:0 1.5vw; border:2.5px solid #111; background:#000; color:#fff; font-family:'Caveat',cursive; font-size:clamp(14px,2.4vh,20px); cursor:pointer; letter-spacing:0.05em; white-space:nowrap;"
+        style="height:5vh; padding:0 1.5vw; border:2px solid #000; background:#000; color:#fff; font-family:'Share Tech Mono',monospace; font-size:clamp(10px,1.8vh,16px); cursor:pointer; letter-spacing:0.05em; white-space:nowrap;"
         onmouseover="this.style.background='#333'"
-        onmouseout="this.style.background='#111'">✔ SELESAI</button>
+        onmouseout="this.style.background='#000'">✔ SELESAI</button>
       <button onclick="batalEdit()"
-        style="height:5vh; padding:0 1.5vw; border:2.5px solid #111; background:transparent; font-family:'Caveat',cursive; font-size:clamp(14px,2.4vh,20px); cursor:pointer; letter-spacing:0.05em; white-space:nowrap;"
+        style="height:5vh; padding:0 1.5vw; border:2px solid #000; background:transparent; font-family:'Share Tech Mono',monospace; font-size:clamp(10px,1.8vh,16px); cursor:pointer; letter-spacing:0.05em; white-space:nowrap;"
         onmouseover="this.style.background='#000';this.style.color='#fff'"
-        onmouseout="this.style.background='transparent';this.style.color='#111';this.style.transform='';this.style.boxShadow='3px 3px 0 #111'">✕ BATAL</button>
+        onmouseout="this.style.background='transparent';this.style.color='#000'">✕ BATAL</button>
     </div>
   `;
 }
@@ -517,9 +517,9 @@ function _tampilToast(pesan) {
       bottom: 12vh;
       left: 50%;
       transform: translateX(-50%) translateY(10px);
-      background: #111;
-      color: #fffef5;
-      font-family: 'Caveat', cursive;
+      background: #000;
+      color: #fff;
+      font-family: 'Share Tech Mono', monospace;
       font-size: clamp(12px, 1.9vh, 16px);
       letter-spacing: 0.08em;
       padding: 1.2vh 3vw;
