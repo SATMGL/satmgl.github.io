@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jadwal Kerja</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/jadwal.css">
+  <link id="tema-mode" rel="stylesheet" href="">
+</head>
+<body>
+
+  <header>
+    <button id="btn-kembali" onclick="aksiKembali()"
+      style="position:absolute; left:0; top:0; height:100%; width:8vh; border:none;
+      border-right:2px solid #000; background:transparent; font-family:'Share Tech Mono',monospace;
+      font-size:5vh; cursor:pointer; display:flex; align-items:center; justify-content:center;"
+      onmouseover="this.style.background='#000';this.style.color='#fff'"
+      onmouseout="this.style.background='transparent';this.style.color='#000'">&#8592;</button>
+    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:0.3vh; padding:0 9vh; box-sizing:border-box; width:100%; overflow:hidden;">
+      <span id="header-judul" style="font-family:'Share Tech Mono',monospace; font-weight:bold;
+        font-size:clamp(8px,2.2vh,20px); letter-spacing:0.18em; white-space:nowrap;
+        overflow:hidden; text-overflow:ellipsis; max-width:100%;">
+        JADWAL PELAKSANAAN KERJA
+      </span>
+      <span style="font-family:'Share Tech Mono',monospace; font-size:clamp(6px,1.2vh,12px);
+        letter-spacing:0.3em; color:#555; white-space:nowrap;">
+        &#9632;&#9632;&#9632;
+      </span>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ── PANEL PILIH BULAN & UNIT ── -->
+    <div class="panel">
+      <div style="display:flex; align-items:center; justify-content:center; gap:15vw; height:100%; box-sizing:border-box;">
+
+        <!-- BULAN -->
+        <div style="display:flex; flex-direction:column; align-items:center; gap:0.8vh;">
+          <div style="width:30vw; height:5vh; border:2px solid #000; display:flex; align-items:center; justify-content:center; position:relative;">
+            <button id="btn-bulan" onclick="openModal('bulan')" disabled
+              style="width:100%; height:100%; border:none; background:transparent;
+              font-family:'Share Tech Mono',monospace; font-size:2.2vh; cursor:not-allowed;
+              letter-spacing:0.05em; opacity:0.5;">&#8212; PILIH BULAN &#8212;</button>
+            <button id="x-bulan" onclick="konfirmasiResetBulan()"
+              style="display:none; position:absolute; right:0; top:0; height:100%; width:4vh;
+              border:none; border-left:2px solid #000; background:transparent;
+              font-family:'Share Tech Mono',monospace; font-size:2vh; cursor:pointer;"
+>&#10005;</button>
+          </div>
+          <div id="info-bulan" style="font-family:'Share Tech Mono',monospace; font-size:1.6vh; color:#555;">&#9203; Memuat data bulan...</div>
+        </div>
+
+        <!-- UNIT -->
+        <div style="display:flex; flex-direction:column; align-items:center; gap:0.8vh;">
+          <div style="width:30vw; height:5vh; border:2px solid #000; display:flex; align-items:center; justify-content:center; position:relative;">
+            <button id="btn-unit" onclick="openModal('unit')" disabled
+              style="width:100%; height:100%; border:none; background:transparent;
+              font-family:'Share Tech Mono',monospace; font-size:2.2vh; cursor:not-allowed;
+              letter-spacing:0.05em; opacity:0.5;">&#8212; PILIH UNIT &#8212;</button>
+            <button id="x-unit" onclick="konfirmasiResetUnit()"
+              style="display:none; position:absolute; right:0; top:0; height:100%; width:4vh;
+              border:none; border-left:2px solid #000; background:transparent;
+              font-family:'Share Tech Mono',monospace; font-size:2vh; cursor:pointer;"
+>&#10005;</button>
+          </div>
+          <div id="info-unit" style="font-family:'Share Tech Mono',monospace; font-size:1.6vh; color:#555;">&#9203; Memuat data unit...</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── MODAL PILIH BULAN / UNIT ── -->
+    <div id="modal-overlay" onclick="closeModal()"
+      style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45);
+      z-index:100; align-items:center; justify-content:center;">
+      <div id="modal-box" onclick="event.stopPropagation()"
+        style="background:#fff; border:2px solid #000; width:clamp(280px,60vw,600px); max-height:80vh;
+        display:flex; flex-direction:column; font-family:'Share Tech Mono',monospace; position:relative;">
+        <div id="modal-title"
+          style="min-height:6vh; border-bottom:2px solid #000; display:flex; align-items:center;
+          justify-content:center; font-weight:bold; font-size:clamp(12px,2vh,18px);
+          flex-shrink:0; position:relative; padding:0.5vh 6vh 0.5vh 1vh; box-sizing:border-box;">
+          <span id="modal-title-text" style="text-align:center;"></span>
+          <button onclick="closeModal()"
+            style="position:absolute; right:0; top:0; height:100%; width:6vh; border:none;
+            border-left:2px solid #000; background:transparent;
+            font-family:'Share Tech Mono',monospace; font-size:clamp(12px,2vh,18px); cursor:pointer;
+            display:flex; align-items:center; justify-content:center;"
+            onmouseover="this.style.background='#000';this.style.color='#fff'"
+            onmouseout="this.style.background='transparent';this.style.color='#000'">&#10005;</button>
+        </div>
+        <div id="modal-content"
+          style="overflow-y:auto; overflow-x:hidden; padding:1.5vh 1.5vw; display:grid; gap:1vh;
+          grid-template-columns:1fr 1fr 1fr; box-sizing:border-box;"></div>
+        <div id="modal-footer"
+          style="min-height:6vh; border-top:2px solid #000; display:flex;
+          align-items:center; justify-content:center; flex-shrink:0; padding:0.5vh;">
+          <button onclick="closeModal()"
+            style="height:5vh; border:2px solid #000; background:#fff; padding:0 3vw;
+            font-family:'Share Tech Mono',monospace; font-size:clamp(11px,1.8vh,16px); cursor:pointer;
+            white-space:nowrap;"
+            onmouseover="this.style.background='#000';this.style.color='#fff'"
+            onmouseout="this.style.background='#fff';this.style.color='#000'">TUTUP</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RUNNING TEKS INFO MODE ── -->
+    <div class="running-teks-wrap">
+      <span class="running-teks" id="running-teks-isi">
+        &#9632; MEMUAT MODE...
+      </span>
+    </div>
+
+    <!-- ── TABEL JADWAL ── -->
+    <div class="box-jadwal">
+      <div class="jadwal-judul" id="jadwal-judul-tabel"><span>JADWAL KERJA</span></div>
+      <div class="jadwal-ticker" id="jadwal-ticker">
+        <div class="jadwal-ticker-track" id="jadwal-ticker-track">
+          <span id="jadwal-ticker-text"></span>
+        </div>
+      </div>
+      <div class="jadwal">
+        <div class="jadwal-scroll-wrapper">
+          <table id="tabel-jadwal">
+            <colgroup id="colgroup-hari">
+              <col class="col-no"><col class="col-nama">
+            </colgroup>
+            <thead id="thead-header">
+              <tr id="tr-hari">
+                <th class="col-no" rowspan="2">NO</th>
+                <th class="col-nama" rowspan="2">NAMA</th>
+              </tr>
+              <tr id="tr-tanggal"></tr>
+            </thead>
+            <tbody id="tbody-data"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="jadwal-fader">
+        <div class="jadwal-fader-track">
+          <div class="jadwal-fader-knob" id="fader-knob">
+            <div class="fader-grip"></div>
+            <div class="fader-grip"></div>
+            <div class="fader-grip"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PANEL BAWAH ── -->
+    <div class="panel-bottom">
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr;
+        align-items:center; height:100%; box-sizing:border-box;">
+
+        <!-- KIRI: UNDO / REDO (selalu kolom kiri, show/hide via JS) -->
+        <div id="wrap-undo-redo"
+          style="display:flex; align-items:center; justify-content:center; height:5vh;">
+          <button id="btn-undo" disabled onclick="lakukanUndo()"
+            style="visibility:hidden; height:100%; padding:0 1.5vw; border:2px solid #000; border-right:none;
+            background:#fff; font-family:'Share Tech Mono',monospace; font-size:1.6vh;
+            cursor:not-allowed; opacity:0.4; letter-spacing:0.05em;"
+            onmouseover="if(!this.disabled){this.style.background='#000';this.style.color='#fff'}"
+            onmouseout="this.style.background='#fff';this.style.color='#000'">&#8617; UNDO</button>
+          <button id="btn-redo" disabled onclick="lakukanRedo()"
+            style="visibility:hidden; height:100%; padding:0 1.5vw; border:2px solid #000;
+            background:#fff; font-family:'Share Tech Mono',monospace; font-size:1.6vh;
+            cursor:not-allowed; opacity:0.4; letter-spacing:0.05em;"
+            onmouseover="if(!this.disabled){this.style.background='#000';this.style.color='#fff'}"
+            onmouseout="this.style.background='#fff';this.style.color='#000'">REDO &#8618;</button>
+        </div>
+
+        <!-- TENGAH: DOWNLOAD / BATAL -->
+        <div style="display:flex; align-items:center; justify-content:center; height:5vh;">
+          <button id="btn-download" onclick="downloadJadwal()" disabled
+            style="width:90%; height:100%; border:2px solid #000; background:transparent;
+            font-family:'Share Tech Mono',monospace; font-size:clamp(10px,1.8vh,16px);
+            letter-spacing:0.05em; white-space:nowrap; overflow:hidden;"
+            onmouseover="if(!this.disabled){this.style.background='#000';this.style.color='#fff'}"
+            onmouseout="this.style.background='transparent';this.style.color='#000'">&#11015; DOWNLOAD</button>
+        </div>
+
+        <!-- KANAN: EDIT JADWAL / SIMPAN -->
+        <div style="display:flex; align-items:center; justify-content:center; height:5vh;">
+          <button id="btn-edit" onclick="editJadwal()" disabled
+            style="width:90%; height:100%; border:2px solid #000; background:transparent;
+            font-family:'Share Tech Mono',monospace; font-size:clamp(10px,1.8vh,16px);
+            letter-spacing:0.05em; white-space:nowrap; overflow:hidden;"
+            onmouseover="if(!this.disabled){this.style.background='#000';this.style.color='#fff'}"
+            onmouseout="this.style.background='transparent';this.style.color='#000'">&#9998; EDIT JADWAL</button>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    <!-- KIRI: kosong -->
+    <div style="position:absolute; left:0; top:0; height:100%; width:8vh;"></div>
+
+    <!-- TENGAH: copyright -->
+    <div style="display:flex; align-items:center; justify-content:center;
+      font-family:'Share Tech Mono',monospace; font-size:clamp(7px,1.3vh,12px);
+      letter-spacing:0.12em; color:#555; text-align:center; padding:0 10vh;">
+      &copy; <span id="footer-tahun"></span> &nbsp; tukang rewang
+    </div>
+
+    <!-- KANAN: tombol ADMIN MODE -->
+    <button id="btn-admin-mode" onclick="toggleAdminMode()"
+      style="position:absolute; right:0; top:0; height:100%; padding:0 1.5vw;
+      border:none; border-left:2px solid #000; background:transparent;
+      font-family:'Share Tech Mono',monospace; font-size:clamp(7px,1.2vh,11px);
+      letter-spacing:0.08em; cursor:pointer; display:flex; align-items:center;
+      justify-content:center; gap:0.5vw; white-space:nowrap;"
+      onmouseover="this.style.background='#000';this.style.color='#fff'"
+      onmouseout="this.style.background='transparent';this.style.color='#000'">
+      <span id="admin-mode-indicator"
+        style="width:1.6vh; height:1.6vh; border-radius:50%; border:1.5px solid #000;
+        background:#fff; display:inline-block; flex-shrink:0; transition:background 0.2s;"></span>
+      ADMIN
+    </button>
+  </footer>
+
+  <script src="../js/jadwal.js"></script>
+  <script src="../js/jadwal-edit.js"></script>
+  <script src="../js/jadwal-tombol.js"></script>
+  <script>
+    // Set judul tabel segera setelah semua script load
+    (function() {
+      const el = document.getElementById('jadwal-judul-tabel');
+      if (el && typeof JUDUL_MODE !== 'undefined' && MODE) {
+        const sp = el.querySelector('span'); if(sp) sp.textContent = JUDUL_MODE[MODE] || 'JADWAL KERJA';
+      }
+    })();
+  </script>
+</body>
+</html>
