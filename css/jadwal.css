@@ -78,7 +78,8 @@ main {
   border: 2px solid #000;
   display: flex; flex-direction: column;
   align-items: stretch; justify-content: space-between;
-  padding: 1vh 1vw; box-sizing: border-box; background: transparent;
+  padding: 0; box-sizing: border-box; background: transparent;
+  gap: 1vh; /* FIXED: Use gap instead of padding for clean borders */
 }
 
 footer {
@@ -113,6 +114,7 @@ footer {
   box-sizing: border-box;
   overflow: hidden;
   border: 2px solid #000;
+  margin: 0; /* FIXED: No margin - main has gap now */
 }
 
 /* ── Jadwal inner — kotak judul+tabel ────── */
@@ -121,7 +123,7 @@ footer {
   border: 2px solid #000;
   border-top: none; /* nyambung dengan border bawah judul */
   background: #fff;
-  margin: 0 1vw 0.5vh 1vw; /* FIXED: reduced bottom margin from 1vh to 0.5vh */
+  margin: 0; /* FIXED: No margin - cleaner alignment */
   height: auto;
   min-height: calc(var(--tinggi-hari) + var(--tinggi-tanggal));
   max-height: calc(100% - (var(--tinggi-judul) + 3vh)); /* Ensure fader fits */
@@ -136,7 +138,7 @@ footer {
   display: flex; align-items: center; justify-content: center;
   box-sizing: border-box; font-weight: bold;
   font-size: var(--font-judul); flex-shrink: 0;
-  margin: 0.5vh 1vw 0 1vw; /* FIXED: reduced top margin from 1vh to 0.5vh */
+  margin: 0; /* FIXED: No margin - cleaner alignment */
   overflow: hidden;
 }
 
