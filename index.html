@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>SATPAM MAGELANG</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4846256718164486" crossorigin="anonymous"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+html, body {
+  width:100%; height:100%; overflow:hidden;
+  font-family:'Poppins', sans-serif;
+  background: #dfe5f5;
+  display:flex; flex-direction:column;
+}
+/* pakai --vh custom agar tidak tertutup navbar HP */
+body { height: calc(var(--vh, 1vh) * 100); }
+
+/* ── HEADER ── */
+header {
+  flex-shrink:0;
+  background: linear-gradient(120deg, #2d3436, #485460, #636e72);
+  padding: clamp(8px,1.8vh,20px) 20px clamp(6px,1.4vh,16px);
+  text-align:center; position:relative; overflow:hidden;
+}
+header::before {
+  content:''; position:absolute; inset:0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.06'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.header-inner { position:relative; z-index:1; }
+.header-logo {
+  width: clamp(34px,5vh,52px); height: clamp(34px,5vh,52px);
+  border-radius:12px; margin:0 auto clamp(4px,.8vh,10px);
+  background:rgba(255,255,255,.25);
+  border:2px solid rgba(255,255,255,.4);
+  display:flex; align-items:center; justify-content:center;
+  font-size: clamp(20px,3.2vh,28px);
+  box-shadow: 0 4px 20px rgba(0,0,0,.15);
+  animation: popIn .5s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes popIn { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+header h1 {
+  font-size: clamp(15px,2.4vh,22px); font-weight:800;
+  color:white; letter-spacing:.3px;
+  animation: slideUp .4s .15s both;
+}
+header p {
+  font-size: clamp(10px,1.4vh,13px); color:rgba(255,255,255,.8);
+  margin-top:3px; animation: slideUp .4s .25s both;
+}
+@keyframes slideUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── MENU GRID ── */
+.menu {
+  flex:1; min-height:0; display:grid;
+  grid-template-columns: repeat(2,1fr);
+  grid-template-rows: repeat(3,1fr);
+  gap: clamp(5px,1vh,10px);
+  padding: clamp(6px,1.2vh,12px) clamp(12px,3vw,18px) clamp(4px,.8vh,8px);
+}
+
+.card {
+  background:white; border-radius:14px;
+  padding: 4px 8px; min-height:0;
+  text-decoration:none;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:clamp(3px,.6vh,7px);
+  box-shadow: 0 3px 12px rgba(95,124,255,.09);
+  border: 1.5px solid #e8edff;
+  transition: transform .18s, box-shadow .18s;
+  position:relative; overflow:hidden;
+  animation: cardIn .45s both;
+}
+.card:nth-child(1){animation-delay:.08s}
+.card:nth-child(2){animation-delay:.15s}
+.card:nth-child(3){animation-delay:.22s}
+.card:nth-child(4){animation-delay:.29s}
+.card:nth-child(5){animation-delay:.36s}
+.card:nth-child(6){animation-delay:.43s}
+@keyframes cardIn {
+  from{opacity:0;transform:translateY(16px) scale(.97)}
+  to  {opacity:1;transform:translateY(0)    scale(1)}
+}
+.card:active { transform:scale(.96); box-shadow:0 2px 8px rgba(95,124,255,.1); }
+
+/* ── CARD — 3D timbul ── */
+.menu {
+  perspective: 800px;
+}
+
+.card {
+  background: linear-gradient(160deg, #ffffff 0%, #f0f4ff 100%);
+  border: 1.5px solid rgba(255,255,255,.9);
+  border-bottom-color: #d0d8ee;
+  border-right-color: #d8deee;
+  border-radius:16px;
+
+  /* efek timbul 3D */
+  box-shadow:
+    0 1px 0   rgba(255,255,255,.9) inset,
+    1px 0 0   rgba(255,255,255,.6) inset,
+    0 6px 0   #c8d0e8,
+    0 8px 16px rgba(100,120,200,.18),
+    0 2px 4px  rgba(100,120,200,.12);
+
+  transform: translateY(0) rotateX(2deg);
+  transform-style: preserve-3d;
+  transition: transform .18s ease, box-shadow .18s ease;
+  will-change: transform;
+}
+
+.card:hover {
+  transform: translateY(-4px) rotateX(0deg);
+  box-shadow:
+    0 1px 0   rgba(255,255,255,.9) inset,
+    1px 0 0   rgba(255,255,255,.6) inset,
+    0 10px 0  #c0c8e0,
+    0 14px 28px rgba(100,120,200,.22),
+    0 4px 8px  rgba(100,120,200,.15);
+}
+
+.card:active {
+  transform: translateY(4px) rotateX(4deg);
+  box-shadow:
+    0 1px 0   rgba(255,255,255,.9) inset,
+    0 2px 0   #c8d0e8,
+    0 3px 8px rgba(100,120,200,.15);
+}
+
+/* accent kiri */
+.card::before {
+  content:''; position:absolute;
+  left:0; top:18%; bottom:18%;
+  width:3px; border-radius:4px;
+}
+.c1::before { background:#5f7cff; }
+.c2::before { background:#0ca678; }
+.c3::before { background:#f76707; }
+.c4::before { background:#2f9e44; }
+.c5::before { background:#e64980; }
+.c6::before { background:#7950f2; }
+
+/* icon wrap */
+.card-icon-wrap {
+  width: clamp(28px,4.5vh,46px); height: clamp(28px,4.5vh,46px);
+  border-radius:10px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size: clamp(13px,2.4vh,22px);
+  background: rgba(255,255,255,.8);
+  box-shadow: 0 2px 6px rgba(100,120,200,.15), 0 1px 0 rgba(255,255,255,.9) inset;
+  border: 1px solid rgba(200,210,240,.5);
+}
+
+.card-label {
+  font-size: clamp(8px,1.25vh,11.5px); font-weight:700;
+  text-align:center; line-height:1.25; letter-spacing:.2px;
+  color: #2b2f4b;
+  text-shadow: 0 1px 0 rgba(255,255,255,.8);
+}
+
+/* ── ADMIN ── */
+.admin-wrap {
+  flex-shrink:0; text-align:center;
+  padding: 0 16px clamp(4px,.7vh,8px);
+  animation: slideUp .4s .5s both;
+}
+.admin {
+  display:inline-flex; align-items:center; gap:6px;
+  padding: clamp(6px,.9vh,10px) 22px;
+  border-radius:40px; text-decoration:none;
+  background:white; border:1.5px solid #e8edff;
+  font-size: clamp(10px,1.3vh,12px); font-weight:700;
+  color:#d81b60; box-shadow:0 3px 12px rgba(0,0,0,.07);
+  transition:.2s;
+}
+.admin:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,0,0,.1); }
+.admin:active { transform:scale(.97); }
+
+/* ── FOOTER ── */
+footer {
+  flex-shrink:0; text-align:center;
+  padding: clamp(3px,.6vh,6px) 16px;
+  font-size: clamp(9px,1.1vh,11px); color:#aaa;
+  font-style:italic;
+}
+
+.ads-wrapper { flex-shrink:0; padding:0 20px clamp(4px,.8vh,8px); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-logo">🛡️</div>
+    <h1>SATPAM MAGELANG</h1>
+    <p>Manajemen Jadwal &amp; Personil</p>
+  </div>
+</header>
+
+<section class="menu">
+  <a href="pages/jadwal.html?mode=PEL" class="card c1">
+    <div class="card-icon-wrap">📅</div>
+    <span class="card-label">JADWAL PELAKSANAAN KERJA</span>
+  </a>
+  <a href="pages/jadwal.html?mode=PEN" class="card c2">
+    <div class="card-icon-wrap">📤</div>
+    <span class="card-label">JADWAL PENGIRIMAN ABSENSI</span>
+  </a>
+  <a href="pages/kegiatan.html" class="card c3">
+    <div class="card-icon-wrap">🎉</div>
+    <span class="card-label">DAFTAR KEGIATAN</span>
+  </a>
+  <a href="pages/database.html" class="card c4">
+    <div class="card-icon-wrap">👥</div>
+    <span class="card-label">DATA PERSONIL</span>
+  </a>
+  <a href="pages/hubungi-admin.html" class="card c5">
+    <div class="card-icon-wrap">📋</div>
+    <span class="card-label">FORM PERSONIL BACKUP</span>
+  </a>
+  <a href="pages/hubungi-admin.html" class="card c6">
+    <div class="card-icon-wrap">⏱️</div>
+    <span class="card-label">TIMESHEET MAKER</span>
+  </a>
+</section>
+
+<div class="admin-wrap">
+  <a href="pages/hubungi-admin.html" class="admin">✉️ &nbsp;HUBUNGI ADMIN</a>
+</div>
+
+<div class="ads-wrapper">
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-4846256718164486"
+       data-ad-slot="ISI_DENGAN_AD_SLOT"
+       data-ad-format="horizontal"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+
+<footer>© 2026 SATPAM MAGELANG &nbsp;·&nbsp; Dikembangkan oleh <strong style="color:#888;">TUKANG REWANG</strong></footer>
+
+<script>
+function setVh() {
+  document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px');
+}
+setVh();
+window.addEventListener('resize', setVh);
+window.addEventListener('orientationchange', () => setTimeout(setVh, 150));
+</script>
+</body>
+</html>

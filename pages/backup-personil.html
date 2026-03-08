@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Form Personil Backup</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #dfe5f5;
+  --white:   #ffffff;
+  --text:    #2b2f4b;
+  --muted:   #7a8099;
+  --border:  #d0d6e8;
+  --primary: #5f7cff;
+  --radius:  14px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+html { height:100%; }
+body {
+  height: calc(var(--vh,1vh)*100);
+  font-family:'Poppins',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  display:flex; flex-direction:column;
+  overflow:hidden;
+}
+
+/* ── HEADER ── */
+header {
+  flex-shrink:0;
+  background:linear-gradient(120deg,#2d3436,#485460,#636e72);
+  padding: clamp(8px,1.8vh,16px) 16px;
+  display:flex; align-items:center; gap:10px;
+  box-shadow:0 2px 12px rgba(0,0,0,.2);
+}
+.hdr-back {
+  width:32px; height:32px; border-radius:50%; flex-shrink:0;
+  background:rgba(255,255,255,.15); border:none; color:white;
+  font-size:16px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+}
+.hdr-info { flex:1; }
+.hdr-title { font-size:clamp(13px,2vh,17px); font-weight:700; color:white; }
+.hdr-sub   { font-size:clamp(9px,1.3vh,11px); color:rgba(255,255,255,.6); margin-top:1px; }
+
+/* ── FORM AREA ── */
+.form-wrap {
+  flex:1; min-height:0;
+  padding: clamp(8px,1.4vh,14px) clamp(10px,3vw,16px) clamp(4px,.8vh,8px);
+  display:flex; flex-direction:column; gap:clamp(5px,.9vh,9px);
+}
+
+.form-card {
+  background:linear-gradient(160deg,#ffffff,#f4f6ff);
+  border-radius:var(--radius);
+  border:1.5px solid rgba(255,255,255,.9);
+  border-bottom-color:#cdd4e8;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.9) inset,
+    0 5px 0 #c4cce0,
+    0 7px 14px rgba(80,100,180,.13);
+  padding: clamp(8px,1.4vh,14px) clamp(10px,2vw,14px);
+  display:flex; flex-direction:column; gap:clamp(5px,.8vh,8px);
+}
+
+.form-row { display:flex; gap:8px; }
+.form-group { flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; }
+.form-group label {
+  font-size:clamp(8px,1.1vh,10px); font-weight:700;
+  color:var(--muted); text-transform:uppercase; letter-spacing:.4px;
+}
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width:100%; padding:clamp(6px,1vh,9px) 10px;
+  border-radius:10px; border:1.5px solid var(--border);
+  font-family:'Poppins',sans-serif;
+  font-size:clamp(10px,1.4vh,13px); color:var(--text);
+  background:white; outline:none; transition:border .2s;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus { border-color:var(--primary); }
+.form-group textarea { resize:none; height:clamp(40px,5.5vh,60px); }
+
+.btn-submit {
+  width:100%; padding:clamp(9px,1.5vh,13px);
+  border:none; border-radius:12px;
+  background:linear-gradient(120deg,#1b8a4a,#27c46e);
+  color:white; font-family:'Poppins',sans-serif;
+  font-size:clamp(11px,1.5vh,14px); font-weight:800;
+  cursor:pointer; letter-spacing:.3px;
+  box-shadow:0 4px 14px rgba(27,138,74,.35);
+  position:relative; overflow:hidden;
+  animation:btnPulse 2s ease-in-out infinite;
+  flex-shrink:0;
+}
+.btn-submit::before {
+  content:''; position:absolute; top:-60%; left:-60%;
+  width:50%; height:200%; background:rgba(255,255,255,.2);
+  transform:skewX(-20deg);
+  animation:shimmer 2.5s ease-in-out infinite;
+}
+.btn-submit:active { transform:scale(.97); animation:none; }
+.btn-submit:disabled { opacity:.5; cursor:not-allowed; animation:none; }
+@keyframes btnPulse {
+  0%,100%{ box-shadow:0 4px 14px rgba(27,138,74,.35); }
+  50%    { box-shadow:0 8px 24px rgba(27,138,74,.55); }
+}
+@keyframes shimmer {
+  0%  { left:-60%; opacity:0; }
+  20% { opacity:1; }
+  100%{ left:130%; opacity:0; }
+}
+
+/* ── LIST BACKUP ── */
+.list-section {
+  flex-shrink:0;
+  padding: 0 clamp(10px,3vw,16px) clamp(4px,.8vh,8px);
+}
+.list-label {
+  font-size:9px; font-weight:700; color:var(--muted);
+  text-transform:uppercase; letter-spacing:.6px;
+  margin-bottom:5px;
+}
+.list-scroll {
+  display:flex; gap:8px;
+  overflow-x:auto; overflow-y:hidden;
+  padding-bottom:4px;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.list-scroll::-webkit-scrollbar { display:none; }
+
+.bcard {
+  flex-shrink:0; width:clamp(130px,36vw,160px);
+  background:linear-gradient(160deg,#ffffff,#f4f6ff);
+  border-radius:12px;
+  border:1.5px solid rgba(255,255,255,.9);
+  border-bottom-color:#cdd4e8;
+  box-shadow:0 3px 0 #c4cce0, 0 5px 10px rgba(80,100,180,.1);
+  padding:8px 10px;
+  display:flex; flex-direction:column; gap:3px;
+}
+.bcard-top {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:2px;
+}
+.bcard-date { font-size:9px; font-weight:700; color:var(--muted); }
+.bcard-shift {
+  font-size:8px; font-weight:700; padding:1px 6px;
+  border-radius:20px; background:#eef1ff; color:var(--primary);
+}
+.bcard-name { font-size:11px; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.bcard-unit { font-size:9px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.bcard-by   { font-size:9px; color:#aaa; margin-top:2px; }
+
+.list-empty { font-size:11px; color:#bbb; padding:10px 4px; font-style:italic; }
+.list-loading { font-size:11px; color:var(--primary); padding:10px 4px; }
+
+/* ── FOOTER ── */
+footer {
+  flex-shrink:0;
+  background:linear-gradient(120deg,#2d3436,#485460);
+  padding:5px 14px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.sf-left  { display:flex; align-items:center; gap:6px; }
+.sf-dot   { width:6px; height:6px; border-radius:50%; background:linear-gradient(135deg,#5f7cff,#8aa6ff); box-shadow:0 0 6px rgba(95,124,255,.6); }
+.sf-page  { font-size:9px; font-weight:700; color:rgba(255,255,255,.6); text-transform:uppercase; letter-spacing:.6px; }
+.sf-hint  { font-size:9px; color:rgba(255,255,255,.35); font-style:italic; }
+
+/* alert toast */
+#toast {
+  position:fixed; bottom:36px; left:50%;
+  transform:translateX(-50%) translateY(60px);
+  background:#2b2f4b; color:white; padding:9px 18px;
+  border-radius:24px; font-size:12px; font-weight:500;
+  box-shadow:0 6px 20px rgba(0,0,0,.2); z-index:999;
+  transition:transform .3s; white-space:nowrap;
+}
+#toast.show    { transform:translateX(-50%) translateY(0); }
+#toast.success { background:#2e7d32; }
+#toast.error   { background:#c62828; }
+</style>
+</head>
+<body>
+
+<header>
+  <button class="hdr-back" onclick="window.location.href='../index.html'">⌂</button>
+  <div class="hdr-info">
+    <div class="hdr-title">Form Personil Backup</div>
+    <div class="hdr-sub">Pencatatan Personil Backup Online</div>
+  </div>
+</header>
+
+<!-- FORM -->
+<div class="form-wrap">
+  <div class="form-card">
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>👤 Nama</label>
+        <input type="text" id="nama" placeholder="Nama lengkap">
+      </div>
+      <div class="form-group">
+        <label>📅 Tanggal</label>
+        <input type="date" id="tanggalBackup">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>🏢 Unit Backup</label>
+        <input type="text" id="unitBackup" placeholder="Unit A / B...">
+      </div>
+      <div class="form-group">
+        <label>⏰ Shift</label>
+        <select id="shiftBackup">
+          <option value="">-- Shift --</option>
+          <option value="Pagi">☀️ Pagi</option>
+          <option value="Siang">🌤️ Siang</option>
+          <option value="Malam">🌙 Malam</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>👥 Personil yang Dibackup</label>
+      <input type="text" id="personilBackup" placeholder="Nama personil yang digantikan">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>✅ Mengetahui</label>
+        <input type="text" id="mengetahui" placeholder="Koordinator / PJ">
+      </div>
+      <div class="form-group">
+        <label>📝 Keterangan</label>
+        <input type="text" id="keteranganBackup" placeholder="Opsional">
+      </div>
+    </div>
+
+  </div>
+
+  <button class="btn-submit" id="submitBtn" onclick="submitForm()">
+    💾 SIMPAN DATA BACKUP
+  </button>
+</div>
+
+<!-- LIST BACKUP -->
+<div class="list-section">
+  <div class="list-label">📊 Data Terakhir</div>
+  <div class="list-scroll" id="listScroll">
+    <div class="list-loading">⏳ Memuat...</div>
+  </div>
+</div>
+
+<footer>
+  <div class="sf-left"><div class="sf-dot"></div><span class="sf-page">📋 Form Personil Backup</span></div>
+  <span class="sf-hint">Isi form lalu tap Simpan</span>
+</footer>
+
+<div id="toast"></div>
+
+<script>
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz0h_t8GAssD6Xrni_4W1qkY6KkhoyaR7DJ-U2MSg1QygfIxx5JVvsJaqOwiv6YEOKB/exec';
+
+// Set default tanggal hari ini
+document.getElementById('tanggalBackup').valueAsDate = new Date();
+
+// VH fix
+function setVh() { document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px'); }
+setVh();
+window.addEventListener('resize', setVh);
+window.addEventListener('orientationchange', () => setTimeout(setVh, 150));
+
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'show ' + type;
+  setTimeout(() => { t.className = ''; }, 3000);
+}
+
+// Load data list
+async function loadData() {
+  const scroll = document.getElementById('listScroll');
+  try {
+    const res  = await fetch(APPS_SCRIPT_URL);
+    const data = await res.json();
+    renderList(data || []);
+  } catch(e) {
+    scroll.innerHTML = '<div class="list-empty">Gagal memuat data</div>';
+  }
+}
+
+function formatTgl(val) {
+  if (!val) return '-';
+  const s = String(val);
+  if (s.includes('T') && s.includes('Z')) {
+    const d = new Date(s);
+    d.setHours(d.getHours() + 7);
+    return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+  }
+  return s;
+}
+
+function shiftColor(shift) {
+  if (!shift) return '';
+  const s = shift.toLowerCase();
+  if (s.includes('pagi'))  return 'background:#fff8e1;color:#f57f17';
+  if (s.includes('siang')) return 'background:#e3f2fd;color:#1565c0';
+  if (s.includes('malam')) return 'background:#ede7f6;color:#4527a0';
+  return '';
+}
+
+function renderList(values) {
+  const scroll = document.getElementById('listScroll');
+  // values[0] = header, values[1..] = data
+  const headers = values[0] || [];
+  const rows    = values.slice(1).reverse(); // terbaru di depan
+
+  if (!rows.length) {
+    scroll.innerHTML = '<div class="list-empty">Belum ada data backup</div>';
+    return;
+  }
+
+  // Mapping kolom: Waktu, Nama, TglBackup, Unit, Personil, Shift, Ket, Mengetahui
+  scroll.innerHTML = rows.map(r => {
+    const waktu   = formatTgl(r[0]);
+    const nama    = r[1] || '-';
+    const tgl     = formatTgl(r[2]);
+    const unit    = r[3] || '-';
+    const personil= r[4] || '-';
+    const shift   = r[5] || '';
+    const ket     = r[6] || '';
+    const tahu    = r[7] || '';
+    const scol    = shiftColor(shift);
+
+    return `
+    <div class="bcard">
+      <div class="bcard-top">
+        <span class="bcard-date">📅 ${tgl}</span>
+        <span class="bcard-shift" style="${scol}">${shift||'-'}</span>
+      </div>
+      <div class="bcard-name">👤 ${nama}</div>
+      <div class="bcard-unit">🏢 ${unit}</div>
+      <div class="bcard-unit">backup: ${personil}</div>
+      ${tahu ? `<div class="bcard-by">✅ ${tahu}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// Submit form
+async function submitForm() {
+  const nama     = document.getElementById('nama').value.trim();
+  const tglRaw   = document.getElementById('tanggalBackup').value;
+  const unit     = document.getElementById('unitBackup').value.trim();
+  const shift    = document.getElementById('shiftBackup').value;
+  const personil = document.getElementById('personilBackup').value.trim();
+  const ket      = document.getElementById('keteranganBackup').value.trim();
+  const tahu     = document.getElementById('mengetahui').value.trim();
+
+  if (!nama || !tglRaw || !unit || !shift || !personil || !tahu) {
+    showToast('⚠️ Lengkapi semua field wajib', 'error'); return;
+  }
+
+  const [y,m,d] = tglRaw.split('-');
+  const tgl = `${d}/${m}/${y}`;
+  const now = new Date();
+  const waktu = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true; btn.textContent = '⏳ Menyimpan...';
+
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ values:[waktu,nama,tgl,unit,personil,shift,ket,tahu] })
+    });
+
+    showToast('✅ Data berhasil disimpan!', 'success');
+
+    // Reset form
+    document.getElementById('nama').value = '';
+    document.getElementById('unitBackup').value = '';
+    document.getElementById('shiftBackup').value = '';
+    document.getElementById('personilBackup').value = '';
+    document.getElementById('keteranganBackup').value = '';
+    document.getElementById('mengetahui').value = '';
+    document.getElementById('tanggalBackup').valueAsDate = new Date();
+
+    setTimeout(loadData, 2000);
+  } catch(e) {
+    showToast('❌ Gagal menyimpan', 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = '💾 SIMPAN DATA BACKUP';
+  }
+}
+
+loadData();
+</script>
+</body>
+</html>

@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Kegiatan – SATPAM MAGELANG</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+:root {
+  --primary: #5f7cff;
+  --plight:  #8aa6ff;
+  --pink:    #ff9acb;
+  --text:    #2b2f4b;
+  --muted:   #7a8099;
+  --bg:      #dfe5f5;
+  --white:   #fff;
+  --radius:  16px;
+  --header:  clamp(52px,8vh,68px);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+html, body {
+  width:100%; height:100%; overflow:hidden;
+  font-family:'Poppins',sans-serif;
+  background:var(--bg); color:var(--text);
+}
+
+/* ═══ SCREEN SYSTEM ═══ */
+.app { width:100%; height:100%; position:relative; overflow:hidden; }
+
+.screen {
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  background:var(--bg);
+  transform:translateX(100%);
+  transition:transform .32s cubic-bezier(.4,0,.2,1);
+  will-change:transform;
+}
+.screen.active   { transform:translateX(0); }
+.screen.behind   { transform:translateX(-30%); }
+.screen.no-anim  { transition:none; }
+
+/* ═══ TOPBAR ═══ */
+.topbar {
+  height:var(--header); flex-shrink:0;
+  background:linear-gradient(120deg,#2d3436,#485460,#636e72);
+  display:flex; align-items:center; gap:10px;
+  padding:0 16px; color:white; position:relative;
+}
+.topbar-back {
+  width:36px; height:36px; border-radius:50%;
+  background:rgba(255,255,255,.2); border:none;
+  color:white; font-size:18px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; transition:.2s;
+}
+.topbar-back:active { background:rgba(255,255,255,.35); }
+.topbar-title { flex:1; font-size:clamp(14px,2vh,17px); font-weight:700; }
+.topbar-sub   { font-size:clamp(10px,1.4vh,12px); opacity:.85; margin-top:2px; }
+.topbar-action {
+  padding:6px 14px; background:rgba(255,255,255,.2);
+  border:1.5px solid rgba(255,255,255,.5); border-radius:20px;
+  color:white; font-family:'Poppins',sans-serif;
+  font-size:11px; font-weight:700; cursor:pointer; transition:.2s;
+  white-space:nowrap;
+}
+.topbar-action:active { background:rgba(255,255,255,.35); }
+
+/* ═══ SCROLLABLE BODY ═══ */
+.screen-body {
+  flex:1; overflow-y:auto; overflow-x:hidden;
+  padding:14px 14px 24px;
+  -webkit-overflow-scrolling:touch;
+}
+
+/* ═══ SCREEN 1 — DAFTAR KEGIATAN ═══ */
+.kegiatan-card {
+  background:linear-gradient(160deg,#ffffff,#f4f6ff);
+  border-radius:var(--radius);
+  border:1.5px solid rgba(255,255,255,.9);
+  border-bottom-color:#cdd4e8;
+  border-right-color:#d4daea;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.9) inset,
+    0 5px 0 #c4cce0,
+    0 7px 14px rgba(80,100,180,.15);
+  margin-bottom:14px; overflow:hidden;
+  display:flex; align-items:stretch;
+  cursor:pointer;
+  transition:transform .18s ease, box-shadow .18s ease;
+}
+.kegiatan-card:hover {
+  transform:translateY(-3px);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.9) inset,
+    0 8px 0 #bcc4da,
+    0 12px 24px rgba(80,100,180,.2);
+}
+.kegiatan-card:active {
+  transform:translateY(3px);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.9) inset,
+    0 2px 0 #c4cce0,
+    0 3px 8px rgba(80,100,180,.12);
+}
+
+.card-accent {
+  width:5px; flex-shrink:0;
+  background:linear-gradient(180deg,#5f7cff,#a0b4ff);
+}
+.card-accent.selesai { background:linear-gradient(180deg,#bbb,#ddd); }
+
+.card-body { flex:1; padding:14px 14px 14px 12px; }
+.card-icon-row { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+.card-icon {
+  width:40px; height:40px; border-radius:12px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px; flex-shrink:0;
+}
+.card-info { flex:1; min-width:0; }
+.card-name { font-size:clamp(13px,1.8vh,15px); font-weight:700; color:var(--text); }
+.card-meta { font-size:11px; color:var(--muted); margin-top:2px; }
+
+.card-stats {
+  display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;
+}
+.stat-chip {
+  display:flex; align-items:center; gap:4px;
+  background:#eaecf5; color:#4a5580;
+  font-size:11px; font-weight:600;
+  padding:4px 10px; border-radius:20px;
+  border:1px solid #d8dcea;
+}
+.badge-aktif   { background:#e8f5e9; color:#2e7d32; }
+.badge-selesai { background:#f5f5f5; color:#999; }
+
+.card-arrow { display:flex; align-items:center; padding-right:12px; color:#ccc; font-size:18px; }
+
+/* ═══ SCREEN 2 — LAYOUT FIT ═══ */
+.s2-body {
+  flex:1; display:flex; flex-direction:column;
+  padding:10px 12px; gap:8px; overflow:hidden;
+  min-height:0;
+}
+
+/* ═══ SCREEN 2 — DETAIL KEGIATAN ═══ */
+/* hero banner */
+.d2-hero {
+  border-radius:var(--radius); padding:14px 16px;
+  display:flex; align-items:center; gap:14px;
+  flex-shrink:0;
+  box-shadow:0 4px 16px rgba(95,124,255,.15);
+}
+.d2-icon { font-size:36px; flex-shrink:0; }
+.d2-hero-info { flex:1; min-width:0; }
+.d2-nama {
+  font-size:clamp(15px,2.2vh,19px); font-weight:800;
+  color:white; text-shadow:0 1px 4px rgba(0,0,0,.2);
+  line-height:1.2; margin-bottom:6px;
+}
+.d2-badge {
+  display:inline-block; font-size:10px; font-weight:700;
+  padding:3px 10px; border-radius:20px;
+  background:rgba(255,255,255,.25); color:white;
+  letter-spacing:.5px;
+}
+.d2-badge.badge-aktif  { background:rgba(255,255,255,.3); }
+.d2-badge.badge-selesai{ background:rgba(0,0,0,.15); }
+
+/* info card */
+.d2-info-card {
+  background:white; border-radius:var(--radius);
+  box-shadow:0 2px 12px rgba(95,124,255,.08);
+  overflow:hidden; flex-shrink:0;
+}
+.d2-info-row {
+  display:flex; align-items:center; gap:12px;
+  padding:8px 14px; border-bottom:1px solid #f0f2fb;
+}
+.d2-info-icon { font-size:16px; flex-shrink:0; margin-top:1px; }
+.d2-info-body { flex:1; }
+.d2-info-lbl  { font-size:9px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.5px; }
+.d2-info-val  { font-size:12px; font-weight:600; color:var(--text); }
+
+/* stat row */
+.d2-stat-row {
+  display:flex; gap:10px; flex-shrink:0;
+}
+.d2-stat-card {
+  flex:1; background:white; border-radius:14px;
+  border:1.5px solid #d0d6e8;
+  box-shadow:0 2px 10px rgba(95,124,255,.08);
+  padding:10px 12px; text-align:center;
+  transition:transform .15s;
+}
+.d2-stat-card:active { transform:scale(.97); }
+.d2-stat-num {
+  font-size:24px; font-weight:800; color:var(--primary);
+  line-height:1; margin-bottom:3px;
+}
+.d2-stat-lbl { font-size:12px; font-weight:700; color:var(--text); }
+.d2-stat-sub { font-size:10px; color:var(--muted); margin-top:2px; }
+
+/* tombol */
+.daftar-btn {
+  width:100%; padding:16px 12px; border:none; border-radius:20px;
+  background:linear-gradient(120deg,#1b8a4a,#27c46e,#6ee89a);
+  background-size:200% 200%;
+  color:white; font-family:'Poppins',sans-serif;
+  font-size:14px; font-weight:800; cursor:pointer; display:block; flex-shrink:0;
+  box-shadow:0 8px 28px rgba(27,138,74,.5), 0 2px 8px rgba(39,196,110,.3);
+  animation:konfirmBounce 1.4s cubic-bezier(.36,.07,.19,.97) infinite, gradShift 3s ease infinite;
+  letter-spacing:.3px; position:relative; overflow:hidden;
+}
+.daftar-btn::before {
+  content:''; position:absolute; top:-60%; left:-60%;
+  width:50%; height:200%;
+  background:rgba(255,255,255,.25);
+  transform:skewX(-20deg);
+  animation:shimmerSlide 2s ease-in-out infinite;
+}
+.daftar-btn:active { transform:scale(.95) !important; animation:none; box-shadow:0 2px 8px rgba(27,138,74,.3); }
+.daftar-btn.selesai {
+  background:linear-gradient(120deg,#bbb,#ddd);
+  box-shadow:none; cursor:not-allowed; animation:none;
+}
+.daftar-btn.selesai::before { display:none; }
+
+@keyframes konfirmBounce {
+  0%,100% { transform:translateY(0)   scale(1);    box-shadow:0 8px 28px rgba(27,138,74,.5); }
+  30%      { transform:translateY(-6px) scale(1.03); box-shadow:0 18px 40px rgba(27,138,74,.6); }
+  60%      { transform:translateY(-2px) scale(1.01); box-shadow:0 12px 32px rgba(27,138,74,.55); }
+}
+@keyframes shimmerSlide {
+  0%   { left:-60%; opacity:0; }
+  20%  { opacity:1; }
+  100% { left:130%; opacity:0; }
+}
+@keyframes gradShift {
+  0%   { background-position:0% 50%; }
+  50%  { background-position:100% 50%; }
+  100% { background-position:0% 50%; }
+}
+
+.peserta-btn {
+  width:100%; padding:11px; border:1.5px solid var(--primary);
+  border-radius:var(--radius); background:white;
+  color:#3d4a6b; font-family:'Poppins',sans-serif;
+  font-size:13px; font-weight:700; cursor:pointer;
+  transition:.2s; display:block; flex-shrink:0;
+}
+.peserta-btn:active { background:#f0f4ff; transform:scale(.98); }
+
+/* lama (tidak dipakai, dipertahankan agar tidak error) */
+.detail-hero{} .detail-icon-wrap{} .detail-name{} .detail-badge{}
+.detail-rows{} .detail-row{} .peserta-card{} .peserta-num{}
+.peserta-info{} .peserta-arrow{}
+
+/* ═══ SCREEN 3 — LAYOUT ═══ */
+/* scroll area unit cards */
+.s3scroll {
+  flex:1; overflow-y:auto; overflow-x:hidden;
+  padding:6px 8px 4px;
+  -webkit-overflow-scrolling:touch;
+}
+/* form fixed di bawah */
+.s3bottom {
+  flex-shrink:0;
+  background:white;
+  border-top:1px solid #d8dcea;
+  padding:10px 12px;
+  box-shadow:0 -4px 16px rgba(95,124,255,.08);
+}
+
+/* unit card — compact */
+.unit-section { margin-bottom:6px; }
+.unit-dot { display:none; }
+.unit-name  { flex:1; font-size:13px; font-weight:600; }
+.unit-count { font-size:11px; font-weight:700; color:var(--primary); background:#f0f4ff; padding:2px 8px; border-radius:20px; }
+.unit-chev  { font-size:13px; color:#ccc; }
+.unit-members { display:none; }
+
+.member-row { display:none; }
+.member-avatar { display:none; }
+.member-info { display:none; }
+.member-name { display:none; }
+.member-jab  { display:none; }
+.member-time { display:none; }
+.btn-batal-sm {
+  padding:3px 8px; background:#fce4ec; color:#c62828;
+  border:none; border-radius:6px; font-size:10px;
+  font-weight:600; cursor:pointer; flex-shrink:0;
+}
+.btn-batal-sm:active { background:#ef9a9a; color:white; }
+
+/* ═══ FORM DAFTAR BOTTOM ═══ */
+.bottom-form-row {
+  display:flex; gap:6px; align-items:center;
+}
+.form-select {
+  flex:1; min-width:0; padding:9px 10px; border-radius:10px;
+  border:1.5px solid #d0d6e8; font-family:'Poppins',sans-serif;
+  font-size:12px; color:var(--text); background:white;
+  outline:none; transition:border .2s;
+}
+.form-select:focus   { border-color:var(--primary); }
+.form-select:disabled { background:#f5f5f5; color:#aaa; }
+.btn-submit {
+  padding:9px 14px; border:none; border-radius:10px; flex-shrink:0;
+  background:linear-gradient(120deg,var(--primary),var(--plight));
+  color:white; font-family:'Poppins',sans-serif;
+  font-size:12px; font-weight:700; cursor:pointer; transition:.2s; white-space:nowrap;
+}
+.btn-submit:active   { transform:scale(.97); }
+.btn-submit:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+
+/* ═══ ADMIN PANEL ═══ */
+.admin-sheet {
+  background:var(--white); border-radius:var(--radius);
+  border-left:4px solid #d81b60;
+  padding:16px; margin-bottom:12px;
+  box-shadow:0 4px 16px rgba(216,27,96,.08);
+  display:none;
+}
+.admin-sheet.show { display:block; }
+.admin-sheet h4 { font-size:13px; font-weight:700; color:#d81b60; margin-bottom:10px; }
+.admin-input {
+  width:100%; padding:11px 12px; border-radius:12px;
+  border:1.5px solid #fce4ec; font-family:'Poppins',sans-serif;
+  font-size:13px; color:var(--text); background:white;
+  outline:none; margin-bottom:8px;
+}
+.admin-input:focus { border-color:#d81b60; }
+.btn-admin-save {
+  width:100%; padding:12px; border:none; border-radius:12px;
+  background:linear-gradient(120deg,#d81b60,#f06292);
+  color:white; font-family:'Poppins',sans-serif;
+  font-size:13px; font-weight:700; cursor:pointer;
+}
+.btn-admin-save:disabled { opacity:.5; cursor:not-allowed; }
+
+/* ═══ MISC ═══ */
+.section-label {
+  font-size:11px; font-weight:700; color:var(--muted);
+  letter-spacing:1px; text-transform:uppercase;
+  margin:0 0 8px 2px;
+}
+
+.skeleton {
+  background:linear-gradient(90deg,#e8eeff 25%,#d4dcff 50%,#e8eeff 75%);
+  background-size:200% 100%; animation:shimmer 1.4s infinite;
+  border-radius:12px; margin-bottom:12px;
+}
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+.empty-msg { text-align:center; padding:32px 16px; color:#bbb; font-size:13px; }
+.empty-msg .em { font-size:36px; display:block; margin-bottom:8px; }
+
+/* modal */
+.modal-over {
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,.45); z-index:200;
+  align-items:center; justify-content:center;
+}
+.modal-over.show { display:flex; }
+.modal-box {
+  background:white; border-radius:20px;
+  padding:24px; width:min(300px,88vw);
+  box-shadow:0 20px 60px rgba(0,0,0,.2);
+}
+.modal-box h3 { font-size:15px; font-weight:700; margin-bottom:14px; }
+.modal-inp {
+  width:100%; padding:11px 12px; border-radius:12px;
+  border:1.5px solid #d0d6e8; font-family:'Poppins',sans-serif;
+  font-size:13px; outline:none; margin-bottom:8px;
+}
+.modal-inp:focus { border-color:#d81b60; }
+.modal-err { font-size:11px; color:#c62828; margin-bottom:8px; display:none; }
+.modal-btns { display:flex; gap:8px; }
+.modal-btns button { flex:1; padding:11px; border:none; border-radius:12px; font-family:'Poppins',sans-serif; font-size:13px; font-weight:700; cursor:pointer; }
+.mbtn-ok  { background:linear-gradient(120deg,#d81b60,#f06292); color:white; }
+.mbtn-no  { background:#f0f0f0; color:#666; }
+
+#toast {
+  position:fixed; bottom:20px; left:50%;
+  transform:translateX(-50%) translateY(80px);
+  background:#2b2f4b; color:white; padding:10px 20px;
+  border-radius:24px; font-size:13px; font-weight:500;
+  box-shadow:0 8px 24px rgba(0,0,0,.25); z-index:999;
+  transition:transform .3s ease; white-space:nowrap;
+  max-width:88vw; text-align:center;
+}
+#toast.show    { transform:translateX(-50%) translateY(0); }
+#toast.success { background:#2e7d32; }
+#toast.error   { background:#c62828; }
+
+/* ── UNIT GRID 3 KOLOM ── */
+.unit-grid {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:4px;
+}
+
+.unit-card {
+  background:var(--white); border-radius:7px;
+  border:1.5px solid #d0d8ff;
+  box-shadow:0 2px 6px rgba(95,124,255,.12);
+  overflow:hidden; display:flex; flex-direction:column;
+  min-height:0;
+}
+.unit-card-header {
+  padding:4px 5px 3px;
+  border-bottom:2px solid #c5ceff;
+  background:linear-gradient(120deg,#5f7cff,#8aa6ff);
+  flex-shrink:0;
+}
+.unit-card-left  { display:flex; flex-direction:column; }
+.unit-initial    { display:none; }
+.unit-card-name  {
+  font-size:7.5px; font-weight:800; color:#fff;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  text-transform:uppercase; letter-spacing:.4px; line-height:1.3;
+  text-shadow:0 1px 2px rgba(0,0,0,.15);
+}
+.unit-card-sub   { font-size:7px; color:rgba(255,255,255,.8); line-height:1.3; }
+
+.unit-prog-wrap  { display:flex; align-items:center; gap:2px; margin-top:2px; }
+.unit-prog-bar   { flex:1; height:2px; background:rgba(255,255,255,.3); border-radius:4px; overflow:hidden; }
+.unit-prog-fill  { height:100%; background:#fff; border-radius:4px; }
+.unit-prog-pct   { font-size:7px; font-weight:700; color:#fff; flex-shrink:0; }
+
+/* member rows */
+.unit-card-members { flex:1; overflow:hidden; }
+
+.prow {
+  display:flex; align-items:center; gap:3px;
+  padding:2px 4px;
+  border-bottom:1px solid #eef0fb;
+}
+.prow:last-child { border-bottom:none; }
+.prow.hadir { background:#d4f5da; }
+
+.prow-avatar { display:none; }
+
+.prow-info { flex:1; min-width:0; }
+.prow-name {
+  font-size:8px; font-weight:600; color:var(--text);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  line-height:1.5;
+}
+.prow.hadir .prow-name { color:#1b5e20; font-weight:700; }
+
+.prow-time   { display:none; }
+.belum-chip  { display:none; }
+
+.btn-batal-sm {
+  padding:1px 5px; background:#fce4ec; color:#c62828;
+  border:none; border-radius:4px; font-size:8px;
+  font-weight:600; cursor:pointer; flex-shrink:0;
+  opacity:.7;
+}
+.btn-batal-sm:active { opacity:1; background:#ef9a9a; color:white; }
+
+/* ── FOOTER INFO ── */
+.screen-footer {
+  flex-shrink:0;
+  background:linear-gradient(120deg,#2d3436,#485460);
+  padding:5px 14px;
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+}
+.sf-left {
+  display:flex; align-items:center; gap:6px;
+}
+.sf-dot {
+  width:6px; height:6px; border-radius:50%; flex-shrink:0;
+  background:linear-gradient(135deg,#5f7cff,#8aa6ff);
+  box-shadow:0 0 6px rgba(95,124,255,.6);
+}
+.sf-page {
+  font-size:9px; font-weight:700; color:rgba(255,255,255,.6);
+  text-transform:uppercase; letter-spacing:.6px;
+}
+.sf-hint {
+  font-size:9px; color:rgba(255,255,255,.38);
+  font-style:italic; text-align:right;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  max-width:55%;
+}
+
+/* icon colors */
+.ic0{background:linear-gradient(135deg,#ff9a3c,#ffcf7a)}
+.ic1{background:linear-gradient(135deg,#5f7cff,#8aa6ff)}
+.ic2{background:linear-gradient(135deg,#43a047,#a5d6a7)}
+.ic3{background:linear-gradient(135deg,#e53935,#ff8a80)}
+.ic4{background:linear-gradient(135deg,#8e24aa,#ce93d8)}
+.ic5{background:linear-gradient(135deg,#0097a7,#80deea)}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- ══════════ SCREEN 1: DAFTAR KEGIATAN ══════════ -->
+  <div class="screen active" id="s1">
+    <div class="topbar">
+      <button class="topbar-back" onclick="goHome()">⌂</button>
+      <div style="flex:1">
+        <div class="topbar-title">KEGIATAN</div>
+        <div class="topbar-sub">Daftar Acara &amp; Kehadiran</div>
+      </div>
+      <button class="topbar-action" onclick="bukaModalAdmin()">🔐 Admin</button>
+    </div>
+    <div class="screen-body" id="s1body">
+      <div class="skeleton" style="height:76px"></div>
+      <div class="skeleton" style="height:76px"></div>
+      <div class="skeleton" style="height:76px"></div>
+    </div>
+    <div class="screen-footer">
+      <div class="sf-left"><div class="sf-dot"></div><span class="sf-page">📋 Daftar Kegiatan</span></div>
+      <span class="sf-hint">Tap acara untuk detail</span>
+    </div>
+  </div>
+
+  <!-- ══════════ SCREEN 2: DETAIL KEGIATAN ══════════ -->
+  <div class="screen" id="s2">
+    <div class="topbar">
+      <button class="topbar-back" onclick="goBack(2)">‹</button>
+      <div style="flex:1">
+        <div class="topbar-title" id="s2title">Detail Kegiatan</div>
+        <div class="topbar-sub" id="s2sub"></div>
+      </div>
+    </div>
+    <div class="s2-body" id="s2body"></div>
+    <div class="screen-footer">
+      <div class="sf-left"><div class="sf-dot"></div><span class="sf-page">🎯 Detail Acara</span></div>
+      <span class="sf-hint">Konfirmasi atau lihat peserta</span>
+    </div>
+  </div>
+
+  <!-- ══════════ SCREEN 3: PESERTA & DAFTAR ══════════ -->
+  <div class="screen" id="s3">
+    <div class="topbar">
+      <button class="topbar-back" onclick="goBack(3)">‹</button>
+      <div style="flex:1">
+        <div class="topbar-title" id="s3title">Daftar Hadir</div>
+        <div class="topbar-sub" id="s3sub"></div>
+      </div>
+    </div>
+    <!-- ringkasan -->
+    <div id="s3summary" style="display:none;padding:8px 14px;background:white;border-bottom:1px solid #eef0f7;flex-shrink:0;">
+      <div id="s3summaryText" style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.5px;text-transform:uppercase;"></div>
+    </div>
+    <!-- area scroll unit cards -->
+    <div class="s3scroll" id="s3body"></div>
+    <!-- form daftar fixed di bawah -->
+    <div class="s3bottom" id="s3bottom"></div>
+    <div class="screen-footer">
+      <div class="sf-left"><div class="sf-dot"></div><span class="sf-page" id="s3footerPage">👥 Daftar Peserta</span></div>
+      <span class="sf-hint" id="s3footerHint">Pilih unit &amp; nama lalu konfirmasi</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- Modal logout admin -->
+<div class="modal-over" id="modalLogout">
+  <div class="modal-box">
+    <h3>⚙️ Mode Admin Aktif</h3>
+    <p style="font-size:12px;color:#888;margin-bottom:16px;">Apa yang ingin kamu lakukan?</p>
+    <div class="modal-btns">
+      <button class="mbtn-no" onclick="document.getElementById('modalLogout').classList.remove('show'); document.getElementById('adminPanel') && document.getElementById('adminPanel').classList.toggle('show')">📋 Panel</button>
+      <button class="mbtn-ok" style="background:#c62828;" onclick="document.getElementById('modalLogout').classList.remove('show'); nonaktifkanAdmin()">🔴 Nonaktifkan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal password admin -->
+<div class="modal-over" id="modalAdmin">
+  <div class="modal-box">
+    <h3>🔐 Mode Admin</h3>
+    <input class="modal-inp" type="password" id="inputPw" placeholder="Password admin"
+      onkeydown="if(event.key==='Enter')konfirmasiAdmin()">
+    <p class="modal-err" id="errPw">Password salah!</p>
+    <div class="modal-btns">
+      <button class="mbtn-no"  onclick="tutupModal()">Batal</button>
+      <button class="mbtn-ok"  onclick="konfirmasiAdmin()">Masuk</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Konfirmasi Kehadiran -->
+<div class="modal-over" id="modalKonfirm">
+  <div class="modal-box" style="width:min(340px,92vw)">
+    <div style="text-align:center;margin-bottom:14px;">
+      <div style="font-size:32px;margin-bottom:4px;">✋</div>
+      <h3 style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:2px;">Konfirmasi Kehadiran</h3>
+      <p id="mkNamaAcara" style="font-size:11px;color:var(--muted);font-weight:600;"></p>
+    </div>
+    <div style="margin-bottom:8px;">
+      <label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:4px;">Unit Kerja</label>
+      <select class="modal-inp" id="mkUnit" onchange="onMkUnit()" style="padding:10px 12px;border-radius:12px;border:1.5px solid #dde3ff;font-family:Poppins,sans-serif;font-size:13px;width:100%;outline:none;appearance:auto;">
+        <option value="">-- Pilih Unit Kerja --</option>
+      </select>
+    </div>
+    <div style="margin-bottom:14px;">
+      <label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:4px;">Nama</label>
+      <select class="modal-inp" id="mkNama" onchange="onMkNama()" disabled style="padding:10px 12px;border-radius:12px;border:1.5px solid #dde3ff;font-family:Poppins,sans-serif;font-size:13px;width:100%;outline:none;appearance:auto;background:#f5f5f5;color:#aaa;">
+        <option value="">-- Pilih Nama --</option>
+      </select>
+    </div>
+    <p class="modal-err" id="mkErr" style="margin-bottom:8px;"></p>
+    <div class="modal-btns">
+      <button class="mbtn-no" onclick="tutupModalKonfirm()">Batal</button>
+      <button class="mbtn-ok" id="mkBtn" onclick="submitKonfirm()" disabled
+        style="background:linear-gradient(120deg,#1b8a4a,#27c46e);border:none;">
+        ✋ Konfirmasi
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const GS_KEGIATAN = 'https://script.google.com/macros/s/AKfycbwZUENcKRtiErfB-CIWoVQUSrF0es2lsSWfsOP6j_WfnYWlnx_Prsw6S_qTPbmwpIgg5Q/exec';
+const GS_PERSONIL = 'https://script.google.com/macros/s/AKfycbwOnFO2TxMuqSsZqcFBBwDQCl-vih098DzGi54XyToJzht5RmgO3PApEyFtTP5cSBGNQA/exec';
+const ADMIN_PASS  = 'admin123';
+
+let allPersonil  = [];
+let kegiatanData = [];
+let isAdmin      = false;
+let currentKeg   = null; // kegiatan yg sedang dibuka
+let hadirData    = [];   // cache daftar hadir screen 3
+
+const ICLS  = ['ic0','ic1','ic2','ic3','ic4','ic5'];
+
+// Icon berdasarkan kata kunci nama acara
+function getIcon(nama) {
+  const n = (nama||'').toLowerCase();
+  if (/buka|bersama|makan|makan|sahur|iftar|dinner|lunch/.test(n)) return '🍽️';
+  if (/rapat|meeting|musyawarah|koordinasi|kordinasi|rakor/.test(n)) return '📋';
+  if (/upacara|apel|bendera/.test(n)) return '🚩';
+  if (/latih|training|pelatihan|diklat/.test(n)) return '🎯';
+  if (/halal|lebaran|idul|ied/.test(n)) return '🌙';
+  if (/natal|christmas|tahun baru|new year/.test(n)) return '🎄';
+  if (/olahraga|senam|futsal|voli|volley|sport/.test(n)) return '⚽';
+  if (/wisuda|graduation|lulus/.test(n)) return '🎓';
+  if (/donor|darah|kesehatan|medis/.test(n)) return '❤️';
+  if (/bakti|sosial|baksos/.test(n)) return '🤝';
+  if (/lomba|kompetisi|tournament/.test(n)) return '🏆';
+  if (/syukur|doa|pengajian|tahlil/.test(n)) return '🙏';
+  if (/ulang tahun|anniversary|milad/.test(n)) return '🎂';
+  if (/pelantikan|serah terima|sertijab/.test(n)) return '📜';
+  if (/kunjung|visit|tour|wisata/.test(n)) return '🗺️';
+  return '📌'; // default
+}
+
+// ── API helpers ──
+async function apiFetch(url) {
+  const r = await fetch(url); return r.json();
+}
+async function apiPost(url, body) {
+  const r = await fetch(url, {
+    method:'POST', headers:{'Content-Type':'text/plain'},
+    body: JSON.stringify(body)
+  });
+  return r.json();
+}
+
+// ── Init ──
+async function init() {
+  history.replaceState({screen:1}, '');
+  await Promise.all([loadPersonil(), loadKegiatan()]);
+}
+
+async function loadPersonil() {
+  try {
+    const d = await apiFetch(GS_PERSONIL);
+    allPersonil = Array.isArray(d) ? d : [];
+  } catch(e) { allPersonil = []; }
+}
+
+async function loadKegiatan() {
+  try {
+    const j = await apiFetch(GS_KEGIATAN + '?action=getKegiatan');
+    kegiatanData = j.data || [];
+    renderS1();
+  } catch(e) {
+    document.getElementById('s1body').innerHTML =
+      '<div class="empty-msg"><span class="em">⚠️</span>Gagal memuat data.<br>Refresh halaman.</div>';
+  }
+}
+
+// ══════════ SCREEN 1 ══════════
+function renderS1() {
+  const body = document.getElementById('s1body');
+
+  // Admin panel (tambah acara)
+  const adminHtml = `
+  <div class="admin-sheet" id="adminPanel">
+    <h4>➕ Tambah Acara Baru</h4>
+    <input class="admin-input" id="inNama" placeholder="Nama Acara *" style="text-transform:uppercase"
+      oninput="this.value=this.value.toUpperCase()">
+    <input class="admin-input" id="inTgl"  placeholder="Tanggal (misal: 28/03/2026)">
+    <input class="admin-input" id="inLok"  placeholder="Lokasi">
+    <input class="admin-input" id="inKet"  placeholder="Keterangan (opsional)">
+    <button class="btn-admin-save" id="btnSaveAcara" onclick="tambahAcara()">➕ Simpan &amp; Buat Acara</button>
+  </div>`;
+
+  if (!kegiatanData.length) {
+    body.innerHTML = adminHtml +
+      '<div class="empty-msg"><span class="em">📋</span>Belum ada kegiatan.<br>Admin dapat menambah acara.</div>';
+    return;
+  }
+
+  const cards = kegiatanData.map((k,i) => {
+    const nama   = k['NAMA KEGIATAN'] || '';
+    const tgl    = k['TANGGAL']  || '';
+    const lok    = k['LOKASI']   || '';
+    const status = (k['STATUS']  || 'AKTIF').toUpperCase();
+    const jml    = k['JUMLAH_HADIR'] || 0;
+    const aktif  = status === 'AKTIF';
+    return `
+    <div class="kegiatan-card" onclick="bukaDetail(${i})">
+      <div class="card-accent ${aktif?'':'selesai'}"></div>
+      <div class="card-body">
+        <div class="card-icon-row">
+          <div class="card-icon ${ICLS[i%ICLS.length]}">${getIcon(nama)}</div>
+          <div class="card-info">
+            <div class="card-name">${nama}</div>
+            <div class="card-meta">${tgl ? tgl : ''}${tgl&&lok?' · ':''}${lok}</div>
+          </div>
+        </div>
+        <div class="card-stats">
+          <span class="stat-chip">👥 ${jml} peserta</span>
+          <span class="stat-chip ${aktif?'badge-aktif':'badge-selesai'}">${status}</span>
+        </div>
+      </div>
+      <div class="card-arrow">›</div>
+    </div>`;
+  }).join('');
+
+  body.innerHTML = adminHtml + cards;
+  if (isAdmin) document.getElementById('adminPanel').classList.add('show');
+}
+
+// ══════════ SCREEN 2: DETAIL ══════════
+async function bukaDetail(i) {
+  currentKeg = kegiatanData[i];
+  const k      = currentKeg;
+  const nama   = k['NAMA KEGIATAN'] || '';
+  const tgl    = k['TANGGAL']    || '-';
+  const lok    = k['LOKASI']     || '-';
+  const ket    = k['KETERANGAN'] || '-';
+  const status = (k['STATUS']    || 'AKTIF').toUpperCase();
+  const jml    = k['JUMLAH_HADIR'] || 0;
+  const aktif  = status === 'AKTIF';
+  const icIdx  = i % ICLS.length;
+
+  document.getElementById('s2title').textContent = nama;
+  document.getElementById('s2sub').textContent   = status;
+
+  document.getElementById('s2body').innerHTML = `
+  <!-- Hero banner -->
+  <div class="d2-hero ${ICLS[icIdx]}">
+    <div class="d2-icon">${getIcon(nama)}</div>
+    <div class="d2-hero-info">
+      <div class="d2-nama">${nama}</div>
+      <span class="d2-badge ${aktif?'badge-aktif':'badge-selesai'}">${aktif?'● AKTIF':'■ SELESAI'}</span>
+    </div>
+  </div>
+
+  <!-- Info detail -->
+  <div class="d2-info-card">
+    <div class="d2-info-row">
+      <span class="d2-info-icon">📅</span>
+      <div class="d2-info-body">
+        <div class="d2-info-lbl">Tanggal</div>
+        <div class="d2-info-val">${tgl}</div>
+      </div>
+    </div>
+    <div class="d2-info-row">
+      <span class="d2-info-icon">📍</span>
+      <div class="d2-info-body">
+        <div class="d2-info-lbl">Lokasi</div>
+        <div class="d2-info-val">${lok}</div>
+      </div>
+    </div>
+    <div class="d2-info-row" style="border:none">
+      <span class="d2-info-icon">📝</span>
+      <div class="d2-info-body">
+        <div class="d2-info-lbl">Keterangan</div>
+        <div class="d2-info-val">${ket}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stat peserta -->
+  <div class="d2-stat-row">
+    <div class="d2-stat-card" onclick="bukaPeserta()" style="cursor:pointer">
+      <div class="d2-stat-num">${jml}</div>
+      <div class="d2-stat-lbl">👥 Peserta Hadir</div>
+      <div class="d2-stat-sub">Tap untuk lihat daftar</div>
+    </div>
+    <div class="d2-stat-card" style="background:#f0fff4;border-color:#b7ebc0">
+      <div class="d2-stat-num" style="color:#2e7d32">${Math.round(jml/Math.max(1,allPersonil.length)*100)}%</div>
+      <div class="d2-stat-lbl" style="color:#388e3c">📊 Kehadiran</div>
+      <div class="d2-stat-sub">dari total personil</div>
+    </div>
+  </div>
+
+  <!-- Tombol aksi -->
+  <button class="daftar-btn ${aktif?'':'selesai'}" onclick="${aktif?'bukaModalKonfirmasi()':'void(0)'}">
+    ${aktif ? '✋ KONFIRMASI KEHADIRAN' : '⛔ Pendaftaran Ditutup'}
+    ${aktif ? '<div style="font-size:10px;font-weight:700;margin-top:4px;color:#fff;background:rgba(0,0,0,.18);display:inline-block;padding:2px 10px;border-radius:20px;letter-spacing:.3px;">👆 Klik di sini untuk konfirmasi</div>' : ''}
+  </button>
+  <button class="peserta-btn" onclick="bukaPeserta()">📋 ${aktif ? 'Lihat Semua Peserta per Unit' : 'Lihat Daftar Peserta'}</button>
+`;
+
+  navigateTo(2);
+}
+
+// ══════════ SCREEN 3: PESERTA & FORM ══════════
+async function bukaPeserta() {
+  const nama = currentKeg['NAMA KEGIATAN'];
+  document.getElementById('s3title').textContent = 'Peserta';
+  document.getElementById('s3sub').textContent   = nama;
+  const fp = document.getElementById('s3footerPage');
+  const fh = document.getElementById('s3footerHint');
+  if(fp) fp.textContent = '👥 Daftar Peserta · ' + nama;
+  if(fh) fh.textContent = 'Tap ✕ untuk batalkan kehadiran';
+  document.getElementById('s3body').innerHTML    =
+    '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(4);
+
+  navigateTo(3);
+  await muatPeserta();
+}
+
+async function bukaDaftar() {
+  const nama = currentKeg['NAMA KEGIATAN'];
+  document.getElementById('s3title').textContent = 'Daftar Hadir';
+  document.getElementById('s3sub').textContent   = nama;
+  const fp = document.getElementById('s3footerPage');
+  const fh = document.getElementById('s3footerHint');
+  if(fp) fp.textContent = '✋ Konfirmasi Kehadiran · ' + nama;
+  if(fh) fh.textContent = 'Pilih unit & nama lalu konfirmasi';
+  document.getElementById('s3body').innerHTML    =
+    '<div class="skeleton" style="height:52px;margin-bottom:8px"></div>'.repeat(3);
+
+  navigateTo(3);
+  await muatPeserta(true); // showForm = true
+}
+
+async function muatPeserta(showForm = false) {
+  const nama = currentKeg['NAMA KEGIATAN'];
+  try {
+    const j  = await apiFetch(GS_KEGIATAN + '?action=getHadir&kegiatan=' + encodeURIComponent(nama));
+    hadirData = j.data || [];
+  } catch(e) { hadirData = []; }
+
+  renderS3(showForm);
+}
+
+function renderS3(showForm) {
+  const nama  = currentKeg['NAMA KEGIATAN'];
+  const aktif = (currentKeg['STATUS'] || 'AKTIF').toUpperCase() === 'AKTIF';
+  const kEsc  = nama.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+
+  // Nama yang sudah hadir (Set untuk lookup cepat)
+  const hadirSet = {};
+  hadirData.forEach(r => {
+    const u = r['UNIT KERJA'] || '';
+    const n = (r['NAMA'] || '').toUpperCase();
+    if (!hadirSet[u]) hadirSet[u] = {};
+    hadirSet[u][n] = r;
+  });
+
+  // Semua unit dari data personil, sorted
+  const allUnits = [...new Set(
+    allPersonil.map(p => p['Unit Kerja'] || p['UNIT KERJA'] || '')
+  )].filter(Boolean).sort();
+
+  // Form daftar
+  const unitOpts = allUnits.map(u => `<option value="${u}">${u}</option>`).join('');
+  const formHtml = aktif ? `
+  <div class="form-sheet">
+    <h4>✋ Daftar Hadir</h4>
+    <select class="form-select" id="fUnit" onchange="onFUnit()">
+      <option value="">-- Pilih Unit Kerja --</option>
+      ${unitOpts}
+    </select>
+    <select class="form-select" id="fNama" onchange="onFNama()" disabled>
+      <option value="">-- Pilih Nama --</option>
+    </select>
+    <button class="btn-submit" id="fBtn" onclick="submitHadir()" disabled>Daftar Hadir</button>
+  </div>` : '';
+
+  // Hitung total hadir per unit
+  const totalHadir = hadirData.length;
+
+  // Render semua unit — semua langsung terbuka, nama langsung terlihat
+  let unitHtml = `<p class="section-label" style="margin:0 0 4px 1px;font-size:9px">Kehadiran per Unit · ${totalHadir} hadir</p><div class="unit-grid">`;
+
+  allUnits.forEach((unit, idx) => {
+    const unitHadirMap = hadirSet[unit] || {};
+    const personilUnit = allPersonil
+      .filter(p => (p['Unit Kerja']||p['UNIT KERJA']||'') === unit)
+      .sort((a,b) => (a['Nama']||a['NAMA']||'').localeCompare(b['Nama']||b['NAMA']||''));
+
+    const hadirCount = Object.keys(unitHadirMap).length;
+    const total      = personilUnit.length;
+
+    const rows = personilUnit.map(p => {
+      const pn     = p['Nama']    || p['NAMA']    || '';
+      const pj     = p['Jabatan'] || p['JABATAN'] || '';
+      const pnUp   = pn.toUpperCase();
+      const hadir  = unitHadirMap[pnUp];
+      const waktu  = hadir ? hadir['WAKTU DAFTAR'] || '' : '';
+      const ini    = pn.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
+      const pEsc   = pn.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+
+      if (hadir) {
+        return `
+        <div class="prow hadir">
+          <div class="prow-avatar hadir-av">${ini}</div>
+          <div class="prow-info">
+            <div class="prow-name">${pn}</div>
+            <div class="prow-time">✓ ${waktu}</div>
+          </div>
+          <button class="btn-batal-sm" onclick="batalHadir('${kEsc}','${pEsc}')">✕</button>
+        </div>`;
+      } else {
+        return `
+        <div class="prow">
+          <div class="prow-avatar">${ini}</div>
+          <div class="prow-info">
+            <div class="prow-name">${pn}</div>
+          </div>
+          <span class="belum-chip">–</span>
+        </div>`;
+      }
+    }).join('');
+
+    // Progress bar
+    const pct = total > 0 ? Math.round(hadirCount/total*100) : 0;
+
+    unitHtml += `
+    <div class="unit-card" id="usec-${idx}">
+      <div class="unit-card-header">
+        <div class="unit-card-left">
+          <div class="unit-initial">${unit.substring(0,3).toUpperCase()}</div>
+          <div>
+            <div class="unit-card-name">${unit}</div>
+            <div class="unit-card-sub">${hadirCount} / ${total} hadir</div>
+          </div>
+        </div>
+        <div class="unit-prog-wrap">
+          <div class="unit-prog-bar"><div class="unit-prog-fill" style="width:${pct}%"></div></div>
+          <div class="unit-prog-pct">${pct}%</div>
+        </div>
+      </div>
+      <div class="unit-card-members">${rows || '<div style=\"padding:10px 14px;color:#bbb;font-size:12px;\">Tidak ada personil</div>'}</div>
+    </div>`;
+  });
+  unitHtml += '</div>'; // tutup .unit-grid
+
+  // Unit cards ke scroll area, form ke bottom
+  document.getElementById('s3body').innerHTML = unitHtml;
+
+  // Summary bar
+  const sumEl = document.getElementById('s3summary');
+  const sumTx = document.getElementById('s3summaryText');
+  if (sumEl && sumTx) {
+    sumEl.style.display = 'block';
+    sumTx.textContent = totalHadir + ' hadir · ' + allUnits.length + ' unit';
+  }
+
+  // Form ke bottom (hanya saat aktif)
+  const bot = document.getElementById('s3bottom');
+  if (bot) {
+    if (aktif) {
+      const unitOpts = allUnits.map(u => `<option value="${u}">${u}</option>`).join('');
+      bot.innerHTML = `
+      <div style="font-size:9px;font-weight:700;color:var(--primary);letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px;">✋ Daftar / List Kehadiran Acara</div>
+      <div class="bottom-form-row">
+        <select class="form-select" id="fUnit" onchange="onFUnit()" style="max-width:42%">
+          <option value="">Unit</option>
+          ${unitOpts}
+        </select>
+        <select class="form-select" id="fNama" onchange="onFNama()" disabled>
+          <option value="">Nama</option>
+        </select>
+        <button class="btn-submit" id="fBtn" onclick="submitHadir()" disabled>✓</button>
+      </div>`;
+    } else {
+      bot.innerHTML = '<div style="text-align:center;font-size:12px;color:#c62828;padding:4px 0;">⛔ Pendaftaran ditutup</div>';
+    }
+  }
+}
+
+function toggleUnit(idx) { /* tidak dipakai, semua terbuka */ }
+
+// ── Form handlers ──
+function onFUnit() {
+  const unit = document.getElementById('fUnit').value;
+  const sel  = document.getElementById('fNama');
+  const btn  = document.getElementById('fBtn');
+  sel.innerHTML = '<option value="">-- Pilih Nama --</option>';
+  sel.disabled  = !unit; btn.disabled = true;
+  if (!unit) return;
+
+  const filtered = allPersonil
+    .filter(p => (p['Unit Kerja']||p['UNIT KERJA']||'') === unit)
+    .sort((a,b) => (a['Nama']||a['NAMA']||'').localeCompare(b['Nama']||b['NAMA']||''));
+
+  filtered.forEach(p => {
+    const n = p['Nama']||p['NAMA']||''; if(!n) return;
+    const o = document.createElement('option');
+    o.value = n; o.textContent = n;
+    o.dataset.jabatan = p['Jabatan']||p['JABATAN']||'';
+    o.dataset.unit    = unit;
+    sel.appendChild(o);
+  });
+  sel.disabled = false;
+}
+
+function onFNama() {
+  document.getElementById('fBtn').disabled = !document.getElementById('fNama').value;
+}
+
+// ══════════ MODAL KONFIRMASI ══════════
+function bukaModalKonfirmasi() {
+  const nama = currentKeg['NAMA KEGIATAN'];
+  document.getElementById('mkNamaAcara').textContent = nama;
+  document.getElementById('mkErr').style.display = 'none';
+  document.getElementById('mkBtn').disabled = true;
+
+  // Isi unit
+  const allUnits = [...new Set(
+    allPersonil.map(p => p['Unit Kerja'] || p['UNIT KERJA'] || '')
+  )].filter(Boolean).sort();
+
+  const mkUnit = document.getElementById('mkUnit');
+  mkUnit.innerHTML = '<option value="">-- Pilih Unit Kerja --</option>' +
+    allUnits.map(u => `<option value="${u}">${u}</option>`).join('');
+
+  const mkNama = document.getElementById('mkNama');
+  mkNama.innerHTML = '<option value="">-- Pilih Nama --</option>';
+  mkNama.disabled = true;
+  mkNama.style.background = '#f5f5f5';
+  mkNama.style.color = '#aaa';
+
+  document.getElementById('modalKonfirm').classList.add('show');
+}
+
+function tutupModalKonfirm() {
+  document.getElementById('modalKonfirm').classList.remove('show');
+}
+
+function onMkUnit() {
+  const unit = document.getElementById('mkUnit').value;
+  const sel  = document.getElementById('mkNama');
+  const btn  = document.getElementById('mkBtn');
+  sel.innerHTML = '<option value="">-- Pilih Nama --</option>';
+  sel.disabled = !unit;
+  sel.style.background = unit ? 'white' : '#f5f5f5';
+  sel.style.color = unit ? 'var(--text)' : '#aaa';
+  btn.disabled = true;
+  if (!unit) return;
+
+  const filtered = allPersonil
+    .filter(p => (p['Unit Kerja']||p['UNIT KERJA']||'') === unit)
+    .sort((a,b) => (a['Nama']||a['NAMA']||'').localeCompare(b['Nama']||b['NAMA']||''));
+
+  filtered.forEach(p => {
+    const n = p['Nama']||p['NAMA']||''; if (!n) return;
+    const o = document.createElement('option');
+    o.value = n;
+    o.textContent = n;
+    o.dataset.jabatan = p['Jabatan']||p['JABATAN']||'';
+    o.dataset.unit = unit;
+    sel.appendChild(o);
+  });
+}
+
+function onMkNama() {
+  document.getElementById('mkBtn').disabled = !document.getElementById('mkNama').value;
+}
+
+async function submitKonfirm() {
+  const namaKeg = currentKeg['NAMA KEGIATAN'];
+  const sel     = document.getElementById('mkNama');
+  const opt     = sel.options[sel.selectedIndex];
+  const btn     = document.getElementById('mkBtn');
+  const nama    = opt.value;
+  const unit    = opt.dataset.unit    || '';
+  const jabatan = opt.dataset.jabatan || '';
+  if (!nama) return;
+
+  btn.disabled = true; btn.textContent = '⏳';
+  document.getElementById('mkErr').style.display = 'none';
+
+  try {
+    const j = await apiPost(GS_KEGIATAN, {action:'daftarHadir', namaKegiatan:namaKeg, nama, unitKerja:unit, jabatan});
+    if (j.success) {
+      tutupModalKonfirm();
+      showToast('✓ ' + nama + ' berhasil dikonfirmasi!', 'success');
+      syncJumlah(+1);
+      // refresh data hadirData kalau s3 sedang terbuka
+      if (hadirData !== null) await muatPeserta(false).catch(()=>{});
+    } else {
+      const errEl = document.getElementById('mkErr');
+      errEl.textContent = '⚠️ ' + j.message;
+      errEl.style.display = 'block';
+      btn.disabled = false; btn.textContent = '✋ Konfirmasi';
+    }
+  } catch(e) {
+    const errEl = document.getElementById('mkErr');
+    errEl.textContent = '❌ Gagal terhubung';
+    errEl.style.display = 'block';
+    btn.disabled = false; btn.textContent = '✋ Konfirmasi';
+  }
+}
+
+async function submitHadir() {
+  const namaKeg = currentKeg['NAMA KEGIATAN'];
+  const sel     = document.getElementById('fNama');
+  const opt     = sel.options[sel.selectedIndex];
+  const btn     = document.getElementById('fBtn');
+  const nama    = opt.value;
+  const unit    = opt.dataset.unit    || '';
+  const jabatan = opt.dataset.jabatan || '';
+  if (!nama) return;
+
+  btn.disabled = true; btn.textContent = '⏳';
+  try {
+    const j = await apiPost(GS_KEGIATAN, {action:'daftarHadir', namaKegiatan:namaKeg, nama, unitKerja:unit, jabatan});
+    if (j.success) {
+      showToast('✓ ' + j.message, 'success');
+      document.getElementById('fUnit').value = '';
+      sel.innerHTML = '<option value="">-- Pilih Nama --</option>';
+      sel.disabled  = true;
+      // Update jumlah di kegiatanData
+      syncJumlah(+1);
+      await muatPeserta(true);
+    } else {
+      showToast('⚠️ ' + j.message, 'error');
+      btn.disabled = false; btn.textContent = 'Daftar Hadir';
+    }
+  } catch(e) {
+    showToast('❌ Gagal terhubung', 'error');
+    btn.disabled = false; btn.textContent = 'Daftar Hadir';
+  }
+}
+
+async function batalHadir(namaKegiatan, nama) {
+  if (!confirm('Batalkan kehadiran ' + nama + '?')) return;
+  try {
+    const j = await apiPost(GS_KEGIATAN, {action:'batalHadir', namaKegiatan, nama});
+    if (j.success) {
+      showToast('✓ ' + j.message, 'success');
+      syncJumlah(-1);
+      await muatPeserta(false);
+    } else showToast('⚠️ ' + j.message, 'error');
+  } catch(e) { showToast('❌ Gagal terhubung', 'error'); }
+}
+
+// Sync jumlah hadir di currentKeg, kegiatanData[], dan UI screen 2
+function syncJumlah(delta) {
+  if (!currentKeg) return;
+  const prev = parseInt(currentKeg['JUMLAH_HADIR']) || 0;
+  const next  = Math.max(0, prev + delta);
+  currentKeg['JUMLAH_HADIR'] = next;
+
+  // Update juga di array kegiatanData supaya screen 1 & 2 sinkron
+  const idx = kegiatanData.findIndex(k => k['NAMA KEGIATAN'] === currentKeg['NAMA KEGIATAN']);
+  if (idx >= 0) kegiatanData[idx]['JUMLAH_HADIR'] = next;
+
+  // Refresh angka di screen 2 (peserta card)
+  const pelEl = document.querySelector('.peserta-num');
+  if (pelEl) pelEl.textContent = next;
+  const pelInfoEl = document.querySelector('.peserta-info p');
+  if (pelInfoEl) pelInfoEl.textContent = 'Lihat & kelola daftar kehadiran';
+}
+
+// ══════════ NAVIGASI ══════════
+function navigateTo(screenNum) {
+  // Sembunyikan semua
+  ['s1','s2','s3'].forEach(id => {
+    const el = document.getElementById(id);
+    el.classList.remove('active','behind');
+  });
+
+  // Aktifkan target, sembunyikan sebelumnya
+  if (screenNum === 2) {
+    document.getElementById('s1').classList.add('behind');
+    document.getElementById('s2').classList.add('active');
+    history.pushState({screen:2}, '');
+  } else if (screenNum === 3) {
+    document.getElementById('s1').classList.add('behind');
+    document.getElementById('s2').classList.add('behind');
+    document.getElementById('s3').classList.add('active');
+    history.pushState({screen:3}, '');
+  } else {
+    document.getElementById('s1').classList.add('active');
+  }
+}
+
+function goBack(fromScreen) {
+  history.back();
+}
+
+function goHome() {
+  window.location.href = '../index.html';
+}
+
+// Tangkap tombol back HP/browser
+window.addEventListener('popstate', function(e) {
+  const screen = e.state ? e.state.screen : 1;
+  ['s1','s2','s3'].forEach(id => {
+    document.getElementById(id).classList.remove('active','behind');
+  });
+  if (screen === 3) {
+    document.getElementById('s1').classList.add('behind');
+    document.getElementById('s2').classList.add('behind');
+    document.getElementById('s3').classList.add('active');
+  } else if (screen === 2) {
+    document.getElementById('s1').classList.add('behind');
+    document.getElementById('s2').classList.add('active');
+  } else {
+    document.getElementById('s1').classList.add('active');
+    // Refresh jumlah peserta di list
+    renderS1();
+  }
+});
+
+// ══════════ ADMIN ══════════
+function bukaModalAdmin() {
+  if (isAdmin) {
+    // Tampilkan modal konfirmasi logout
+    document.getElementById('modalLogout').classList.add('show');
+    return;
+  }
+  document.getElementById('inputPw').value = '';
+  document.getElementById('errPw').style.display = 'none';
+  document.getElementById('modalAdmin').classList.add('show');
+  setTimeout(() => document.getElementById('inputPw').focus(), 150);
+}
+function tutupModal() { document.getElementById('modalAdmin').classList.remove('show'); }
+function konfirmasiAdmin() {
+  if (document.getElementById('inputPw').value === ADMIN_PASS) {
+    isAdmin = true; tutupModal();
+    const p = document.getElementById('adminPanel');
+    if (p) p.classList.add('show');
+    document.querySelector('.topbar-action').textContent = '🔴 Nonaktifkan';
+    document.querySelector('.topbar-action').style.background = 'rgba(220,50,50,.3)';
+    document.querySelector('.topbar-action').style.borderColor = 'rgba(255,100,100,.6)';
+    showToast('Mode admin aktif', 'success');
+  } else {
+    document.getElementById('errPw').style.display = 'block';
+    document.getElementById('inputPw').value = '';
+    document.getElementById('inputPw').focus();
+  }
+}
+
+function nonaktifkanAdmin() {
+  isAdmin = false;
+  const p = document.getElementById('adminPanel');
+  if (p) p.classList.remove('show');
+  const btn = document.querySelector('.topbar-action');
+  btn.textContent = '🔐 Admin';
+  btn.style.background = '';
+  btn.style.borderColor = '';
+  showToast('Mode admin dinonaktifkan', '');
+}
+
+async function tambahAcara() {
+  const nama = document.getElementById('inNama').value.trim().toUpperCase();
+  const tgl  = document.getElementById('inTgl').value.trim();
+  const lok  = document.getElementById('inLok').value.trim();
+  const ket  = document.getElementById('inKet').value.trim();
+  if (!nama) { showToast('⚠️ Nama acara wajib diisi', 'error'); return; }
+
+  const btn = document.getElementById('btnSaveAcara');
+  btn.disabled = true; btn.textContent = '⏳ Menyimpan...';
+  try {
+    const j = await apiPost(GS_KEGIATAN, {action:'tambahKegiatan', namaKegiatan:nama, tanggal:tgl, lokasi:lok, keterangan:ket});
+    if (j.success) {
+      showToast('✓ ' + j.message, 'success');
+      ['inNama','inTgl','inLok','inKet'].forEach(id => document.getElementById(id).value = '');
+      await loadKegiatan();
+    } else showToast('⚠️ ' + j.message, 'error');
+  } catch(e) { showToast('❌ Gagal terhubung', 'error'); }
+  btn.disabled = false; btn.textContent = '➕ Simpan & Buat Acara';
+}
+
+// ══════════ TOAST ══════════
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'show ' + type;
+  setTimeout(() => { t.className = ''; }, 3200);
+}
+
+init();
+</script>
+</body>
+</html>

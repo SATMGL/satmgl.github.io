@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emotikon Memantul Acak</title>
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    background: #f0f0f0;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .emoji {
+    position: absolute;
+    font-size: 2.5rem;
+    user-select: none;
+  }
+</style>
+</head>
+<body>
+
+<script>
+const emojis = ['😀','😂','🥳','😎','😍','🤩','😆','😇','🤪','🥰','😋','😛','🤗','🤔','😜'];
+const emojiCount = 30; // jumlah emoji
+const emojiElements = [];
+
+for (let i = 0; i < emojiCount; i++) {
+  const div = document.createElement('div');
+  div.classList.add('emoji');
+  div.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+  div.style.left = Math.random() * (window.innerWidth - 50) + 'px';
+  div.style.top = Math.random() * (window.innerHeight - 50) + 'px';
+  document.body.appendChild(div);
+
+  // Kecepatan gerak random
+  const speedX = (Math.random() * 4 + 1) * (Math.random() < 0.5 ? 1 : -1);
+  const speedY = (Math.random() * 4 + 1) * (Math.random() < 0.5 ? 1 : -1);
+
+  emojiElements.push({el: div, x: speedX, y: speedY});
+}
+
+// animasi loop
+function animate() {
+  emojiElements.forEach(obj => {
+    let rect = obj.el.getBoundingClientRect();
+    let newX = rect.left + obj.x;
+    let newY = rect.top + obj.y;
+
+    // pantulan ke tepi layar
+    if (newX <= 0 || newX + rect.width >= window.innerWidth) obj.x *= -1;
+    if (newY <= 0 || newY + rect.height >= window.innerHeight) obj.y *= -1;
+
+    obj.el.style.left = rect.left + obj.x + 'px';
+    obj.el.style.top = rect.top + obj.y + 'px';
+  });
+  requestAnimationFrame(animate);
+}
+
+animate();
+</script>
+
+</body>
+</html>

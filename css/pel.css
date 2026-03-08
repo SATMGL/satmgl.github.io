@@ -1,0 +1,478 @@
+/* ═══════════════════════════════════════════════════════════════
+   TEMA MODE PEL — PELAKSANAAN KERJA
+   Oranye · Energik · Dinamis
+   Override di atas jadwal.css
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  --tema-primer       : #f37021;   /* oranye BRI utama            */
+  --tema-gelap        : #c45510;   /* oranye BRI gelap            */
+  --tema-muda         : #fff5ee;   /* oranye BRI sangat muda (bg) */
+  --tema-aksen        : #f8934d;   /* oranye BRI terang (aksen)   */
+  --tema-teks-invers  : #fff;      /* teks di atas bg gelap       */
+}
+
+/* ── Background halaman ───────────────────────────── */
+body {
+  background-color: #fff8f4;
+}
+
+/* ── Header ───────────────────────────────────────── */
+header {
+  border-color: var(--tema-primer);
+  background: var(--tema-muda);
+}
+
+#btn-kembali {
+  border-right-color: var(--tema-primer) !important;
+  color: var(--tema-primer);
+}
+#btn-kembali:hover {
+  background: var(--tema-primer) !important;
+  color: var(--tema-teks-invers) !important;
+}
+
+#header-judul {
+  color: var(--tema-gelap);
+}
+
+/* ── Footer ───────────────────────────────────────── */
+footer {
+  border-color: var(--tema-primer);
+  background: var(--tema-muda);
+}
+
+#btn-admin-mode {
+  border-left-color: var(--tema-primer) !important;
+}
+#btn-admin-mode:hover {
+  background: var(--tema-primer) !important;
+  color: var(--tema-teks-invers) !important;
+}
+#admin-mode-indicator {
+  border-color: var(--tema-primer) !important;
+}
+
+/* ── Main panels ──────────────────────────────────── */
+main {
+  border-color: var(--tema-primer);
+}
+
+.panel,
+.panel-bottom {
+  border-color: var(--tema-primer);
+  background: var(--tema-muda);
+}
+
+/* ── Tombol PILIH BULAN & UNIT ────────────────────── */
+#btn-bulan,
+#btn-unit {
+  color: var(--tema-gelap);
+}
+
+div[style*="border:2px solid #000"]:has(#btn-bulan),
+div[style*="border:2px solid #000"]:has(#btn-unit) {
+  border-color: var(--tema-primer) !important;
+}
+
+#x-bulan,
+#x-unit {
+  border-left-color: var(--tema-primer) !important;
+  color: var(--tema-primer);
+}
+#x-bulan:hover,
+#x-unit:hover {
+  background: var(--tema-primer) !important;
+  color: var(--tema-teks-invers) !important;
+}
+
+/* ── Tombol aksi (Download & Edit) ───────────────── */
+#btn-download,
+#btn-edit {
+  border-color: var(--tema-primer);
+  color: var(--tema-gelap);
+}
+#btn-download:not(:disabled):hover,
+#btn-edit:not(:disabled):hover {
+  background: var(--tema-primer) !important;
+  color: var(--tema-teks-invers) !important;
+}
+
+/* ── Tombol UNDO / REDO ───────────────────────────── */
+#btn-undo,
+#btn-redo {
+  border-color: var(--tema-primer);
+}
+#btn-undo:not(:disabled):hover,
+#btn-redo:not(:disabled):hover {
+  background: var(--tema-primer) !important;
+  color: var(--tema-teks-invers) !important;
+}
+#btn-undo { border-right-color: var(--tema-primer) !important; }
+
+/* ── Jadwal judul & border ────────────────────────── */
+.box-jadwal {
+  border-color: var(--tema-primer);
+}
+
+.jadwal-judul {
+  border-color: var(--tema-primer);
+  color: var(--tema-gelap);
+  background: var(--tema-muda);
+}
+
+.jadwal {
+  border-color: var(--tema-primer);
+}
+
+/* ── Fader ────────────────────────────────────────── */
+.jadwal-fader {
+  background: var(--tema-muda);
+  border-top-color: var(--tema-primer);
+}
+.jadwal-fader-track {
+  border-color: var(--tema-primer);
+}
+.jadwal-fader-knob {
+  border-color: var(--tema-primer);
+}
+.fader-grip {
+  background: var(--tema-primer);
+}
+
+/* ── Sticky header tabel ──────────────────────────── */
+.jadwal table thead th {
+  background: var(--tema-muda);
+  border-bottom-color: var(--tema-primer);
+  border-right-color: var(--tema-primer);
+}
+.jadwal table .col-no,
+.jadwal table .col-nama {
+  border-right-color: var(--tema-primer) !important;
+}
+
+/* ── Mode edit — blink oranye ─────────────────────── */
+@keyframes edit-blink {
+  0%, 100% { border-color: var(--tema-primer); box-shadow: 0 0 0 1px var(--tema-primer); }
+  50%       { border-color: #000; box-shadow: none; }
+}
+
+.jadwal.mode-edit {
+  border-color: var(--tema-primer);
+  animation: edit-blink 1s ease-in-out infinite;
+}
+
+.jadwal.mode-edit .jadwal-judul {
+  color: var(--tema-primer);
+  border-bottom-color: var(--tema-primer);
+}
+
+@keyframes edit-blink-judul {
+  0%, 100% { border-bottom-color: var(--tema-primer); }
+  50%       { border-bottom-color: #000; }
+}
+
+/* ── Sel yang diubah saat edit ────────────────────── */
+#tbody-data td[style*="background: rgb(255, 251, 230)"],
+#tbody-data td[style*="background: #fffbe6"] {
+  background: #fff0d6 !important;
+}
+
+/* ── Ticker neon — oranye BRI ─────────────────────── */
+.jadwal-ticker {
+  background: #1a0a00;
+}
+.jadwal-ticker-track span {
+  color: #ff8c1a;
+  text-shadow:
+    0 0 4px #ff8c1a,
+    0 0 12px #f37021,
+    0 0 22px #f3702166;
+}
+
+/* ── Modal overlay & box ─────────────────────────── */
+#modal-box,
+#konfirmasi-overlay > div,
+#modal-nilai-overlay > div,
+#modal-download-overlay > div {
+  border-color: var(--tema-primer) !important;
+}
+
+#modal-title,
+#modal-footer {
+  border-color: var(--tema-primer) !important;
+}
+
+#modal-title-text {
+  color: var(--tema-gelap);
+}
+
+/* Tombol di dalam modal */
+#modal-content button,
+#modal-footer button,
+#konfirmasi-overlay button,
+#modal-nilai-overlay button,
+#modal-download-overlay button {
+  border-color: var(--tema-primer) !important;
+}
+
+/* ── Kotak border pilih bulan & unit ─────────────── */
+#btn-bulan,
+#btn-unit {
+  border-color: var(--tema-primer);
+}
+
+div:has(> #btn-bulan),
+div:has(> #btn-unit) {
+  border-color: var(--tema-primer) !important;
+}
+
+/* ── Info teks bulan & unit ──────────────────────── */
+#info-bulan,
+#info-unit {
+  color: var(--tema-gelap);
+}
+
+/* ── Modal — anti overflow & teks responsif ─────── */
+#modal-box {
+  max-width: 92vw;
+  max-height: 90vh;
+  box-sizing: border-box;
+  word-break: break-word;
+  overflow: visible;
+}
+
+#modal-title {
+  min-height: 5vh;
+  padding: 0.8vh 6vh 0.8vh 1.5vw;
+  box-sizing: border-box;
+}
+
+#modal-title-text {
+  font-size: clamp(10px, 1.8vh, 16px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+#modal-content {
+  overflow: hidden;
+  padding: 1.2vh 1.2vw;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.8vh 0.8vw;
+  /* tinggi otomatis — item mengisi ruang tanpa scroll */
+  align-content: start;
+}
+
+#modal-content button {
+  width: 100%;
+  /* tinggi proporsional terhadap viewport */
+  height: clamp(24px, 3.8vh, 42px);
+  font-size: clamp(8px, 1.4vh, 13px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
+  padding: 0 0.4vw;
+}
+
+#modal-footer {
+  min-height: 5vh;
+  padding: 0.5vh;
+  box-sizing: border-box;
+}
+
+#modal-footer button {
+  height: clamp(28px, 4.5vh, 44px);
+  font-size: clamp(9px, 1.6vh, 14px);
+  padding: 0 3vw;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+/* ── Konfirmasi modal ────────────────────────────── */
+#konfirmasi-overlay > div {
+  max-width: 88vw;
+  box-sizing: border-box;
+  word-break: break-word;
+}
+
+#konfirmasi-overlay > div > div:nth-child(2) {
+  font-size: clamp(9px, 1.6vh, 14px);
+  line-height: 1.6;
+  padding: 1.5vh 2vw;
+}
+
+#konfirmasi-overlay button {
+  font-size: clamp(9px, 1.6vh, 14px);
+  height: clamp(32px, 5vh, 48px);
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+/* ── Modal nilai sel (edit) ──────────────────────── */
+#modal-nilai-overlay > div {
+  max-width: 88vw;
+  box-sizing: border-box;
+}
+
+#modal-nilai-overlay > div > div:first-child span {
+  font-size: clamp(9px, 1.5vh, 13px);
+  white-space: normal;
+  line-height: 1.4;
+}
+
+#modal-nilai-overlay .btn-nilai {
+  width: 100%;
+  height: clamp(32px, 5vh, 48px);
+  font-size: clamp(9px, 1.6vh, 14px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
+}
+
+/* ── Modal download ──────────────────────────────── */
+#modal-download-overlay > div {
+  max-width: 88vw;
+  box-sizing: border-box;
+}
+
+#modal-download-overlay button {
+  height: clamp(36px, 6vh, 56px);
+  font-size: clamp(9px, 1.6vh, 14px);
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+/* ══════════════════════════════════════════════
+   MODAL DINAMIS — konfirmasi, nilai, download
+   (dibuat via JS, override dengan !important)
+══════════════════════════════════════════════ */
+
+/* Box utama semua modal dinamis */
+#konfirmasi-overlay > div,
+#modal-nilai-overlay > div,
+#modal-download-overlay > div {
+  border-color: var(--tema-primer) !important;
+}
+
+/* Judul / header tiap modal */
+#konfirmasi-overlay > div > div:first-child,
+#modal-nilai-overlay > div > div:first-child,
+#modal-download-overlay > div > div:first-child {
+  border-bottom-color: var(--tema-primer) !important;
+  color: var(--tema-gelap) !important;
+  background: var(--tema-muda) !important;
+}
+
+/* Tombol X tutup modal */
+#konfirmasi-overlay button[onclick*="remove"],
+#modal-nilai-overlay button[onclick*="remove"],
+#modal-download-overlay button[onclick*="remove"] {
+  border-left-color: var(--tema-primer) !important;
+  color: var(--tema-primer) !important;
+}
+#konfirmasi-overlay button[onclick*="remove"]:hover,
+#modal-nilai-overlay button[onclick*="remove"]:hover,
+#modal-download-overlay button[onclick*="remove"]:hover {
+  background: var(--tema-primer) !important;
+  color: #fff !important;
+}
+
+/* Semua tombol aksi dalam modal */
+#konfirmasi-ya,
+#konfirmasi-tidak,
+#k-batal,
+#k-reset,
+#k-pilih-unit {
+  border-color: var(--tema-primer) !important;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: clamp(9px, 1.6vh, 14px) !important;
+  height: clamp(32px, 5vh, 48px) !important;
+  box-sizing: border-box;
+}
+#konfirmasi-ya:hover,
+#k-reset:hover,
+#k-pilih-unit:hover {
+  background: var(--tema-primer) !important;
+  color: #fff !important;
+}
+#konfirmasi-tidak:hover,
+#k-batal:hover {
+  background: #000 !important;
+  color: #fff !important;
+}
+
+/* Tombol nilai sel (grid pilih shift) */
+.btn-nilai {
+  border-color: var(--tema-primer) !important;
+  color: var(--tema-gelap) !important;
+  font-size: clamp(9px, 1.6vh, 14px) !important;
+  height: clamp(32px, 5vh, 48px) !important;
+  box-sizing: border-box;
+}
+.btn-nilai:hover {
+  background: var(--tema-primer) !important;
+  color: #fff !important;
+}
+
+/* Footer modal nilai */
+#modal-nilai-overlay > div > div:last-child {
+  border-top-color: var(--tema-primer) !important;
+}
+
+/* Tombol download (PNG, PDF dll) */
+#modal-download-overlay button:not([onclick*="remove"]) {
+  border-color: var(--tema-primer) !important;
+  color: var(--tema-gelap) !important;
+  font-size: clamp(9px, 1.6vh, 14px) !important;
+  height: clamp(36px, 6vh, 56px) !important;
+  box-sizing: border-box;
+}
+#modal-download-overlay button:not([onclick*="remove"]):hover {
+  background: var(--tema-primer) !important;
+  color: #fff !important;
+}
+
+/* Teks isi konfirmasi */
+#konfirmasi-overlay > div > div:nth-child(2) {
+  font-size: clamp(9px, 1.5vh, 13px) !important;
+  line-height: 1.7;
+  padding: 1.5vh 2vw !important;
+  color: #333 !important;
+}
+
+/* ── Tombol X bulan & unit — override inline onmouseover ── */
+#x-bulan,
+#x-unit {
+  border-left-color: var(--tema-primer) !important;
+  color: var(--tema-primer) !important;
+  transition: background 0.15s, color 0.15s;
+}
+/* onmouseover inline pakai JS, tapi kita override hover via CSS */
+#x-bulan:hover,
+#x-unit:hover {
+  background: var(--tema-primer) !important;
+  color: #fff !important;
+}
+
+/* ── Kotak border wrapper bulan & unit ── */
+div:has(> #btn-bulan),
+div:has(> #btn-unit) {
+  border-color: var(--tema-primer) !important;
+}
+
+/* ── Tombol btn-bulan & btn-unit aktif ── */
+#btn-bulan:not(:disabled),
+#btn-unit:not(:disabled) {
+  color: var(--tema-gelap) !important;
+}
+#btn-bulan:not(:disabled):hover,
+#btn-unit:not(:disabled):hover {
+  background: var(--tema-primer) !important;
+  color: #fff !important;
+}

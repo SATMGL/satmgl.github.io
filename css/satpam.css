@@ -1,0 +1,202 @@
+/* ═══════════════════════════════════════════════════════════════
+   SATPAM.CSS — Karakter satpam mengambang & interaktif
+   Include setelah jadwal.css
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Karakter kecil permanen di header NAMA ─────────────────── */
+#sp-header-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: calc(var(--tinggi-hari) + var(--tinggi-tanggal) - 4px);
+  flex-shrink: 0;
+  vertical-align: middle;
+  margin-left: 4px;
+  transition: opacity 0.4s;
+  overflow: visible;
+}
+
+#sp-header-wrap svg {
+  width: 28px;
+  height: 40px;
+  overflow: visible;
+}
+
+/* Idle sway khusus untuk header char */
+#sp-header-wrap #sph-body {
+  animation: sp-idle 3s ease-in-out infinite;
+  transform-origin: 26px 48px;
+}
+
+/* Blink mata header char */
+#sp-header-wrap #sph-eye-l,
+#sp-header-wrap #sph-eye-r {
+  animation: sp-blink 5s ease-in-out infinite;
+}
+
+@keyframes sp-blink {
+  0%,44%,56%,100% { transform: scaleY(1); }
+  50%             { transform: scaleY(0.08); }
+}
+
+/* ── Karakter utama (walking, fixed) ────────────────────────── */
+#satpam-char {
+  position: fixed;
+  display: none; /* tersembunyi saat di pos — header char yang tampil */
+  z-index: 800;
+  pointer-events: none;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.25));
+  transform-origin: bottom center;
+}
+
+/* ── Speech bubble ───────────────────────────────────────────── */
+#satpam-bubble {
+  position: fixed;
+  z-index: 801;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: clamp(8px, 1.2vh, 11px);
+  letter-spacing: 0.04em;
+  padding: 6px 12px;
+  border: 1.5px solid #000;
+  background: #fff;
+  color: #000;
+  border-radius: 0;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+  box-shadow: 3px 3px 0 #000;
+  max-width: 200px;
+  white-space: normal;
+  line-height: 1.4;
+  text-align: left;
+}
+
+/* Ekor bubble (kiri-bawah) */
+#satpam-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 12px;
+  width: 0; height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 8px solid #000;
+}
+#satpam-bubble::before {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 13px;
+  width: 0; height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 7px solid #fff;
+  z-index: 1;
+}
+
+/* Bubble tema PEL — oranye */
+body.mode-pel #satpam-bubble {
+  border-color: #f37021;
+  box-shadow: 3px 3px 0 #f37021;
+  color: #c45510;
+}
+body.mode-pel #satpam-bubble::after  { border-top-color: #f37021; }
+body.mode-pel #satpam-bubble::before { border-top-color: #fff8f4; }
+
+/* Bubble tema PEN — hijau */
+body.mode-pen #satpam-bubble {
+  border-color: #85bb65;
+  box-shadow: 3px 3px 0 #85bb65;
+  color: #4a7c34;
+}
+body.mode-pen #satpam-bubble::after  { border-top-color: #85bb65; }
+body.mode-pen #satpam-bubble::before { border-top-color: #f4f9f1; }
+
+/* ── Highlight sel target ────────────────────────────────────── */
+td.satpam-target {
+  outline: 2px solid #000 !important;
+  outline-offset: -2px;
+  background: #fffbe6 !important;
+  position: relative;
+}
+
+body.mode-pel td.satpam-target {
+  outline-color: #f37021 !important;
+  background: #fff5ee !important;
+}
+body.mode-pen td.satpam-target {
+  outline-color: #85bb65 !important;
+  background: #f2f8ee !important;
+}
+
+/* ── Animasi berjalan ────────────────────────────────────────── */
+@keyframes sp-leg-l {
+  0%,100% { transform: rotate(-20deg); }
+  50%     { transform: rotate(20deg); }
+}
+@keyframes sp-leg-r {
+  0%,100% { transform: rotate(20deg); }
+  50%     { transform: rotate(-20deg); }
+}
+@keyframes sp-arm-l {
+  0%,100% { transform: rotate(15deg); }
+  50%     { transform: rotate(-15deg); }
+}
+@keyframes sp-arm-r {
+  0%,100% { transform: rotate(-15deg); }
+  50%     { transform: rotate(15deg); }
+}
+@keyframes sp-bob {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-2px); }
+}
+@keyframes sp-idle {
+  0%,100% { transform: rotate(0deg); }
+  25%     { transform: rotate(1.5deg); }
+  75%     { transform: rotate(-1.5deg); }
+}
+@keyframes sp-write {
+  0%,100% { transform: rotate(-45deg) translateY(0); }
+  50%     { transform: rotate(-35deg) translateY(-2px); }
+}
+@keyframes sp-happy {
+  0%,100% { transform: translateY(0) rotate(0deg); }
+  25%     { transform: translateY(-5px) rotate(-3deg); }
+  75%     { transform: translateY(-3px) rotate(3deg); }
+}
+@keyframes sp-cel-flash {
+  0%   { background: inherit; }
+  30%  { background: #fffbe6; }
+  100% { background: inherit; }
+}
+
+/* ── Kelas state animasi ─────────────────────────────────────── */
+#satpam-char.state-walk  #sp-body  { animation: sp-bob   0.3s ease-in-out infinite; }
+#satpam-char.state-walk  #sp-leg-l { animation: sp-leg-l 0.3s ease-in-out infinite; }
+#satpam-char.state-walk  #sp-leg-r { animation: sp-leg-r 0.3s ease-in-out infinite; }
+#satpam-char.state-walk  #sp-arm-l { animation: sp-arm-l 0.3s ease-in-out infinite; }
+#satpam-char.state-walk  #sp-arm-r { animation: sp-arm-r 0.3s ease-in-out infinite; }
+
+#satpam-char.state-idle  #sp-body  { animation: sp-idle  2.5s ease-in-out infinite; }
+
+#satpam-char.state-write #sp-arm-r { animation: sp-write 0.4s ease-in-out infinite; transform-origin: 38px 32px; }
+#satpam-char.state-write #sp-pensil { opacity: 1 !important; }
+
+#satpam-char.state-happy #sp-body  { animation: sp-happy 0.4s ease-in-out infinite; }
+
+/* Hat tema */
+body.mode-pel #sp-hat-top,
+body.mode-pel #sp-hat-brim { fill: #c45510; }
+body.mode-pel #sp-hat-badge { fill: #f37021; }
+body.mode-pel #sp-hat-stripe { fill: #f37021; }
+body.mode-pel #sp-badge { fill: #f37021; }
+body.mode-pel #sp-belt-buckle { fill: #f37021; }
+
+body.mode-pen #sp-hat-top,
+body.mode-pen #sp-hat-brim { fill: #2d5e1a; }
+body.mode-pen #sp-hat-badge { fill: #85bb65; }
+body.mode-pen #sp-hat-stripe { fill: #85bb65; }
+body.mode-pen #sp-badge { fill: #85bb65; }
+body.mode-pen #sp-belt-buckle { fill: #85bb65; }
