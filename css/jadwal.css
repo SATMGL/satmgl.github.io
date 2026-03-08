@@ -114,7 +114,7 @@ footer {
   box-sizing: border-box;
   overflow: hidden;
   border: 2px solid #000;
-  margin: 0; /* FIXED: No margin - main has gap now */
+  margin: 0 1vw; /* FIXED: Add horizontal margin so border doesn't touch main */
 }
 
 /* ── Jadwal inner — kotak judul+tabel ────── */
@@ -123,10 +123,10 @@ footer {
   border: 2px solid #000;
   border-top: none; /* nyambung dengan border bawah judul */
   background: #fff;
-  margin: 0; /* FIXED: No margin - cleaner alignment */
+  margin: 0 1vw; /* FIXED: Add horizontal margin for consistent spacing */
   height: auto;
   min-height: calc(var(--tinggi-hari) + var(--tinggi-tanggal));
-  max-height: calc(100% - (var(--tinggi-judul) + 3vh)); /* Ensure fader fits */
+  max-height: calc(100% - (var(--tinggi-judul) + var(--tinggi-fader) + 3vh + 2px)); /* FIXED: Strict limit to fit in box-jadwal */
   overflow: hidden;
   flex: 1; /* Allow to expand/shrink */
 }
@@ -138,7 +138,7 @@ footer {
   display: flex; align-items: center; justify-content: center;
   box-sizing: border-box; font-weight: bold;
   font-size: var(--font-judul); flex-shrink: 0;
-  margin: 0; /* FIXED: No margin - cleaner alignment */
+  margin: 0 1vw; /* FIXED: Add horizontal margin for consistent spacing */
   overflow: hidden;
 }
 
@@ -306,6 +306,89 @@ th.last-col, td.last-col { border-right: none !important; }
 }
 
 /* PEL — oranye BRI neon, bg hitam pekat */
+.running-teks-wrap.mode-pel {
+  background: #1a0a00;
+  border-top-color:    #f37021;
+  border-bottom-color: #f37021;
+}
+.running-teks.mode-pel {
+  color: #c45510;
+  text-shadow: 0 0 4px #c45510, 0 0 8px #f37021;
+  animation: marquee-scroll 55s linear infinite;
+}
+.running-teks.mode-pel .mode-label {
+  color: #ffe0c0;
+  text-shadow: 0 0 8px #f37021, 0 0 18px #ff8c3a, 0 0 3px #fff;
+  font-weight: bold;
+  letter-spacing: 0.25em;
+}
+
+/* PEN — hijau dolar neon, bg hijau sangat gelap */
+.running-teks-wrap.mode-pen {
+  background: #011a04;
+  border-top-color:    #85bb65;
+  border-bottom-color: #85bb65;
+}
+.running-teks.mode-pen {
+  color: #4a7c34;
+  text-shadow: 0 0 4px #4a7c34, 0 0 8px #85bb65;
+  animation: marquee-scroll 55s linear infinite;
+}
+.running-teks.mode-pen .mode-label {
+  color: #d4ffb0;
+  text-shadow: 0 0 8px #85bb65, 0 0 18px #aadd80, 0 0 3px #fff;
+  font-weight: bold;
+  letter-spacing: 0.25em;
+}
+
+@keyframes marquee-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+
+/* ── Loading overlay ─────────────────────── */
+#loading-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(255,255,255,0.88);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 2vh; opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+}
+#loading-overlay.aktif { opacity: 1; pointer-events: all; }
+#loading-svg {
+  width: clamp(120px,25vw,220px); height: clamp(120px,25vw,220px);
+  overflow: visible; filter: drop-shadow(2px 2px 0 rgba(0,0,0,0.12));
+}
+#loading-text {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: clamp(13px,2.2vh,18px); letter-spacing: 0.25em; color: #000;
+  animation: loading-blink 1s step-end infinite;
+}
+@keyframes loading-blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+/* ═══════════════════════════════════════════════════════════════
+   MODE EDIT — border jadwal kedip merah
+   ═══════════════════════════════════════════════════════════════ */
+@keyframes edit-blink {
+  0%, 100% { border-color: #e00; box-shadow: 0 0 0 1px #e00; }
+  50%       { border-color: #000; box-shadow: none; }
+}
+
+.jadwal.mode-edit {
+  animation: edit-blink 1s ease-in-out infinite;
+  border-color: #e00;
+}
+
+.jadwal.mode-edit .jadwal-judul {
+  color: #e00;
+  border-bottom-color: #e00;
+  letter-spacing: 0.08em;
+  animation: edit-blink-judul 1s ease-in-out infinite;
+}
+
+@keyframes edit-blink-judul {
+  0%, 100% { border-bottom-color: #e00; }
+  50%       { border-bottom-color: #000; }
+}
 .running-teks-wrap.mode-pel {
   background: #1a0a00;
   border-top-color:    #f37021;
