@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Pusat Bantuan — Jadwal Kerja</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+    html, body {
+      height:100%; width:100%;
+      font-family:'Share Tech Mono', monospace;
+      background:#f0f0f0;
+      overflow:hidden;
+    }
+    body {
+      display:flex; flex-direction:column;
+      height: calc(var(--vh,1vh)*100);
+    }
+
+    /* ── HEADER ── */
+    header {
+      height: 8vh; flex-shrink:0;
+      position:relative;
+      border-bottom:2px solid #000;
+      display:flex; align-items:center; justify-content:center;
+      background:#fff;
+    }
+    #btn-kembali {
+      position:absolute; left:0; top:0;
+      height:100%; width:8vh;
+      border:none; border-right:2px solid #000;
+      background:transparent;
+      font-size:5vh; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      transition:background .15s, color .15s;
+    }
+    #btn-kembali:hover { background:#000; color:#fff; }
+    .header-title {
+      font-size:clamp(10px,1.8vh,16px);
+      font-weight:bold; letter-spacing:.15em;
+    }
+
+    /* ── SCROLL AREA ── */
+    .scroll-area {
+      flex:1; min-height:0;
+      overflow-y:auto; overflow-x:hidden;
+      -webkit-overflow-scrolling:touch;
+      padding: 2vh 3vw 4vh;
+    }
+
+    /* ── SECTION ── */
+    .section {
+      border:2px solid #000;
+      margin-bottom:2vh;
+      background:#fff;
+      animation: fadeUp .3s both;
+    }
+    .section:nth-child(1) { animation-delay:.05s }
+    .section:nth-child(2) { animation-delay:.10s }
+    .section:nth-child(3) { animation-delay:.15s }
+    .section:nth-child(4) { animation-delay:.20s }
+    .section:nth-child(5) { animation-delay:.25s }
+    .section:nth-child(6) { animation-delay:.30s }
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(10px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    .section-head {
+      border-bottom:2px solid #000;
+      padding:.8vh 1.5vw;
+      display:flex; align-items:center; gap:1.5vw;
+      background:#000; color:#fff;
+    }
+    .section-num {
+      font-size:clamp(9px,1.4vh,13px);
+      opacity:.5; letter-spacing:.1em;
+    }
+    .section-title {
+      font-size:clamp(10px,1.6vh,14px);
+      letter-spacing:.18em; font-weight:bold;
+    }
+    .section-body {
+      padding:1.2vh 1.5vw;
+      display:flex; flex-direction:column; gap:1vh;
+    }
+
+    /* ── ITEM ROW ── */
+    .item {
+      display:flex; align-items:flex-start; gap:1.5vw;
+      padding:.7vh 0;
+      border-bottom:1px solid #eee;
+      font-size:clamp(9px,1.5vh,13px); line-height:1.6;
+    }
+    .item:last-child { border-bottom:none; }
+    .item-badge {
+      flex-shrink:0;
+      min-width:clamp(32px,9vw,60px);
+      height:clamp(22px,3.5vh,32px);
+      border:2px solid #000;
+      display:flex; align-items:center; justify-content:center;
+      font-weight:bold; font-size:clamp(9px,1.5vh,13px);
+      letter-spacing:.05em; background:#fff;
+    }
+    .item-badge.weekend  { border-color:#888; color:#555; background:#f8f8f8; }
+    .item-badge.hk-grid  {
+      min-width:clamp(24px,7vw,48px);
+      border-color:#2e7d32; color:#2e7d32;
+    }
+    .item-badge.hk-hl    { border-color:#6d4c41; color:#6d4c41; }
+    .item-badge.hk-hw    { border-color:#000; color:#000; }
+    .item-badge.hk-off   { border-color:#c62828; color:#c62828; }
+
+    .item-desc {
+      flex:1; color:#333;
+    }
+    .item-desc strong { color:#000; }
+    .item-desc .note {
+      display:inline-block; margin-top:.3vh;
+      font-size:clamp(8px,1.2vh,11px);
+      color:#888; letter-spacing:.05em;
+    }
+
+    /* ── 2-kolom untuk kode ── */
+    .grid-2 {
+      display:grid; grid-template-columns:1fr 1fr; gap:.6vh 2vw;
+    }
+
+    /* ── DIVIDER label ── */
+    .sub-label {
+      font-size:clamp(8px,1.2vh,11px); letter-spacing:.2em;
+      color:#888; padding:.4vh 0 .2vh;
+      border-bottom:1px solid #ddd; margin-bottom:.2vh;
+    }
+
+    /* ── MODE CHIPS ── */
+    .mode-wrap {
+      display:flex; gap:2vw;
+    }
+    .mode-chip {
+      flex:1; border:2px solid #000;
+      padding:1vh 1vw;
+    }
+    .mode-chip-label {
+      font-size:clamp(9px,1.5vh,13px); font-weight:bold;
+      letter-spacing:.15em; margin-bottom:.5vh;
+    }
+    .mode-chip-desc {
+      font-size:clamp(8px,1.2vh,11px); color:#555; line-height:1.6;
+    }
+    .mode-chip.pel { border-color:#f37021; }
+    .mode-chip.pel .mode-chip-label { color:#c45510; }
+    .mode-chip.pen { border-color:#85bb65; }
+    .mode-chip.pen .mode-chip-label { color:#4a7c34; }
+
+    /* ── HK GRID PREVIEW ── */
+    .hk-preview {
+      display:grid; grid-template-columns:1fr 1fr;
+      gap:1px; background:#999;
+      border:1px solid #999;
+      width:clamp(52px,12vw,72px);
+      flex-shrink:0;
+    }
+    .hk-cell {
+      background:#fff; padding:.4vh .3vw;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      line-height:1;
+    }
+    .hk-cell .lbl { font-size:clamp(6px,.9vh,9px); }
+    .hk-cell .val { font-size:clamp(9px,1.4vh,13px); font-weight:bold; }
+    .hk-cell.c-hk  .lbl, .hk-cell.c-hk  .val { color:#2e7d32; }
+    .hk-cell.c-hl  .lbl, .hk-cell.c-hl  .val { color:#6d4c41; }
+    .hk-cell.c-hw  .lbl, .hk-cell.c-hw  .val { color:#000; }
+    .hk-cell.c-off .lbl, .hk-cell.c-off .val { color:#c62828; }
+
+    /* ── NAV TIPS ── */
+    .tip-row {
+      display:flex; gap:2vw; align-items:flex-start;
+    }
+    .tip-icon {
+      flex-shrink:0;
+      width:clamp(28px,6vw,44px); height:clamp(28px,6vw,44px);
+      border:2px solid #000;
+      display:flex; align-items:center; justify-content:center;
+      font-size:clamp(12px,2vh,18px);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      flex-shrink:0; height:4vh;
+      border-top:2px solid #000;
+      background:#fff;
+      display:flex; align-items:center; justify-content:center;
+      font-size:clamp(7px,1.1vh,10px); letter-spacing:.2em; color:#888;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <button id="btn-kembali" onclick="history.back()">&#8592;</button>
+  <span class="header-title">📞 PUSAT BANTUAN</span>
+</header>
+
+<div class="scroll-area">
+
+  <!-- 1. MEMBUKA JADWAL -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-num">01</span>
+      <span class="section-title">MEMBUKA JADWAL</span>
+    </div>
+    <div class="section-body">
+      <div class="item">
+        <div class="item-badge">1</div>
+        <div class="item-desc">Tap <strong>PILIH BULAN</strong> — pilih bulan yang ingin ditampilkan dari daftar yang tersedia.</div>
+      </div>
+      <div class="item">
+        <div class="item-badge">2</div>
+        <div class="item-desc">Setelah bulan dipilih, tap <strong>PILIH UNIT</strong> — masukkan password unit yang sesuai.</div>
+      </div>
+      <div class="item">
+        <div class="item-badge">3</div>
+        <div class="item-desc">Jadwal tampil otomatis. Tap tombol <strong>✕</strong> di sebelah nama bulan atau unit untuk mengganti pilihan.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. MODE JADWAL -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-num">02</span>
+      <span class="section-title">MODE JADWAL</span>
+    </div>
+    <div class="section-body">
+      <div class="mode-wrap">
+        <div class="mode-chip pel">
+          <div class="mode-chip-label">📅 PEL</div>
+          <div class="mode-chip-desc">Pelaksanaan Kerja — jadwal tugas harian aktual yang dijalankan di lapangan.</div>
+        </div>
+        <div class="mode-chip pen">
+          <div class="mode-chip-label">📤 PEN</div>
+          <div class="mode-chip-desc">Pengiriman Absensi — jadwal resmi yang dikirim ke kantor sebagai dasar laporan kehadiran.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. KODE ISIAN -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-num">03</span>
+      <span class="section-title">KODE ISIAN JADWAL</span>
+    </div>
+    <div class="section-body">
+      <div class="sub-label">▸ HARI KERJA — SENIN s/d JUMAT</div>
+      <div class="grid-2">
+        <div class="item">
+          <div class="item-badge">P</div>
+          <div class="item-desc">Shift <strong>Pagi</strong></div>
+        </div>
+        <div class="item">
+          <div class="item-badge">S</div>
+          <div class="item-desc">Shift <strong>Siang</strong></div>
+        </div>
+        <div class="item">
+          <div class="item-badge">M</div>
+          <div class="item-desc">Shift <strong>Malam</strong></div>
+        </div>
+        <div class="item">
+          <div class="item-badge">SM</div>
+          <div class="item-desc">Shift <strong>Siang+Malam</strong><span class="note">PEL saja — dihitung 2 HK</span></div>
+        </div>
+        <div class="item">
+          <div class="item-badge">OFF</div>
+          <div class="item-desc"><strong>Tidak masuk</strong> / Libur</div>
+        </div>
+        <div class="item">
+          <div class="item-badge">CUTI</div>
+          <div class="item-desc">Hari <strong>Cuti</strong></div>
+        </div>
+      </div>
+
+      <div class="sub-label" style="margin-top:.8vh;">▸ HARI LIBUR — SABTU &amp; MINGGU</div>
+      <div class="grid-2">
+        <div class="item">
+          <div class="item-badge weekend">P12</div>
+          <div class="item-desc">Shift <strong>Pagi 12 jam</strong></div>
+        </div>
+        <div class="item">
+          <div class="item-badge weekend">M12</div>
+          <div class="item-desc">Shift <strong>Malam 12 jam</strong></div>
+        </div>
+        <div class="item">
+          <div class="item-badge weekend">OFF</div>
+          <div class="item-desc"><strong>Tidak masuk</strong></div>
+        </div>
+        <div class="item">
+          <div class="item-badge weekend">CUTI</div>
+          <div class="item-desc">Hari <strong>Cuti</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. RINGKASAN HK -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-num">04</span>
+      <span class="section-title">RINGKASAN HK</span>
+    </div>
+    <div class="section-body">
+      <div class="item" style="align-items:center;">
+        <div class="hk-preview">
+          <div class="hk-cell c-hk"><span class="lbl">HK</span><span class="val">22</span></div>
+          <div class="hk-cell c-hl"><span class="lbl">HL</span><span class="val">4</span></div>
+          <div class="hk-cell c-hw"><span class="lbl">HW</span><span class="val">26</span></div>
+          <div class="hk-cell c-off"><span class="lbl">OFF</span><span class="val">2</span></div>
+        </div>
+        <div class="item-desc" style="font-size:clamp(8px,1.2vh,11px); color:#888;">
+          Ringkasan ini tampil di pojok kanan setiap nama personil
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-badge hk-grid c-hk" style="border-color:#2e7d32;color:#2e7d32;">HK</div>
+        <div class="item-desc">Jumlah shift yang dikerjakan di hari <strong>Senin–Jumat</strong>.<span class="note">SM dihitung 2 — semua shift lain dihitung 1</span></div>
+      </div>
+      <div class="item">
+        <div class="item-badge hk-hl">HL</div>
+        <div class="item-desc">Jumlah <strong>Sabtu/Minggu</strong> yang masuk kerja.<span class="note">Hanya P12 dan M12 yang dihitung</span></div>
+      </div>
+      <div class="item">
+        <div class="item-badge hk-hw">HW</div>
+        <div class="item-desc">Total hari <strong>Senin–Jumat</strong> dalam bulan tersebut.<span class="note">Dihitung dari kalender, bukan dari isian</span></div>
+      </div>
+      <div class="item">
+        <div class="item-badge hk-off">OFF</div>
+        <div class="item-desc">Total hari <strong>OFF</strong> dan <strong>CUTI</strong> sepanjang bulan.<span class="note">Weekday maupun weekend keduanya dihitung</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. NAVIGASI TABEL -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-num">05</span>
+      <span class="section-title">NAVIGASI TABEL</span>
+    </div>
+    <div class="section-body">
+      <div class="item">
+        <div class="tip-icon">👆</div>
+        <div class="item-desc"><strong>Geser kiri-kanan</strong> pada tabel untuk melihat semua tanggal dalam bulan.</div>
+      </div>
+      <div class="item">
+        <div class="tip-icon">🎚</div>
+        <div class="item-desc"><strong>Fader</strong> di bawah tabel — geser knob untuk scroll horizontal lebih presisi.</div>
+      </div>
+      <div class="item">
+        <div class="tip-icon">🔍</div>
+        <div class="item-desc"><strong>Tombol skala</strong> (KECIL / SEDANG / BESAR) di footer untuk mengatur ukuran tampilan tabel.</div>
+      </div>
+      <div class="item">
+        <div class="tip-icon">🤏</div>
+        <div class="item-desc"><strong>Pinch</strong> dua jari pada tabel untuk zoom bebas. <strong>Double tap</strong> untuk reset zoom.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. DOWNLOAD -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-num">06</span>
+      <span class="section-title">DOWNLOAD JADWAL</span>
+    </div>
+    <div class="section-body">
+      <div class="item">
+        <div class="item-badge">PNG</div>
+        <div class="item-desc">Jadwal tersimpan sebagai <strong>gambar</strong>. Cocok untuk dibagikan via chat atau dicetak.</div>
+      </div>
+      <div class="item">
+        <div class="item-badge">PDF</div>
+        <div class="item-desc">Jadwal tersimpan sebagai <strong>dokumen PDF</strong> orientasi landscape. Cocok untuk arsip atau cetak resmi.</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end scroll-area -->
+
+<footer>SATPAM MAGELANG &nbsp;·&nbsp; PANDUAN PENGGUNAAN JADWAL</footer>
+
+<script>
+  function setVh() { document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px'); }
+  setVh();
+  window.addEventListener('resize', setVh);
+  window.addEventListener('orientationchange', () => setTimeout(setVh, 150));
+</script>
+</body>
+</html>

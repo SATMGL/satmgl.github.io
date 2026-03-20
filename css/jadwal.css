@@ -1,0 +1,420 @@
+/* ═══════════════════════════════════════════════════════════════
+   KONFIGURASI UTAMA — edit bagian ini saja
+   ═══════════════════════════════════════════════════════════════ */
+:root {
+
+  /* ── Layout utama ── */
+  --tinggi-header      : 8vh;
+  --tinggi-footer      : 8vh;
+  --gap-tepi           : 1vh;
+  --gap-tepi-h         : 1vw;
+
+  /* ── Panel pilihan (bulan & unit) ── */
+  --tinggi-panel       : 12vh;
+  --lebar-panel        : 98%;
+  --tinggi-btn-pilihan : 5vh;
+  --lebar-btn-pilihan  : 30vw;
+  --font-btn-pilihan   : 2vh;
+  --font-info-pilihan  : 1vh;
+
+  /* ── Panel bawah (download & edit) ── */
+  --tinggi-panel-bawah : 8vh;
+  --tinggi-btn-aksi    : 5vh;
+  --lebar-btn-aksi     : 20vw;
+  --font-btn-aksi      : 1vh;
+
+  /* ── Tabel — kolom ── */
+  --lebar-no           : 25px;
+  --lebar-nama         : 36vw;
+  --lebar-hari         : 40px;
+  --lebar-hk-grid      : 40px;
+
+  /* ── Tabel — baris ── */
+  --tinggi-judul       : 5vh;
+  --tinggi-hari        : 5vh;
+  --tinggi-tanggal     : 5vh;
+  --tinggi-data        : 7vh;
+
+  /* ── Font tabel ── */
+  --font-judul         : 1.8vh;
+  --font-header        : 2.4vh;
+  --font-data          : 2vh;
+  --font-hk-lbl        : 1vh;
+  --font-hk-val        : 1.7vh;
+
+  /* ── Scrollbar & fader ── */
+  --tinggi-scrollbar   : 4px;
+  --tinggi-fader       : 4vh;
+  --lebar-vscrollbar   : 8px;
+  --lebar-fader-knob   : 5vh;
+  --tinggi-fader-knob  : 3.5vh;
+
+  /* ── Modal ── */
+  --lebar-modal        : 70vw;
+  --tinggi-modal-title : 5vh;
+  --tinggi-modal-item  : 6vh;
+  --font-modal-title   : 2vh;
+  --font-modal-item    : 1.5vh;
+
+}
+/* ═══════════════════════════════════════════════════════════════ */
+
+body { margin: 0; background-color: #f0f0f0; }
+
+header {
+  height: var(--tinggi-header);
+  position: fixed;
+  top: var(--gap-tepi); left: var(--gap-tepi-h); right: var(--gap-tepi-h);
+  border: 2px solid #000;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent;
+}
+
+main {
+  position: fixed;
+  top: calc(var(--tinggi-header) + var(--gap-tepi) * 2);
+  bottom: calc(var(--tinggi-footer) + var(--gap-tepi) * 2);
+  left: var(--gap-tepi-h); right: var(--gap-tepi-h);
+  border: 2px solid #000;
+  display: flex; flex-direction: column;
+  align-items: stretch;
+  padding: 1vh 1vw; box-sizing: border-box; background: transparent;
+  overflow: hidden;
+}
+
+footer {
+  height: var(--tinggi-footer);
+  position: fixed;
+  bottom: var(--gap-tepi); left: var(--gap-tepi-h); right: var(--gap-tepi-h);
+  border: 2px solid #000;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent;
+}
+
+.panel {
+  height: var(--tinggi-panel); border: 2px solid #000; flex-shrink: 0; background: transparent;
+  box-sizing: border-box;
+}
+
+.panel-bottom {
+  height: var(--tinggi-panel-bawah); border: 2px solid #000; flex-shrink: 0; background: transparent;
+  box-sizing: border-box;
+}
+
+/* ── Jadwal container (luar) ─────────────── */
+.box-jadwal {
+  flex: 1;
+  min-height: 0;
+  display: flex; flex-direction: column;
+  align-items: stretch;
+  background: transparent;
+  font-family: 'Share Tech Mono', monospace;
+  box-sizing: border-box;
+  overflow: hidden;
+  border: 2px solid #000;
+}
+
+/* ── Jadwal inner — satu kotak utuh (judul + tabel) ── */
+.jadwal {
+  display: flex; flex-direction: column;
+  border: 2px solid #000;
+  background: #fff;
+  margin: 1vh 1vw 1vh 1vw;
+  flex: 0 1 auto;    /* hugs content tinggi; shrinks jika terlalu besar */
+  max-height: 100%;  /* tidak boleh melebihi .box-jadwal */
+  min-height: 0;
+  overflow: hidden;
+}
+
+.jadwal-judul {
+  min-height: var(--tinggi-judul);
+  height: auto;
+  border-bottom: 2px solid #000;
+  background: #fff;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  box-sizing: border-box; font-weight: bold;
+  font-size: var(--font-judul); flex-shrink: 0;
+  padding: 0.4vh 1vw;
+  overflow: hidden;
+  gap: 0;
+}
+
+/* ── Satu scroll wrapper ─────────────────── */
+.jadwal-scroll-wrapper {
+  overflow-x: auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  flex: 1;
+  min-height: 0;
+  max-height: 100%;
+}
+.jadwal-scroll-wrapper::-webkit-scrollbar { display: none; }
+
+/* ── Fader ───────────────────────────────── */
+.jadwal-fader {
+  height: var(--tinggi-fader); width: 100%;
+  display: flex; align-items: center;
+  padding: 0 1vw; box-sizing: border-box;
+  flex-shrink: 0; border-top: 1px solid #ccc;
+  background: #e8e8e8;
+}
+.jadwal-fader-track {
+  width: 100%; height: 4px; background: #ddd;
+  border: 1px solid #000; position: relative; border-radius: 2px;
+}
+.jadwal-fader-knob {
+  position: absolute; top: 50%;
+  transform: translate(-50%, -50%); left: 0%;
+  width: var(--lebar-fader-knob); height: var(--tinggi-fader-knob);
+  background: #fff; border: 2px solid #000; cursor: grab;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 3px; box-sizing: border-box;
+}
+.jadwal-fader-knob:active { cursor: grabbing; background: #f0f0f0; }
+.fader-grip { width: 60%; height: 2px; background: #000; border-radius: 1px; }
+
+/* ── Tabel ───────────────────────────────── */
+.jadwal table {
+  border-collapse: separate; border-spacing: 0; table-layout: fixed;
+  width: calc(var(--lebar-no) + var(--lebar-nama) + var(--lebar-hari) * 31);
+  min-width: calc(var(--lebar-no) + var(--lebar-nama) + var(--lebar-hari) * 31);
+}
+.jadwal table th {
+  position: sticky; top: 0; z-index: 3;
+  border-right: 1px solid #000; border-bottom: 2px solid #000;
+  border-left: none; border-top: none;
+  text-align: center; white-space: nowrap;
+  box-sizing: border-box; background: #fff;
+  overflow: hidden; font-size: var(--font-header);
+}
+/* Baris tanggal sticky di bawah baris hari */
+.jadwal table thead tr:last-child th {
+  top: var(--tinggi-hari);
+}
+.jadwal table td {
+  border-right: 1px solid #000; border-bottom: 1px solid #000;
+  border-left: none; border-top: none;
+  text-align: center; white-space: nowrap;
+  box-sizing: border-box; background: #fff;
+  overflow: hidden; font-size: var(--font-data);
+}
+
+/* ── Lebar kolom ─────────────────────────── */
+.col-no   { width: var(--lebar-no);   min-width: var(--lebar-no); }
+.col-nama {
+  width: var(--lebar-nama); min-width: var(--lebar-nama); max-width: var(--lebar-nama);
+  overflow: hidden; padding: 0 !important;
+}
+.col-hari { width: var(--lebar-hari); min-width: var(--lebar-hari); }
+.col-hari.hidden {
+  width: 0 !important; min-width: 0 !important; opacity: 0;
+  border-right: none !important; border-bottom: none !important; padding: 0 !important;
+}
+
+/* ── Tinggi baris ────────────────────────── */
+.jadwal table thead tr:first-child th { height: var(--tinggi-hari); }
+.jadwal table thead tr:last-child  th { height: var(--tinggi-tanggal); }
+.jadwal table tbody td               { height: var(--tinggi-data); }
+
+/* ── Border bawah baris terakhir (batas download) ── */
+.jadwal table tbody tr:last-child td { border-bottom: none !important; }
+
+/* ── Kolom terakhir visible — border kanan tebal ── */
+th.last-col, td.last-col { border-right: none !important; }
+
+/* ── Sticky kiri NO & NAMA ───────────────── */
+.jadwal table .col-no {
+  position: sticky; left: 0; z-index: 4; border-left: none; border-right: 2px solid #000;
+  border-bottom: 1px solid #000;
+}
+.jadwal table .col-nama {
+  position: sticky; left: var(--lebar-no); z-index: 4; border-right: 2px solid #000;
+  border-bottom: 1px solid #000;
+}
+.jadwal table thead .col-no,
+.jadwal table thead .col-nama { z-index: 5; }
+
+/* ── Nama cell + HK grid ─────────────────── */
+.nama-cell {
+  display: flex; align-items: center;
+  padding: 0 0 0 4px; height: var(--tinggi-data);
+  box-sizing: border-box; overflow: hidden;
+}
+.jadwal table tbody td.col-no  { font-weight: bold; }
+.nama-text { font-weight: bold;
+  flex: 1; text-align: left; font-size: var(--font-data);
+  overflow: hidden; padding-right: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+  line-height: 1.2;
+  word-break: break-word;
+}
+.hk-grid {
+  display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr;
+  gap: 1px; flex-shrink: 0;
+  width: var(--lebar-hk-grid); min-width: var(--lebar-hk-grid); max-width: var(--lebar-hk-grid);
+  height: calc(var(--tinggi-data) * 0.98);
+  border: 1px solid #999; padding: 0; background: #999;
+  box-sizing: border-box; overflow: hidden;
+}
+.hk-item {
+  background: #fff; line-height: 1; text-align: center;
+  font-family: 'Share Tech Mono', monospace;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  overflow: hidden; padding: 0;
+}
+.hk-item .lbl { font-size: var(--font-hk-lbl); line-height: 1; font-weight: bold; }
+.hk-item .val { display: block; font-size: var(--font-hk-val); font-weight: bold; line-height: 1; }
+
+/* HK — hijau */
+.hk-item:nth-child(1) .lbl { color: #2e7d32; }
+.hk-item:nth-child(1) .val { color: #2e7d32; }
+
+/* HL — coklat */
+.hk-item:nth-child(2) .lbl { color: #6d4c41; }
+.hk-item:nth-child(2) .val { color: #6d4c41; }
+
+/* HW — hitam */
+.hk-item:nth-child(3) .lbl { color: #000; }
+.hk-item:nth-child(3) .val { color: #000; }
+
+/* OFF — merah */
+.hk-item:nth-child(4) .lbl { color: #c62828; }
+.hk-item:nth-child(4) .val { color: #c62828; }
+
+/* ── Running teks info mode ──────────────── */
+.running-teks-wrap {
+  height: 3vh;
+  flex-shrink: 0;
+  background: #111;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  border-top: 1px solid #333;
+  border-bottom: 1px solid #333;
+  position: relative;
+}
+
+.running-teks {
+  display: inline-block;
+  white-space: nowrap;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: clamp(8px, 1.4vh, 13px);
+  letter-spacing: 0.18em;
+  animation: marquee-scroll 28s linear infinite;
+  padding-left: 100%;
+}
+
+/* PEL — oranye BRI neon, bg hitam pekat */
+.running-teks-wrap.mode-pel {
+  background: #1a0a00;
+  border-top-color:    #f37021;
+  border-bottom-color: #f37021;
+}
+.running-teks.mode-pel {
+  color: #c45510;
+  text-shadow: 0 0 4px #c45510, 0 0 8px #f37021;
+  animation: marquee-scroll 55s linear infinite;
+}
+.running-teks.mode-pel .mode-label {
+  color: #ffe0c0;
+  text-shadow: 0 0 8px #f37021, 0 0 18px #ff8c3a, 0 0 3px #fff;
+  font-weight: bold;
+  letter-spacing: 0.25em;
+}
+
+/* PEN — hijau dolar neon, bg hijau sangat gelap */
+.running-teks-wrap.mode-pen {
+  background: #011a04;
+  border-top-color:    #85bb65;
+  border-bottom-color: #85bb65;
+}
+.running-teks.mode-pen {
+  color: #4a7c34;
+  text-shadow: 0 0 4px #4a7c34, 0 0 8px #85bb65;
+  animation: marquee-scroll 55s linear infinite;
+}
+.running-teks.mode-pen .mode-label {
+  color: #d4ffb0;
+  text-shadow: 0 0 8px #85bb65, 0 0 18px #aadd80, 0 0 3px #fff;
+  font-weight: bold;
+  letter-spacing: 0.25em;
+}
+
+@keyframes marquee-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+
+/* ── Loading overlay ─────────────────────── */
+#loading-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(255,255,255,0.88);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 2vh; opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+}
+#loading-overlay.aktif { opacity: 1; pointer-events: all; }
+#loading-svg {
+  width: clamp(120px,25vw,220px); height: clamp(120px,25vw,220px);
+  overflow: visible; filter: drop-shadow(2px 2px 0 rgba(0,0,0,0.12));
+}
+#loading-text {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: clamp(13px,2.2vh,18px); letter-spacing: 0.25em; color: #000;
+  animation: loading-blink 1s step-end infinite;
+}
+@keyframes loading-blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+/* ═══════════════════════════════════════════════════════════════
+   MODE EDIT — border & judul kedip merah menyala
+   ═══════════════════════════════════════════════════════════════ */
+@keyframes edit-blink {
+  0%, 100% {
+    border-color: #e00;
+    box-shadow: 0 0 0 2px #e00, 0 0 10px 3px rgba(255,0,0,0.5), 0 0 22px 6px rgba(255,0,0,0.25);
+  }
+  50% {
+    border-color: #900;
+    box-shadow: 0 0 0 2px #900, 0 0 5px 1px rgba(255,0,0,0.2);
+  }
+}
+
+@keyframes edit-blink-judul {
+  0%, 100% {
+    background: #e00;
+    color: #fff;
+    box-shadow: 0 0 10px 3px rgba(255,0,0,0.5), 0 0 22px 6px rgba(255,0,0,0.25);
+  }
+  50% {
+    background: #900;
+    color: #ffcccc;
+    box-shadow: 0 0 5px 1px rgba(255,0,0,0.2);
+  }
+}
+
+.box-jadwal.mode-edit .jadwal {
+  animation: edit-blink 1s ease-in-out infinite;
+  border-color: #e00;
+}
+
+.box-jadwal.mode-edit .jadwal-judul {
+  animation: edit-blink-judul 1s ease-in-out infinite;
+  letter-spacing: 0.1em;
+}
+/* ── Semua tombol X/tutup di modal — merah ── */
+#modal-overlay button[onclick*="closeModal"],
+#konfirmasi-overlay button[onclick*="remove"],
+#modal-nilai-overlay button[onclick*="remove"],
+#modal-download-overlay button[onclick*="remove"],
+#modal-password-overlay #mp-btn-batal,
+.ap-btn-close {
+  background: #c62828 !important;
+  color: #fff !important;
+  border-color: #c62828 !important;
+}

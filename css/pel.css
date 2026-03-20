@@ -1,0 +1,506 @@
+/* ═══════════════════════════════════════════════════════════════
+   TEMA MODE PEL — PELAKSANAAN KERJA
+   Oranye · Energik · Dinamis
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  --tema-primer      : #f37021;
+  --tema-gelap       : #c45510;
+  --tema-sangat-gelap: #8a3a08;
+  --tema-muda        : #fff5ee;
+  --tema-sedang      : #fde4cc;
+  --tema-aksen       : #f8934d;
+  --tema-teks-invers : #fff;
+  --tema-teks-gelap  : #3a1a00;
+}
+
+/* ── Background halaman ───────────────────────────── */
+body {
+  background: linear-gradient(160deg, #fff5ee 0%, #fde4cc 100%);
+  min-height: 100vh;
+}
+
+/* ── Header ───────────────────────────────────────── */
+header {
+  border-color: var(--tema-primer);
+  background: linear-gradient(90deg, #fff5ee 0%, #fde4cc 60%, #f8934d22 100%);
+  border-bottom: 2px solid var(--tema-primer);
+  box-shadow: 0 2px 8px rgba(243,112,33,0.12);
+}
+
+#btn-kembali {
+  border-right-color: var(--tema-primer) !important;
+  color: var(--tema-primer) !important;
+  transition: background 0.15s, color 0.15s;
+}
+#btn-kembali:hover {
+  background: var(--tema-primer) !important;
+  color: var(--tema-teks-invers) !important;
+}
+
+#header-judul {
+  color: var(--tema-gelap) !important;
+  text-shadow: 0 1px 0 #fde4cc;
+}
+
+/* ── Footer ───────────────────────────────────────── */
+footer {
+  border-color: var(--tema-primer);
+  background: linear-gradient(90deg, #fff5ee 0%, #fde4cc 100%);
+  border-top: 2px solid var(--tema-primer);
+  box-shadow: 0 -2px 8px rgba(243,112,33,0.10);
+}
+
+#btn-admin-mode {
+  border-left-color: var(--tema-primer) !important;
+  color: var(--tema-gelap) !important;
+  transition: background 0.15s, color 0.15s;
+}
+#btn-admin-mode:hover {
+  background: var(--tema-primer) !important;
+  color: var(--tema-teks-invers) !important;
+}
+#admin-mode-indicator {
+  border-color: var(--tema-primer) !important;
+}
+
+/* ── Main & panels ────────────────────────────────── */
+main { border-color: var(--tema-primer); }
+
+.panel,
+.panel-bottom {
+  border-color: var(--tema-primer);
+  background: linear-gradient(90deg, #fff5ee 0%, #fde4cc 100%);
+  border-top: 2px solid var(--tema-primer);
+  border-bottom: 2px solid var(--tema-primer);
+}
+
+/* ── Wrapper tombol bulan & unit ─────────────────── */
+div:has(> #btn-bulan),
+div:has(> #btn-unit) {
+  border-color: var(--tema-primer) !important;
+  background: var(--tema-muda) !important;
+}
+
+#btn-bulan,
+#btn-unit {
+  color: var(--tema-gelap) !important;
+  background: transparent;
+  transition: background 0.15s, color 0.15s;
+}
+#btn-bulan:not(:disabled):hover,
+#btn-unit:not(:disabled):hover {
+  background: var(--tema-primer) !important;
+  color: var(--tema-teks-invers) !important;
+}
+
+#x-bulan,
+#x-unit {
+  border-left-color: var(--tema-primer) !important;
+  color: var(--tema-primer) !important;
+  transition: background 0.15s, color 0.15s;
+}
+#x-bulan:hover,
+#x-unit:hover {
+  background: var(--tema-primer) !important;
+  color: var(--tema-teks-invers) !important;
+}
+
+#info-bulan,
+#info-unit {
+  color: var(--tema-gelap) !important;
+}
+
+/* ── Tombol aksi ──────────────────────────────────── */
+#btn-download,
+#btn-edit {
+  border-color: var(--tema-primer) !important;
+  color: var(--tema-gelap) !important;
+  background: var(--tema-muda) !important;
+  transition: background 0.15s, color 0.15s;
+}
+#btn-download:not(:disabled):hover,
+#btn-edit:not(:disabled):hover {
+  background: var(--tema-primer) !important;
+  color: var(--tema-teks-invers) !important;
+}
+
+#btn-undo,
+#btn-redo {
+  border-color: var(--tema-primer) !important;
+  background: var(--tema-muda) !important;
+  color: var(--tema-gelap) !important;
+  transition: background 0.15s, color 0.15s;
+}
+#btn-undo:not(:disabled):hover,
+#btn-redo:not(:disabled):hover {
+  background: var(--tema-primer) !important;
+  color: var(--tema-teks-invers) !important;
+}
+#btn-undo { border-right-color: var(--tema-primer) !important; }
+
+/* ── Jadwal judul ─────────────────────────────────── */
+.box-jadwal { border-color: var(--tema-primer); }
+
+.jadwal-judul {
+  border-color: var(--tema-primer);
+  color: var(--tema-teks-invers) !important;
+  background: linear-gradient(90deg, var(--tema-gelap) 0%, var(--tema-primer) 60%, var(--tema-aksen) 100%);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  letter-spacing: 0.15em;
+}
+
+.jadwal { border-color: var(--tema-primer); background: #fff; }
+
+/* ── Header tabel ─────────────────────────────────── */
+.jadwal table thead th {
+  background: var(--tema-sedang);
+  color: var(--tema-sangat-gelap);
+  border-bottom-color: var(--tema-primer);
+  border-right-color: var(--tema-primer);
+}
+.jadwal table .col-no,
+.jadwal table .col-nama {
+  border-right-color: var(--tema-primer) !important;
+}
+
+/* ── Fader ────────────────────────────────────────── */
+.jadwal-fader {
+  background: var(--tema-sedang);
+  border-top-color: var(--tema-primer);
+}
+.jadwal-fader-track {
+  border-color: var(--tema-primer);
+  background: var(--tema-muda);
+}
+.jadwal-fader-knob {
+  border-color: var(--tema-primer);
+  background: var(--tema-sedang);
+}
+.fader-grip { background: var(--tema-primer); }
+
+/* ── Mode edit ────────────────────────────────────── */
+@keyframes edit-blink {
+  0%, 100% {
+    border-color: #e00;
+    box-shadow: 0 0 0 2px #e00, 0 0 10px 3px rgba(255,0,0,0.5), 0 0 22px 6px rgba(255,0,0,0.25);
+  }
+  50% {
+    border-color: #900;
+    box-shadow: 0 0 0 2px #900, 0 0 5px 1px rgba(255,0,0,0.2);
+  }
+}
+@keyframes edit-blink-judul {
+  0%, 100% {
+    background: #e00;
+    color: #fff;
+    box-shadow: 0 0 10px 3px rgba(255,0,0,0.5), 0 0 22px 6px rgba(255,0,0,0.25);
+  }
+  50% {
+    background: #900;
+    color: #ffcccc;
+    box-shadow: 0 0 5px 1px rgba(255,0,0,0.2);
+  }
+}
+.jadwal.mode-edit {
+  border-color: #e00;
+  animation: edit-blink 1s ease-in-out infinite;
+}
+.jadwal-judul.mode-edit {
+  animation: edit-blink-judul 1s ease-in-out infinite;
+  letter-spacing: 0.1em;
+}
+
+#tbody-data td[style*="background: rgb(255, 251, 230)"],
+#tbody-data td[style*="background: #fffbe6"] {
+  background: #fff0d6 !important;
+  color: var(--tema-sangat-gelap) !important;
+}
+
+/* ── Running teks ─────────────────────────────────── */
+.running-teks-wrap {
+  background: var(--tema-sedang);
+  border-top: 1px solid var(--tema-primer);
+  border-bottom: 1px solid var(--tema-primer);
+}
+.running-teks { color: var(--tema-gelap); }
+
+/* ── Ticker neon api ──────────────────────────────── */
+.jadwal-ticker {
+  background: #1a0800;
+  border-top: 1px solid var(--tema-gelap);
+}
+.jadwal-ticker-track span {
+  color: #ffb347;
+  text-shadow:
+    0 0 4px #ffb347,
+    0 0 12px #f37021,
+    0 0 24px #f3702188,
+    0 0 40px #c4551044;
+  font-weight: bold;
+  letter-spacing: 0.2em;
+}
+
+/* ════════════════════════════════════════════════════
+   MODAL STATIK
+════════════════════════════════════════════════════ */
+#modal-box {
+  border-color: var(--tema-primer) !important;
+  max-width: 92vw; max-height: 90vh;
+  box-sizing: border-box; word-break: break-word;
+}
+#modal-title {
+  border-color: var(--tema-primer) !important;
+  background: linear-gradient(90deg, var(--tema-gelap), var(--tema-primer)) !important;
+  min-height: 5vh; padding: 0.8vh 6vh 0.8vh 1.5vw; box-sizing: border-box;
+}
+#modal-title-text {
+  color: var(--tema-teks-invers) !important;
+  font-size: clamp(10px, 1.8vh, 16px);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+}
+#modal-title button {
+  border-left-color: rgba(255,255,255,0.4) !important;
+  color: var(--tema-teks-invers) !important;
+}
+#modal-title button:hover {
+  background: rgba(255,255,255,0.2) !important;
+}
+#modal-content {
+  overflow: hidden; padding: 1.2vh 1.2vw; box-sizing: border-box;
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 0.8vh 0.8vw; align-content: start; background: #fff;
+}
+#modal-content button {
+  width: 100%; height: clamp(24px, 3.8vh, 42px);
+  font-size: clamp(8px, 1.4vh, 13px);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  box-sizing: border-box; padding: 0 0.4vw;
+  border-color: var(--tema-primer) !important;
+  color: var(--tema-gelap) !important;
+  background: var(--tema-muda) !important;
+  transition: background 0.12s, color 0.12s;
+}
+#modal-content button:hover {
+  background: var(--tema-primer) !important;
+  color: var(--tema-teks-invers) !important;
+}
+#modal-footer {
+  border-color: var(--tema-primer) !important;
+  background: var(--tema-muda) !important;
+  min-height: 5vh; padding: 0.5vh; box-sizing: border-box;
+}
+#modal-footer button {
+  height: clamp(28px, 4.5vh, 44px); font-size: clamp(9px, 1.6vh, 14px);
+  padding: 0 3vw; white-space: nowrap; box-sizing: border-box;
+  border-color: var(--tema-primer) !important;
+  color: var(--tema-gelap) !important;
+  background: var(--tema-muda) !important;
+  transition: background 0.12s, color 0.12s;
+}
+#modal-footer button:hover {
+  background: var(--tema-primer) !important;
+  color: var(--tema-teks-invers) !important;
+}
+
+/* ════════════════════════════════════════════════════
+   MODAL DINAMIS
+════════════════════════════════════════════════════ */
+#konfirmasi-overlay > div,
+#modal-nilai-overlay > div,
+#modal-download-overlay > div {
+  border-color: var(--tema-primer) !important;
+  box-shadow: 0 4px 24px rgba(243,112,33,0.2) !important;
+}
+
+#konfirmasi-overlay > div > div:first-child,
+#modal-nilai-overlay > div > div:first-child,
+#modal-download-overlay > div > div:first-child {
+  border-bottom-color: var(--tema-primer) !important;
+  color: var(--tema-teks-invers) !important;
+  background: linear-gradient(90deg, var(--tema-gelap), var(--tema-primer)) !important;
+}
+
+#konfirmasi-overlay button[onclick*="remove"],
+#modal-nilai-overlay button[onclick*="remove"],
+#modal-download-overlay button[onclick*="remove"] {
+  border-left-color: rgba(0,0,0,0.15) !important;
+  color: #fff !important;
+  background: #c62828 !important;
+}
+#konfirmasi-overlay button[onclick*="remove"]:hover,
+#modal-nilai-overlay button[onclick*="remove"]:hover,
+#modal-download-overlay button[onclick*="remove"]:hover {
+  background: #a01e1e !important;
+}
+
+#konfirmasi-ya, #konfirmasi-tidak,
+#k-batal, #k-reset, #k-pilih-unit {
+  border-color: var(--tema-primer) !important;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: clamp(9px, 1.6vh, 14px) !important;
+  height: clamp(32px, 5vh, 48px) !important;
+  box-sizing: border-box;
+  background: var(--tema-muda) !important;
+  color: var(--tema-gelap) !important;
+  transition: background 0.12s, color 0.12s;
+}
+#konfirmasi-ya:hover, #k-reset:hover, #k-pilih-unit:hover {
+  background: var(--tema-primer) !important;
+  color: #fff !important;
+}
+#konfirmasi-tidak:hover, #k-batal:hover {
+  background: var(--tema-sangat-gelap) !important;
+  color: #fff !important;
+}
+
+.btn-nilai {
+  border-color: var(--tema-primer) !important;
+  color: var(--tema-gelap) !important;
+  background: var(--tema-muda) !important;
+  font-size: clamp(9px, 1.6vh, 14px) !important;
+  height: clamp(32px, 5vh, 48px) !important;
+  box-sizing: border-box;
+  transition: background 0.12s, color 0.12s;
+}
+.btn-nilai:hover {
+  background: var(--tema-primer) !important;
+  color: #fff !important;
+}
+
+#modal-nilai-overlay > div > div:last-child {
+  border-top-color: var(--tema-primer) !important;
+  background: var(--tema-muda) !important;
+}
+
+#modal-download-overlay button:not([onclick*="remove"]) {
+  border-color: var(--tema-primer) !important;
+  color: var(--tema-gelap) !important;
+  background: var(--tema-muda) !important;
+  font-size: clamp(9px, 1.6vh, 14px) !important;
+  height: clamp(36px, 6vh, 56px) !important;
+  box-sizing: border-box;
+  transition: background 0.12s, color 0.12s;
+}
+#modal-download-overlay button:not([onclick*="remove"]):hover {
+  background: var(--tema-primer) !important;
+  color: #fff !important;
+}
+
+#konfirmasi-overlay > div > div:nth-child(2) {
+  font-size: clamp(9px, 1.5vh, 13px) !important;
+  line-height: 1.7;
+  padding: 1.5vh 2vw !important;
+  color: var(--tema-teks-gelap) !important;
+  background: #fff !important;
+}
+
+#konfirmasi-overlay > div {
+  max-width: 88vw; box-sizing: border-box; word-break: break-word;
+}
+#modal-nilai-overlay > div { max-width: 88vw; box-sizing: border-box; }
+#modal-download-overlay > div { max-width: 88vw; box-sizing: border-box; }
+
+#konfirmasi-overlay button {
+  font-size: clamp(9px, 1.6vh, 14px);
+  height: clamp(32px, 5vh, 48px);
+  white-space: nowrap; box-sizing: border-box;
+}
+#modal-nilai-overlay > div > div:first-child span {
+  font-size: clamp(9px, 1.5vh, 13px);
+  white-space: normal; line-height: 1.4;
+}
+#modal-download-overlay button {
+  height: clamp(36px, 6vh, 56px);
+  font-size: clamp(9px, 1.6vh, 14px);
+  white-space: nowrap; box-sizing: border-box;
+}
+/* ════════════════════════════════════════════════════
+   MODAL PASSWORD
+════════════════════════════════════════════════════ */
+#modal-password-overlay > div {
+  border-color: var(--tema-primer) !important;
+  box-shadow: 0 4px 24px rgba(243,112,33,0.2) !important;
+}
+#modal-password-overlay > div > div:first-child {
+  border-bottom-color: var(--tema-primer) !important;
+  background: linear-gradient(90deg, var(--tema-gelap), var(--tema-primer)) !important;
+  color: var(--tema-teks-invers) !important;
+}
+#modal-password-overlay > div > div:nth-child(2) {
+  background: #fff !important;
+}
+#modal-password-overlay #mp-input {
+  border-color: var(--tema-primer) !important;
+}
+#modal-password-overlay #mp-input:focus {
+  border-color: var(--tema-gelap) !important;
+  outline: none !important;
+}
+#modal-password-overlay #mp-btn-masuk {
+  background: var(--tema-gelap) !important;
+  color: #fff !important;
+  border-right-color: var(--tema-primer) !important;
+}
+#modal-password-overlay #mp-btn-masuk:hover {
+  background: var(--tema-sangat-gelap) !important;
+}
+#modal-password-overlay #mp-btn-batal {
+  background: var(--tema-muda) !important;
+  color: var(--tema-gelap) !important;
+}
+#modal-password-overlay #mp-btn-batal:hover {
+  background: var(--tema-primer) !important;
+  color: #fff !important;
+}
+#modal-password-overlay > div > div:last-child {
+  border-top-color: var(--tema-primer) !important;
+}
+
+/* ── Tombol ADMIN — tidak ikut tema ── */
+#btn-admin-mode {
+  background: #c62828 !important;
+  color: #fff !important;
+  border-left-color: #900 !important;
+}
+#btn-admin-mode:hover {
+  background: #c62828 !important;
+  color: #fff !important;
+}
+#btn-admin-mode span {
+  color: #fff !important;
+}
+
+/* ── Tombol Bantuan ── */
+#btn-bantuan {
+  border-left-color: var(--tema-primer) !important;
+  color: var(--tema-gelap) !important;
+  transition: background 0.15s, color 0.15s;
+}
+#btn-bantuan:hover {
+  background: var(--tema-primer) !important;
+  color: var(--tema-teks-invers) !important;
+}
+
+/* ── State terpilih — deteksi via X button visible ── */
+#wrap-bulan:has(#x-bulan[style*="block"]),
+#wrap-unit:has(#x-unit[style*="block"]) {
+  background: #aaa !important;
+  border-color: #999 !important;
+}
+#wrap-bulan:has(#x-bulan[style*="block"]) #btn-bulan,
+#wrap-unit:has(#x-unit[style*="block"]) #btn-unit {
+  color: #fff !important;
+  font-weight: bold !important;
+}
+
+/* ── Footer modal download — paksa warna ── */
+#modal-download-overlay > div > div:last-child button {
+  background: #fff !important;
+  color: #000 !important;
+  border-color: var(--tema-primer) !important;
+}
+#modal-download-overlay > div > div:last-child button:hover {
+  background: #000 !important;
+  color: #fff !important;
+}
