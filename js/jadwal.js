@@ -209,29 +209,18 @@ async function fetchGS(params) {
 }
 
 // =====================================================================
-// POST KE GAS — untuk saveSingleCell & saveJadwalBatch
-// Di localhost: otomatis fallback ke GET (hindari CORS preflight)
-// Di server asli: tetap pakai POST seperti biasa
+// POST KE GAS — selalu pakai GET untuk hindari CORS preflight
+// GAS tidak mendukung OPTIONS preflight dari domain luar,
+// sehingga POST dengan Content-Type JSON selalu gagal.
+// Solusi: serialize semua data sebagai query string di GET.
 // =====================================================================
-const IS_LOCALHOST = ['localhost', '127.0.0.1'].includes(location.hostname);
-
 async function postGS(body) {
-  if (IS_LOCALHOST) {
-    // Serialize nilai berupa object/array (misal: changes) menjadi JSON string
-    const params = {};
-    for (const [k, v] of Object.entries(body)) {
-      params[k] = (typeof v === 'object' && v !== null) ? JSON.stringify(v) : v;
-    }
-    const url = GS_URL + '?' + new URLSearchParams(params).toString();
-    const res = await fetch(url, { method: 'GET' });
-    return await res.json();
+  const params = {};
+  for (const [k, v] of Object.entries(body)) {
+    params[k] = (typeof v === 'object' && v !== null) ? JSON.stringify(v) : v;
   }
-
-  const res = await fetch(GS_URL, {
-    method : 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body   : JSON.stringify(body)
-  });
+  const url = GS_URL + '?' + new URLSearchParams(params).toString();
+  const res = await fetch(url);
   return await res.json();
 }
 
