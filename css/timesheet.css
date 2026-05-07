@@ -100,14 +100,14 @@
   .s8  { border-left:none; border-bottom:2px solid #000; background:#fff; text-align:left; font-weight:bold; color:#000; font-family:Arial, sans-serif; font-size:9pt; vertical-align:middle; white-space:nowrap; padding:2px 3px 2px 0; }
   .s9  { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:left; font-weight:bold; color:#000; font-family:Arial, sans-serif; font-size:9pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
   .s10 { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:center; font-weight:bold; color:#000; font-family:Arial; font-size:7pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; overflow:hidden; }
-  .s11 { border-bottom:2px solid #000; background:#fff; text-align:center; font-weight:bold; color:#000; font-family:Arial; font-size:7pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; overflow:hidden; }
+  .s11 { border-bottom:2px solid #000; border-left:2px solid #000; background:#fff; text-align:center; font-weight:bold; color:#000; font-family:Arial; font-size:7pt; vertical-align:middle; white-space:normal; line-height:1.2; padding:2px 3px; overflow:hidden; }
   .s12 { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:left; font-weight:bold; color:#000; font-family:Arial; font-size:7pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
-  .s13 { border-bottom:1px solid #000; border-right:2px solid #000; background:#fff; text-align:center; color:#000; font-family:Arial; font-size:9pt; line-height:1; vertical-align:middle; white-space:nowrap; padding:0 2px; overflow:hidden; max-height:20px; }
+  .s13 { border-bottom:1px solid #000; border-right:1px solid #000; background:#fff; text-align:center; color:#000; font-family:Arial; font-size:9pt; line-height:1; vertical-align:middle; white-space:nowrap; padding:0 2px; overflow:hidden; max-height:20px; }
   .s14 { border-bottom:1px solid #000; border-right:1px solid #000; background:#fff; text-align:center; color:#000; font-family:Arial; font-size:9pt; line-height:1; vertical-align:middle; white-space:nowrap; padding:0 2px; overflow:hidden; max-height:20px; }
-  .s15 { border-bottom:1px solid #000; background:#fff; text-align:center; font-weight:bold; color:#ff0000; font-family:Arial; font-size:9pt; line-height:1; vertical-align:middle; white-space:nowrap; padding:0 2px; overflow:hidden; max-height:20px; }
-  .s16 { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:center; color:#000; font-family:Arial; font-size:9pt; line-height:1; vertical-align:middle; white-space:nowrap; padding:0 2px; overflow:hidden; max-height:20px; }
+  .s15 { border-bottom:1px solid #000; border-left:2px solid #000; background:#fff; text-align:center; font-weight:bold; color:#ff0000; font-family:Arial; font-size:9pt; line-height:1; vertical-align:middle; white-space:nowrap; padding:0 2px; overflow:hidden; max-height:20px; }
+  .s16 { border-bottom:2px solid #000; border-right:1px solid #000; background:#fff; text-align:center; color:#000; font-family:Arial; font-size:9pt; line-height:1; vertical-align:middle; white-space:nowrap; padding:0 2px; overflow:hidden; max-height:20px; }
   .s16b { border-bottom:2px solid #000; border-right:1px solid #000; background:#fff; text-align:center; color:#000; font-family:Arial; font-size:9pt; line-height:1; vertical-align:middle; white-space:nowrap; padding:0 2px; overflow:hidden; max-height:20px; }
-  .s17 { border-bottom:2px solid #000; background:#fff; text-align:center; font-weight:bold; color:#ff0000; font-family:Arial; font-size:9pt; line-height:1; vertical-align:middle; white-space:nowrap; padding:0 2px; overflow:hidden; max-height:20px; }
+  .s17 { border-bottom:2px solid #000; border-left:2px solid #000; background:#fff; text-align:center; font-weight:bold; color:#ff0000; font-family:Arial; font-size:9pt; line-height:1; vertical-align:middle; white-space:nowrap; padding:0 2px; overflow:hidden; max-height:20px; }
   .s18 { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:right; color:#000; font-family:Arial; font-size:10pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
   .s19 { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:left; color:#000; font-family:Arial; font-size:10pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
   .s20 { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:right; color:#000; font-family:Arial; font-size:7pt; vertical-align:bottom; white-space:nowrap; padding:2px 3px; }
@@ -223,12 +223,14 @@
     }
 
     /* Sembunyikan semua UI — panel, tombol, loading */
-    .panel-wrapper,
-    #btn-print,
-    #btn-admin,
+    #panel,
+    #loading-overlay,
+    #modal-admin,
+    #modal-overlay,
+    #admin-panel,
+    #custom-alert,
     .loading-overlay,
-    [id^="edit-"],
-    .modal-overlay {
+    .cdd-list {
       display: none !important;
     }
 
