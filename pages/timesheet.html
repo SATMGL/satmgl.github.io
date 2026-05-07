@@ -3,330 +3,1528 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DATA ABSEN HARIAN LEMBUR - PT. BRAVO SATRIA PERKASA</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<link rel="stylesheet" href="../css/timesheet.css">
+<title>Timesheet — BRI Kanca Magelang</title>
+<style>
+/* =====================================================================
+   ROOT & RESET
+===================================================================== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  background: linear-gradient(160deg, #e8f5e9 0%, #c8e6c9 100%);
+  min-height: 100%;
+}
+
+body {
+  background: transparent;
+  font-family: Arial, sans-serif;
+  margin: 0; padding: 0;
+  width: 100vw; min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.page-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.page {
+  width: 794px; height: 1123px;
+  background: #fff;
+  box-shadow: 0 6px 28px rgba(27,94,32,0.25), 0 2px 8px rgba(0,0,0,0.15);
+  box-sizing: border-box;
+  transform-origin: top center;
+  transform: scale(min(calc(99vw / 794px), calc(72vh / 1123px)));
+  margin-top: 0.5vh;
+  margin-bottom: calc((min(calc(99vw / 794px), calc(72vh / 1123px)) - 1) * 1123px + 4px);
+  position: relative; overflow: hidden;
+  flex-shrink: 0;
+}
+.border-outer {
+  position: absolute; top:4px; left:4px; right:4px; bottom:4px;
+  border: 2px solid #000; box-sizing: border-box;
+  pointer-events: none; z-index: 10;
+}
+.border-frame {
+  border: 2px solid #000;
+  position: absolute; top:12px; left:12px; right:12px; bottom:12px;
+  box-sizing: border-box; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.border-frame > table.waffle { flex: 1; min-height: 0; }
+
+table.waffle {
+  width: 100%; height: 100%;
+  border-collapse: collapse; border-spacing: 0; table-layout: fixed;
+}
+table.waffle td, table.waffle th { padding: 0; }
+table.waffle tr { overflow: hidden; max-height: inherit; }
+table.waffle td { overflow: hidden; }
+
+col.cA  { width: 6%; }
+col.cB  { width: 6.18%; }
+col.cC  { width: 6.18%; }
+col.cD  { width: 6.18%; }
+col.cE  { width: 6.18%; }
+col.cF  { width: 5.91%; }
+col.cG  { width: 5.91%; }
+col.cH  { width: 5.91%; }
+col.cI  { width: 5.91%; }
+col.cJ  { width: 5.91%; }
+col.cK  { width: 5.91%; }
+col.cL  { width: 8.67%; }
+col.cM  { width: 25.14%; }
+
+.s0  { border-bottom:2px solid #000; background:#fff; text-align:center; font-weight:bold; color:#000; font-family:Arial; font-size:11pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
+.s1  { border-bottom:2px solid #000; background:#fff; text-align:left; color:#000; font-family:Arial; font-size:10pt; vertical-align:middle; white-space:nowrap; padding:2px 6px; }
+.s2  { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:left; font-weight:bold; color:#000; font-family:Arial; font-size:7pt; vertical-align:middle; white-space:nowrap; padding:2px 6px; }
+.s3  { border-right:2px solid #000; background:#fff; text-align:left; font-weight:bold; color:#000; font-family:Arial; font-size:7pt; vertical-align:middle; white-space:nowrap; padding:2px 6px; }
+.s4  { background:#fff; text-align:left; font-weight:bold; color:#000; font-family:Arial; font-size:7pt; vertical-align:middle; white-space:nowrap; padding:2px 6px; }
+.s5  { border-bottom:2px solid #000; background:#fff; text-align:left; font-weight:bold; color:#000; font-family:Arial; font-size:7pt; vertical-align:middle; white-space:nowrap; padding:2px 6px; }
+.s6  { border-bottom:2px solid #000; background:#fff; text-align:left; font-weight:bold; color:#000; font-family:Arial; font-size:7pt; vertical-align:middle; white-space:nowrap; padding:2px 6px; }
+.s9  { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:left; font-weight:bold; color:#000; font-family:Arial; font-size:9pt; vertical-align:middle; white-space:nowrap; padding:2px 6px; }
+.s10 { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:center; font-weight:bold; color:#000; font-family:Arial; font-size:7pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; overflow:hidden; }
+.s11 { border-bottom:2px solid #000; border-left:2px solid #000; background:#fff; text-align:center; font-weight:bold; color:#000; font-family:Arial; font-size:7pt; vertical-align:middle; white-space:normal; line-height:1.2; padding:2px 3px; overflow:hidden; }
+.s13 { border-bottom:1px solid #000; border-right:1px solid #000; background:#fff; text-align:center; color:#000; font-family:Arial; font-size:9pt; line-height:1; vertical-align:middle; white-space:nowrap; padding:0 2px; overflow:hidden; max-height:20px; }
+.s14 { border-bottom:1px solid #000; border-right:1px solid #000; background:#fff; text-align:center; color:#000; font-family:Arial; font-size:9pt; line-height:1; vertical-align:middle; white-space:nowrap; padding:0 2px; overflow:hidden; max-height:20px; }
+.s15 { border-bottom:1px solid #000; border-left:2px solid #000; background:#fff; text-align:center; font-weight:bold; color:#ff0000; font-family:Arial; font-size:9pt; line-height:1; vertical-align:middle; white-space:nowrap; padding:0 2px; overflow:hidden; max-height:20px; }
+.s16 { border-bottom:2px solid #000; border-right:1px solid #000; background:#fff; text-align:center; color:#000; font-family:Arial; font-size:9pt; line-height:1; vertical-align:middle; white-space:nowrap; padding:0 2px; overflow:hidden; max-height:20px; }
+.s16b{ border-bottom:2px solid #000; border-right:1px solid #000; background:#fff; text-align:center; color:#000; font-family:Arial; font-size:9pt; line-height:1; vertical-align:middle; white-space:nowrap; padding:0 2px; overflow:hidden; max-height:20px; }
+.s17 { border-bottom:2px solid #000; border-left:2px solid #000; background:#fff; text-align:center; font-weight:bold; color:#ff0000; font-family:Arial; font-size:9pt; line-height:1; vertical-align:middle; white-space:nowrap; padding:0 2px; overflow:hidden; max-height:20px; }
+.s18 { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:right; color:#000; font-family:Arial; font-size:10pt; vertical-align:middle; white-space:nowrap; padding:2px 6px; }
+.s19 { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:left; color:#000; font-family:Arial; font-size:10pt; vertical-align:middle; white-space:nowrap; padding:2px 6px; }
+.s20 { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:right; color:#000; font-family:Arial; font-size:7pt; vertical-align:bottom; white-space:nowrap; padding:2px 3px; }
+.s21 { border-bottom:2px solid #000; border-left:2px solid #000; background:#fff; text-align:left; font-weight:bold; color:#ff0000; font-family:Arial; font-size:7pt; vertical-align:top; white-space:nowrap; padding:2px 6px; }
+.s22 { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:center; color:#000; font-family:Arial; font-size:11pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
+.s23 { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:right; color:#000; font-family:Arial; font-size:6pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
+.s23last { border-bottom:2px solid #000; background:#fff; text-align:right; color:#000; font-family:Arial; font-size:6pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
+.s24-spacer3 { border-bottom:2px solid #000; background:#fff; font-size:6pt; overflow:hidden; padding:0 3px; }
+.s25 { border-bottom:2px solid #000; background:#fff; text-align:left; color:#000; font-family:Arial; font-size:6pt; line-height:16px; height:16px; overflow:hidden; white-space:nowrap; vertical-align:middle; padding:0 6px; }
+.s25last { border-bottom:2px solid #000; background:#fff; text-align:left; color:#000; font-family:Arial; font-size:6pt; line-height:16px; height:16px; overflow:hidden; white-space:nowrap; vertical-align:middle; padding:0 6px; }
+.s26 { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:center; font-weight:bold; color:#000; font-family:Arial; font-size:6pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
+.s26last { border-bottom:2px solid #000; background:#fff; text-align:center; font-weight:bold; color:#000; font-family:Arial; font-size:6pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
+.s27 { border-right:2px solid #000; border-left:2px solid #000; background:#fff; text-align:left; color:#000; font-family:Arial; font-size:10pt; vertical-align:middle; white-space:nowrap; padding:2px 6px; }
+.s29 { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:left; font-weight:bold; color:#0000ff; font-family:Arial; font-size:7pt; vertical-align:bottom; white-space:nowrap; padding:2px 6px; }
+.s30 { border-bottom:2px solid #000; background:#fff; text-align:left; font-weight:bold; color:#000; font-family:Arial; font-size:10pt; vertical-align:middle; white-space:nowrap; padding:2px 6px; }
+.s30last { border-bottom:2px solid #000; background:#fff; text-align:left; font-weight:bold; color:#000; font-family:Arial; font-size:10pt; vertical-align:middle; white-space:nowrap; padding:2px 6px; }
+.s31 { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:left; font-weight:bold; color:#000; font-family:Arial; font-size:6pt; vertical-align:middle; white-space:nowrap; padding:2px 6px; }
+.s31last { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:left; font-weight:bold; color:#000; font-family:Arial; font-size:6pt; vertical-align:middle; white-space:nowrap; padding:2px 6px; }
+.s32 { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:center; font-weight:bold; color:#000; font-family:Arial; font-size:7pt; vertical-align:middle; white-space:nowrap; padding:2px 3px; }
+.s33 { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:left; font-weight:bold; color:#000; font-family:Arial; font-size:6pt; vertical-align:middle; white-space:nowrap; padding:2px 6px; }
+.s34 { border-bottom:2px solid #000; background:#fff; text-align:left; font-weight:bold; color:#000; font-family:Arial; font-size:10pt; vertical-align:middle; white-space:nowrap; padding:2px 6px; }
+.s13-summary { border-bottom:2px solid #000; border-right:2px solid #000; background:#fff; text-align:center; color:#000; font-family:Arial; font-size:9pt; line-height:1; vertical-align:middle; white-space:nowrap; padding:0 2px; overflow:hidden; max-height:20px; }
+
+.keterangan-sabtu  { color:#1b5e20 !important; font-weight:bold; font-size:7pt; text-align:center; }
+.keterangan-minggu { color:#1b5e20 !important; font-weight:bold; font-size:7pt; text-align:center; }
+.keterangan-libur  { color:#cc0000 !important; font-weight:bold; font-size:7pt; text-align:center; }
+
+#fill-proyek, #fill-lokasi, #fill-periode,
+#fill-nama, #fill-noreg, #fill-tglmasuk,
+#fill-norek, #fill-bank, #fill-nohp, #fill-email {
+  font-size:8pt; font-family:Arial,sans-serif; font-weight:bold; color:#000;
+}
+
+.tgl-empty   { color:#ccc !important; background:#fafafa !important; }
+.tgl-weekend { color:#1b5e20 !important; font-weight:bold !important; }
+.tgl-libur   { color:#cc0000 !important; font-weight:bold !important; }
+  /* =====================================================================
+   PANEL BAWAH
+===================================================================== */
+.panel {
+  width: 100%;
+  max-width: 794px;
+  min-height: 22vh;
+  background: #2c2c2c;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-content: start;
+  align-items: start;
+  justify-items: stretch;
+  gap: clamp(3px,.8vh,10px) clamp(8px,1.5vw,20px);
+  padding: clamp(6px,1vh,14px) clamp(10px,2vw,24px);
+  margin: 8px auto 12px auto;
+  flex-shrink: 0;
+}
+.panel-group { display:flex; flex-direction:column; gap:clamp(3px,.5vh,8px); width:100%; }
+.panel-group label { font-size:clamp(6px,.75vh,10px); font-weight:bold; color:#66bb6a; text-transform:uppercase; letter-spacing:1px; white-space:nowrap; }
+
+.cdd { position:relative; width:100%; cursor:pointer; user-select:none; }
+.cdd-disabled { opacity:0.3; pointer-events:none; }
+.cdd-selected { display:flex; align-items:center; justify-content:space-between; border-bottom:1.5px solid #2e4a1e; padding:clamp(3px,.5vh,8px) 2px; transition:border-color .2s; }
+.cdd:hover .cdd-selected, .cdd.open .cdd-selected { border-bottom-color:#66bb6a; }
+.cdd-text { font-size:clamp(7px,.9vh,11px); color:#fff; font-family:Arial,sans-serif; letter-spacing:.3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:90%; }
+.cdd-arrow { font-size:clamp(8px,1vh,12px); color:#66bb6a; transition:transform .2s; flex-shrink:0; }
+.cdd.open .cdd-arrow { transform:rotate(180deg); }
+.cdd-list { display:none; position:fixed; background:#162510; border:1px solid #2e4a1e; border-radius:10px; max-height:35vh; overflow-y:auto; z-index:99999; box-shadow:0 -8px 32px rgba(0,0,0,.7); scrollbar-width:thin; scrollbar-color:#2e4a1e transparent; }
+.cdd-list::-webkit-scrollbar { width:4px; }
+.cdd-list::-webkit-scrollbar-thumb { background:#2e4a1e; border-radius:4px; }
+.cdd.open .cdd-list { display:block; animation:cddFadeIn .15s ease; }
+@keyframes cddFadeIn { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:translateY(0)} }
+.cdd-list-inner { display:grid; gap:1px; padding:4px; background:#0d1f08; }
+.cdd-item { padding:clamp(4px,.6vh,8px) clamp(4px,.6vw,8px); font-size:clamp(7px,.85vh,11px); font-family:Arial,sans-serif; color:#ccc; cursor:pointer; transition:background .1s,color .1s; border-radius:4px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.cdd-item:hover { background:#1a3a0e; color:#fff; }
+.cdd-item.selected { background:#66bb6a; color:#fff; font-weight:bold; }
+
+.loading-overlay { display:none; position:fixed; inset:0; z-index:9999998; background:rgba(0,0,0,.6); align-items:center; justify-content:center; flex-direction:column; gap:12px; }
+.loading-overlay.active { display:flex; }
+.loading-spinner { width:40px; height:40px; border:4px solid #2e4a1e; border-top-color:#66bb6a; border-radius:50%; animation:spin .8s linear infinite; }
+@keyframes spin { to{transform:rotate(360deg)} }
+.loading-text { color:#fff; font-family:Arial,sans-serif; font-size:10pt; }
+
+#custom-alert { display:none; position:fixed; inset:0; z-index:9999999; align-items:center; justify-content:center; pointer-events:none; }
+#custom-alert.show { display:flex; }
+#custom-alert-box { background:#1a2e0e; border:1px solid #66bb6a; border-radius:10px; padding:18px 28px; box-shadow:0 8px 32px rgba(0,0,0,.7); font-family:Arial,sans-serif; font-size:10pt; color:#fff; text-align:center; max-width:60vw; animation:alertBlink .4s ease 0s 3 alternate; }
+@keyframes alertBlink { from{opacity:1;transform:scale(1)} to{opacity:.4;transform:scale(.97)} }
+
+#dl-status { display:none; align-items:center; gap:8px; margin-top:6px; padding:8px 10px; border-radius:6px; font-size:clamp(7px,.85vh,11px); font-family:Arial,sans-serif; border:1px solid #2e4a1e; background:#0d1f08; color:#66bb6a; }
+#dl-status.show { display:flex; }
+#dl-status.err  { background:#2e0d0d; border-color:#6a1e1e; color:#ff6b6b; }
+#dl-status.done { background:#0d2e16; border-color:#1e6a3a; color:#66bb6a; }
+.dl-spinner { width:12px; height:12px; border:2px solid currentColor; border-top-color:transparent; border-radius:50%; animation:spin .7s linear infinite; flex-shrink:0; }
+
+.edit-group { display:flex; flex-direction:column; gap:4px; }
+.edit-label { font-size:8px; font-weight:bold; color:#66bb6a; text-transform:uppercase; letter-spacing:1px; }
+.edit-input { background:#0d1f08; border:1.5px solid #2e4a1e; border-radius:5px; color:#fff; font-family:Arial,sans-serif; font-size:9pt; padding:6px 8px; outline:none; transition:border-color .2s; width:100%; box-sizing:border-box; }
+.edit-input:focus { border-color:#66bb6a; }
+
+@keyframes adminShake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+
+@media print {
+  @page { size:A4 portrait; margin:0; }
+  html,body { width:210mm; height:297mm; overflow:visible !important; background:#fff !important; }
+  #panel,#loading-overlay,#modal-admin,#modal-overlay,#admin-panel,#custom-alert,.loading-overlay,.cdd-list { display:none !important; }
+  .page { width:210mm !important; height:297mm !important; transform:none !important; margin:0 !important; padding:0 !important; box-shadow:none !important; page-break-after:always; page-break-inside:avoid; overflow:hidden !important; position:relative !important; }
+  .border-outer { position:absolute !important; top:4px; left:4px; right:4px; bottom:4px; border:2px solid #000 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .border-frame { position:absolute !important; top:12px; left:12px; right:12px; bottom:12px; border:2px solid #000 !important; overflow:hidden !important; display:flex !important; flex-direction:column !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+  .page:last-child { page-break-after:avoid; }
+}
+</style>
 </head>
 <body>
 
-<!-- WRAPPER untuk centering lembar A4 -->
+<!-- LEMBAR A4 -->
 <div class="page-wrapper">
 <div class="page">
-<div class="border-outer"></div>
-<div class="border-frame">
-<table class="waffle">
-  <colgroup>
-    <col class="cA"><col class="cB"><col class="cC"><col class="cD"><col class="cE">
-    <col class="cF"><col class="cG"><col class="cH"><col class="cI"><col class="cJ">
-    <col class="cK"><col class="cL"><col class="cM">
-  </colgroup>
-  <tbody>
+  <div class="border-outer"></div>
+  <div class="border-frame">
+  <table class="waffle">
+    <colgroup>
+      <col class="cA"><col class="cB"><col class="cC"><col class="cD"><col class="cE">
+      <col class="cF"><col class="cG"><col class="cH"><col class="cI"><col class="cJ">
+      <col class="cK"><col class="cL"><col class="cM">
+    </colgroup>
+    <tbody>
+      <tr style="height:20px">
+        <td class="s0" colspan="13">DATA ABSEN HARIAN LEMBUR &amp; LATIHAN SECURITY</td>
+      </tr>
+      <tr style="height:20px">
+        <td class="s0" colspan="13">PT. BRAVO SATRIA PERKASA</td>
+      </tr>
+      <tr style="height:6px"><td class="s1" colspan="13"></td></tr>
 
-    <tr style="height:20px">
-      <td class="s0" colspan="13">DATA ABSEN HARIAN LEMBUR &amp; LATIHAN SECURITY</td>
-    </tr>
-    <tr style="height:20px">
-      <td class="s0" colspan="13">PT. BRAVO SATRIA PERKASA</td>
-    </tr>
-    <tr style="height:6px">
-      <td class="s1" colspan="13"></td>
-    </tr>
+      <tr style="height:25px">
+        <td class="s2">PROYEK</td>
+        <td class="s2" colspan="4" id="fill-proyek"></td>
+        <td class="s3"></td>
+        <td class="s2">NAMA</td>
+        <td class="s2" colspan="3" id="fill-nama"></td>
+        <td class="s4"></td><td class="s5"></td><td class="s6"></td>
+      </tr>
+      <tr style="height:25px">
+        <td class="s2">LOKASI</td>
+        <td class="s2" colspan="4" id="fill-lokasi"></td>
+        <td class="s3"></td>
+        <td class="s2">NO.REG</td>
+        <td class="s2" colspan="3" id="fill-noreg"></td>
+        <td class="s3"></td>
+        <td class="s2" style="overflow:visible;">TGL. MASUK</td>
+        <td class="s6" id="fill-tglmasuk"></td>
+      </tr>
+      <tr style="height:25px">
+        <td class="s2">PERIODE</td>
+        <td class="s9" colspan="4" id="fill-periode"></td>
+        <td class="s3"></td>
+        <td class="s2">NO. REK</td>
+        <td class="s2" colspan="3" id="fill-norek"></td>
+        <td class="s3"></td>
+        <td class="s2">BANK</td>
+        <td class="s6" id="fill-bank"></td>
+      </tr>
+      <tr style="height:25px">
+        <td class="s4"></td><td class="s4"></td><td class="s4"></td><td class="s4"></td><td class="s4"></td>
+        <td class="s3"></td>
+        <td class="s2">NO. HP</td>
+        <td class="s2" colspan="3" id="fill-nohp"></td>
+        <td class="s3"></td>
+        <td class="s2">EMAIL</td>
+        <td class="s6" id="fill-email"></td>
+      </tr>
+      <tr style="height:9px"><td class="s1" colspan="13"></td></tr>
 
-    <tr style="height:25px">
-      <td class="s2">PROYEK</td>
-      <td class="s2" colspan="4" id="fill-proyek"></td>
-      <td class="s3"></td>
-      <td class="s2">NAMA</td>
-      <td class="s2" colspan="3" id="fill-nama"></td>
-      <td class="s4"></td>
-      <td class="s5"></td>
-      <td class="s6"></td>
-    </tr>
-    <tr style="height:25px">
-      <td class="s2">LOKASI</td>
-      <td class="s2" colspan="4" id="fill-lokasi"></td>
-      <td class="s3"></td>
-      <td class="s2">NO.REG</td>
-      <td class="s2" colspan="3" id="fill-noreg"></td>
-      <td class="s3"></td>
-      <td class="s2" style="overflow:visible;">TGL. MASUK</td>
-      <td class="s6" id="fill-tglmasuk"></td>
-    </tr>
-    <tr style="height:25px">
-      <td class="s2">PERIODE</td>
-      <td class="s9" colspan="4" id="fill-periode"></td>
-      <td class="s3"></td>
-      <td class="s2">NO. REK</td>
-      <td class="s2" colspan="3" id="fill-norek"></td>
-      <td class="s3"></td>
-      <td class="s2">BANK</td>
-      <td class="s6" id="fill-bank"></td>
-    </tr>
-    <tr style="height:25px">
-      <td class="s4"></td><td class="s4"></td><td class="s4"></td><td class="s4"></td><td class="s4"></td>
-      <td class="s3"></td>
-      <td class="s2">NO. HP</td>
-      <td class="s2" colspan="3" id="fill-nohp"></td>
-      <td class="s3"></td>
-      <td class="s2">EMAIL</td>
-      <td class="s6" id="fill-email"></td>
-    </tr>
-    <tr style="height:9px"><td class="s1" colspan="13"></td></tr>
+      <tr style="height:20px">
+        <td class="s10" rowspan="3">TGL</td>
+        <td class="s10" colspan="2" rowspan="2" style="white-space:normal;line-height:1.2;">JAM KERJA</td>
+        <td class="s10" colspan="2" rowspan="2" style="white-space:normal;line-height:1.2;">JAM LEMBUR</td>
+        <td class="s10">JUMLAH</td>
+        <td class="s10" colspan="5">PERINCIAN LEMBUR</td>
+        <td class="s10">PARAF</td>
+        <td class="s11" rowspan="3">KETERANGAN LEMBUR</td>
+      </tr>
+      <tr style="height:20px">
+        <td class="s10">LEMBUR</td>
+        <td class="s10" colspan="2">RUTIN</td>
+        <td class="s10" colspan="3">KHUSUS</td>
+        <td class="s10">USER</td>
+      </tr>
+      <tr style="height:18px">
+        <td class="s10">MULAI</td><td class="s10">SELESAI</td>
+        <td class="s10">MULAI</td><td class="s10">SELESAI</td>
+        <td class="s10">(JAM)</td>
+        <td class="s10">I</td><td class="s10">II</td><td class="s10">II</td>
+        <td class="s10">III</td><td class="s10">IV</td>
+        <td class="s10"></td>
+      </tr>
 
-    <tr style="height:20px">
-      <td class="s10" rowspan="3">TGL</td>
-      <td class="s10" colspan="2" rowspan="2">JAM KERJA</td>
-      <td class="s10" colspan="2" rowspan="2">JAM LEMBUR</td>
-      <td class="s10">JUMLAH</td>
-      <td class="s10" colspan="5">PERINCIAN LEMBUR</td>
-      <td class="s10">PARAF</td>
-      <td class="s11" rowspan="3">KETERANGAN LEMBUR</td>
-    </tr>
-    <tr style="height:20px">
-      <td class="s10">LEMBUR</td>
-      <td class="s10" colspan="2">RUTIN</td>
-      <td class="s10" colspan="3">KHUSUS</td>
-      <td class="s10">USER</td>
-    </tr>
-    <tr style="height:18px">
-      <td class="s10">MULAI</td><td class="s10">SELESAI</td>
-      <td class="s10">MULAI</td><td class="s10">SELESAI</td>
-      <td class="s10">(JAM)</td>
-      <td class="s10">I</td><td class="s10">II</td><td class="s10">II</td>
-      <td class="s10">III</td><td class="s10">IV</td>
-      <td class="s12"></td>
-    </tr>
-    <tr style="height:20px"><td class="s13" id="tgl-1"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
-    <tr style="height:20px"><td class="s13" id="tgl-2"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
-    <tr style="height:20px"><td class="s13" id="tgl-3"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
-    <tr style="height:20px"><td class="s13" id="tgl-4"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
-    <tr style="height:20px"><td class="s13" id="tgl-5"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
-    <tr style="height:20px"><td class="s13" id="tgl-6"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
-    <tr style="height:20px"><td class="s13" id="tgl-7"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
-    <tr style="height:20px"><td class="s13" id="tgl-8"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
-    <tr style="height:20px"><td class="s13" id="tgl-9"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
-    <tr style="height:20px"><td class="s13" id="tgl-10"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
-    <tr style="height:20px"><td class="s13" id="tgl-11"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
-    <tr style="height:20px"><td class="s13" id="tgl-12"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
-    <tr style="height:20px"><td class="s13" id="tgl-13"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
-    <tr style="height:20px"><td class="s13" id="tgl-14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
-    <tr style="height:20px"><td class="s13" id="tgl-15"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
-    <tr style="height:20px"><td class="s13" id="tgl-16"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
-    <tr style="height:20px"><td class="s13" id="tgl-17"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
-    <tr style="height:20px"><td class="s13" id="tgl-18"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
-    <tr style="height:20px"><td class="s13" id="tgl-19"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
-    <tr style="height:20px"><td class="s13" id="tgl-20"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
-    <tr style="height:20px"><td class="s13" id="tgl-21"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
-    <tr style="height:20px"><td class="s13" id="tgl-22"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
-    <tr style="height:20px"><td class="s13" id="tgl-23"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
-    <tr style="height:20px"><td class="s13" id="tgl-24"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
-    <tr style="height:20px"><td class="s13" id="tgl-25"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
-    <tr style="height:20px"><td class="s13" id="tgl-26"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
-    <tr style="height:20px"><td class="s13" id="tgl-27"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
-    <tr style="height:20px"><td class="s13" id="tgl-28"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
-    <tr style="height:20px"><td class="s13" id="tgl-29"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
-    <tr style="height:20px"><td class="s13" id="tgl-30"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
-    <tr style="height:20px"><td class="s16" id="tgl-31"></td><td class="s16b"></td><td class="s16b"></td><td class="s16b"></td><td class="s16b"></td><td class="s16b"></td><td class="s16b"></td><td class="s16b"></td><td class="s16b"></td><td class="s16b"></td><td class="s16b"></td><td class="s16b"></td><td class="s17"></td></tr>
+      <!-- BARIS TANGGAL 1-30 -->
+      <tr style="height:20px"><td class="s13" id="tgl-1"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+      <tr style="height:20px"><td class="s13" id="tgl-2"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+      <tr style="height:20px"><td class="s13" id="tgl-3"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+      <tr style="height:20px"><td class="s13" id="tgl-4"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+      <tr style="height:20px"><td class="s13" id="tgl-5"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+      <tr style="height:20px"><td class="s13" id="tgl-6"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+      <tr style="height:20px"><td class="s13" id="tgl-7"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+      <tr style="height:20px"><td class="s13" id="tgl-8"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+      <tr style="height:20px"><td class="s13" id="tgl-9"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+      <tr style="height:20px"><td class="s13" id="tgl-10"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+      <tr style="height:20px"><td class="s13" id="tgl-11"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+      <tr style="height:20px"><td class="s13" id="tgl-12"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+      <tr style="height:20px"><td class="s13" id="tgl-13"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+      <tr style="height:20px"><td class="s13" id="tgl-14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+      <tr style="height:20px"><td class="s13" id="tgl-15"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+      <tr style="height:20px"><td class="s13" id="tgl-16"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+      <tr style="height:20px"><td class="s13" id="tgl-17"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+      <tr style="height:20px"><td class="s13" id="tgl-18"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+      <tr style="height:20px"><td class="s13" id="tgl-19"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+      <tr style="height:20px"><td class="s13" id="tgl-20"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+      <tr style="height:20px"><td class="s13" id="tgl-21"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+      <tr style="height:20px"><td class="s13" id="tgl-22"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+      <tr style="height:20px"><td class="s13" id="tgl-23"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+      <tr style="height:20px"><td class="s13" id="tgl-24"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+      <tr style="height:20px"><td class="s13" id="tgl-25"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+      <tr style="height:20px"><td class="s13" id="tgl-26"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+      <tr style="height:20px"><td class="s13" id="tgl-27"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+      <tr style="height:20px"><td class="s13" id="tgl-28"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+      <tr style="height:20px"><td class="s13" id="tgl-29"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+      <tr style="height:20px"><td class="s13" id="tgl-30"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s14"></td><td class="s15"></td></tr>
+      <tr style="height:20px"><td class="s16" id="tgl-31"></td><td class="s16b"></td><td class="s16b"></td><td class="s16b"></td><td class="s16b"></td><td class="s16b"></td><td class="s16b"></td><td class="s16b"></td><td class="s16b"></td><td class="s16b"></td><td class="s16b"></td><td class="s16b"></td><td class="s17"></td></tr>
 
-    <tr style="height:18px">
-      <td class="s13-summary" colspan="4">JUMLAH HARI KERJA</td>
-      <td class="s18" id="fill-harikerja">0</td>
-      <td class="s19">Hari</td>
-      <td class="s20">&nbsp;X1,5</td><td class="s20">&nbsp;X2&nbsp;</td>
-      <td class="s20">X 2</td><td class="s20">X3</td><td class="s20">X4</td>
-      <td class="s19"></td>
-      <td class="s21" rowspan="2"></td>
-    </tr>
-    <tr style="height:20px">
-      <td class="s22" colspan="6">JUMLAH JAM LEMBUR</td>
-      <td class="s23">&nbsp;jam</td><td class="s23">&nbsp;jam</td>
-      <td class="s23">jam</td><td class="s23">jam</td><td class="s23">jam</td>
-      <td class="s23last">&nbsp;</td>
-    </tr>
+      <tr style="height:18px">
+        <td class="s13-summary" colspan="4">JUMLAH HARI KERJA</td>
+        <td class="s18" id="fill-harikerja">0</td>
+        <td class="s19">Hari</td>
+        <td class="s20">&nbsp;X1,5</td><td class="s20">&nbsp;X2&nbsp;</td>
+        <td class="s20">X 2</td><td class="s20">X3</td><td class="s20">X4</td>
+        <td class="s19"></td>
+        <td class="s21" rowspan="2"></td>
+      </tr>
+      <tr style="height:20px">
+        <td class="s22" colspan="6">JUMLAH JAM LEMBUR</td>
+        <td class="s23">&nbsp;jam</td><td class="s23">&nbsp;jam</td>
+        <td class="s23">jam</td><td class="s23">jam</td><td class="s23">jam</td>
+        <td class="s23last">&nbsp;</td>
+      </tr>
 
-    <tr style="height:9px"><td class="s24-spacer3" colspan="13"></td></tr>
-    <tr style="height:16px">
-      <td class="s25" colspan="13">1. Data absen harian ini diisi secara harian sesuai aktivitas kerjanya dengan lengkap, sesuai kolom yang telah disediakan.</td>
-    </tr>
-    <tr style="height:16px">
-      <td class="s25last" colspan="13">2. Anggota wajib memintakan paraf user untuk diisi sesuai aktivitas kerjanya pada kolom yang tersedia.</td>
-    </tr>
-    <tr style="height:25px">
-      <td class="s26" colspan="2">DIBUAT</td>
-      <td class="s26" colspan="3">MENYETUJUI</td>
-      <td class="s26" colspan="2">MENGETAHUI</td>
-      <td class="s27" rowspan="7"></td>
-      <td class="s26last" colspan="5">KODE CABANG</td>
-    </tr>
-    <tr class="sig-row" style="height:25px">
-      <td class="s29" colspan="7" rowspan="5" style="position:relative; padding:0;">
-        <div style="position:absolute; bottom:4px; left:4px;" id="fill-security-nama"></div>
-      </td>
-      <td class="s26last" colspan="5">(cost center penanggung biaya)</td>
-    </tr>
-    <tr style="height:25px"><td class="s30" colspan="5"></td></tr>
-    <tr style="height:25px"><td class="s26last" colspan="5">KONTAK CABANG</td></tr>
-    <tr style="height:25px">
-      <td class="s31">NAMA</td><td class="s30" colspan="4"></td>
-    </tr>
-    <tr style="height:25px">
-      <td class="s31last">TELP</td><td class="s30last" colspan="4"></td>
-    </tr>
-    <tr style="height:25px">
-      <td class="s32" colspan="2">SECURITY</td>
-      <td class="s32" colspan="3">CABANG /USER&nbsp;</td>
-      <td class="s32" colspan="2">PT. BSP</td>
-      <td class="s33">FAX</td>
-      <td class="s34" colspan="5"></td>
-    </tr>
+      <tr style="height:9px"><td class="s24-spacer3" colspan="13"></td></tr>
+      <tr style="height:16px"><td class="s25" colspan="13">1. Data absen harian ini diisi secara harian sesuai aktivitas kerjanya dengan lengkap, sesuai kolom yang telah disediakan.</td></tr>
+      <tr style="height:16px"><td class="s25last" colspan="13">2. Anggota wajib memintakan paraf user untuk diisi sesuai aktivitas kerjanya pada kolom yang tersedia.</td></tr>
 
-  </tbody>
-</table>
+      <tr style="height:25px">
+        <td class="s26" colspan="2">DIBUAT</td>
+        <td class="s26" colspan="3">MENYETUJUI</td>
+        <td class="s26" colspan="2">MENGETAHUI</td>
+        <td class="s27" rowspan="7"></td>
+        <td class="s26last" colspan="5">KODE CABANG</td>
+      </tr>
+      <tr class="sig-row" style="height:25px">
+        <td class="s29" colspan="7" rowspan="5" style="position:relative;padding:0;">
+          <div style="position:absolute;bottom:4px;left:4px;" id="fill-security-nama"></div>
+        </td>
+        <td class="s26last" colspan="5">(cost center penanggung biaya)</td>
+      </tr>
+      <tr style="height:25px"><td class="s30" colspan="5"></td></tr>
+      <tr style="height:25px"><td class="s26last" colspan="5">KONTAK CABANG</td></tr>
+      <tr style="height:25px"><td class="s31">NAMA</td><td class="s30" colspan="4"></td></tr>
+      <tr style="height:25px"><td class="s31last">TELP</td><td class="s30last" colspan="4"></td></tr>
+      <tr style="height:25px">
+        <td class="s32" colspan="2">SECURITY</td>
+        <td class="s32" colspan="3">CABANG /USER&nbsp;</td>
+        <td class="s32" colspan="2">PT. BSP</td>
+        <td class="s33">FAX</td>
+        <td class="s34" colspan="5"></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
 </div>
 </div>
-</div><!-- end .page-wrapper -->
 
+<!-- LOADING -->
 <div class="loading-overlay" id="loading-overlay">
   <div class="loading-spinner"></div>
-  <div class="loading-text">Memuat data...</div>
+  <div class="loading-text" id="loading-text">Memuat data...</div>
 </div>
 
+<!-- PANEL BAWAH -->
 <div class="panel" id="panel">
+  <!-- COL 1: Periode + Unit -->
   <div class="panel-group">
-    <label>Periode</label>
+    <label>Bulan &amp; Tahun</label>
     <div class="cdd" id="cdd-periode">
       <div class="cdd-selected"><span class="cdd-text">— Pilih —</span><span class="cdd-arrow">&#9662;</span></div>
       <div class="cdd-list"></div>
     </div>
-  </div>
-  <div class="panel-group">
-    <label>Unit</label>
+    <label style="margin-top:4px;">Unit</label>
     <div class="cdd" id="cdd-unit">
       <div class="cdd-selected"><span class="cdd-text">— Pilih Unit —</span><span class="cdd-arrow">&#9662;</span></div>
       <div class="cdd-list"></div>
     </div>
-    <button id="btn-print" onclick="cetakForm()" style="margin-top:6px;width:100%;padding:5px 0;background:#1b5e20;color:#fff;border:none;border-radius:4px;font-size:clamp(7px,0.85vh,11px);font-family:Arial,sans-serif;font-weight:bold;letter-spacing:1px;cursor:pointer;opacity:0.5;pointer-events:none;transition:opacity 0.2s;">🖨 CETAK</button>
   </div>
+
+  <!-- COL 2: Nama + Edit -->
   <div class="panel-group">
     <label>Nama</label>
     <div class="cdd cdd-disabled" id="cdd-nama">
       <div class="cdd-selected"><span class="cdd-text">— Pilih Nama —</span><span class="cdd-arrow">&#9662;</span></div>
       <div class="cdd-list"></div>
     </div>
-    <button id="btn-edit-data" onclick="openEditModal()" style="margin-top:6px;width:100%;padding:5px 0;background:#2e7d32;color:#fff;border:none;border-radius:4px;font-size:clamp(7px,0.85vh,11px);font-family:Arial,sans-serif;font-weight:bold;letter-spacing:1px;cursor:pointer;opacity:0.5;pointer-events:none;transition:opacity 0.2s;">✏ EDIT DATA</button>
+    <button id="btn-edit-data" onclick="openEditModal()"
+      style="margin-top:6px;width:100%;padding:5px 0;background:#2e7d32;color:#fff;border:none;border-radius:4px;font-size:clamp(7px,.85vh,11px);font-family:Arial,sans-serif;font-weight:bold;letter-spacing:1px;cursor:pointer;opacity:0.5;pointer-events:none;transition:opacity .2s;">
+      ✏ EDIT DATA
+    </button>
   </div>
-  <div class="panel-group">
-    <button onclick="kembali()" style="width:100%;padding:5px 0;background:#444;color:#fff;border:none;border-radius:4px;font-size:clamp(7px,0.85vh,11px);font-family:Arial,sans-serif;font-weight:bold;letter-spacing:1px;cursor:pointer;">◄ KEMBALI</button>
-  </div>
-  <div class="panel-group"></div>
-  <div class="panel-group">
-    <button onclick="adminMode()" style="width:100%;padding:5px 0;background:#2e7d32;color:#fff;border:none;border-radius:4px;font-size:clamp(7px,0.85vh,11px);font-family:Arial,sans-serif;font-weight:bold;letter-spacing:1px;cursor:pointer;">⚙ ADMIN MODE</button>
-    <button id="btn-admin-menu" onclick="toggleAdminPanel()" style="display:none;margin-top:4px;width:100%;padding:5px 0;background:#243d14;color:#aaa;border:1px solid #2e4a1e;border-radius:4px;font-size:16px;font-family:Arial,sans-serif;cursor:pointer;letter-spacing:4px;transition:all 0.2s;">⋮</button>
-  </div>
-</div>
 
-<!-- MODAL ADMIN MODE -->
-<div id="modal-admin" style="display:none;position:fixed;inset:0;z-index:9999999;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;">
-  <div style="width:320px;background:#1a2e0e;border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,0.8);overflow:hidden;font-family:Arial,sans-serif;">
-    <div style="padding:14px 18px;background:#243d14;border-bottom:1px solid #2e4a1e;display:flex;align-items:center;justify-content:space-between;">
-      <span style="color:#66bb6a;font-weight:bold;font-size:11pt;letter-spacing:1px;">⚙ ADMIN MODE</span>
-      <button onclick="closeAdminModal()" style="background:none;border:none;color:#a5d6a7;font-size:18px;cursor:pointer;padding:0 4px;">&times;</button>
+  <!-- COL 3: Download + Cetak + Kembali -->
+  <div class="panel-group">
+    <label>Aksi</label>
+    <button id="btn-pdf" onclick="doDownload('pdf')"
+      style="width:100%;padding:5px 0;background:#1565c0;color:#fff;border:none;border-radius:4px;font-size:clamp(7px,.85vh,11px);font-family:Arial,sans-serif;font-weight:bold;letter-spacing:1px;cursor:pointer;opacity:0.5;pointer-events:none;transition:opacity .2s;">
+      ⬇ UNDUH PDF
+    </button>
+    <button id="btn-print" onclick="cetakForm()"
+      style="margin-top:4px;width:100%;padding:5px 0;background:#e65100;color:#fff;border:none;border-radius:4px;font-size:clamp(7px,.85vh,11px);font-family:Arial,sans-serif;font-weight:bold;letter-spacing:1px;cursor:pointer;opacity:0.5;pointer-events:none;transition:opacity .2s;">
+      🖨 CETAK
+    </button>
+    <div id="dl-status"></div>
+    <div style="display:flex;gap:4px;margin-top:4px;">
+      <button onclick="kembali()"
+        style="flex:1;padding:5px 0;background:#444;color:#fff;border:none;border-radius:4px;font-size:clamp(7px,.85vh,11px);font-family:Arial,sans-serif;font-weight:bold;letter-spacing:1px;cursor:pointer;">
+        ◄ KEMBALI
+      </button>
+      <button id="btn-admin-menu" onclick="adminMode()"
+        style="flex:1;padding:5px 0;background:#6a1b9a;color:#fff;border:none;border-radius:4px;font-size:clamp(7px,.85vh,11px);font-family:Arial,sans-serif;font-weight:bold;letter-spacing:1px;cursor:pointer;">
+        🔐 ADMIN
+      </button>
     </div>
-    <div style="padding:20px 18px;">
-      <label style="font-size:9px;font-weight:bold;color:#66bb6a;letter-spacing:1px;display:block;margin-bottom:6px;">PASSWORD</label>
-      <input id="admin-password-input" type="password" placeholder="Masukkan password..."
-        onkeydown="if(event.key==='Enter')verifyAdminPassword()"
-        oninput="_adminInputEffect(this)"
-        onfocus="_adminInputFocus(this,true)"
-        onblur="_adminInputFocus(this,false)"
-        style="width:100%;box-sizing:border-box;background:#0d1f08;border:2px solid #445;border-radius:5px;color:#fff;font-family:Arial,sans-serif;font-size:10pt;padding:8px 10px;outline:none;transition:border-color 0.2s,box-shadow 0.2s;">
-      <div id="admin-error" style="color:#e74c3c;font-size:8pt;margin-top:6px;display:none;">Password salah.</div>
-    </div>
-    <div style="padding:10px 18px 14px;display:flex;justify-content:flex-end;gap:10px;">
-      <button onclick="closeAdminModal()" style="padding:7px 16px;background:transparent;border:1px solid #2e4a1e;color:#aaa;border-radius:5px;font-family:Arial;font-size:9pt;cursor:pointer;">BATAL</button>
-      <button id="btn-masuk-admin" onclick="verifyAdminPassword()" style="padding:7px 16px;background:#2e7d32;border:none;color:#fff;border-radius:5px;font-family:Arial;font-size:9pt;font-weight:bold;cursor:pointer;letter-spacing:0.5px;">MASUK</button>
-    </div>
-  
   </div>
 </div>
 
 <!-- MODAL EDIT DATA -->
-<div id="modal-overlay" style="display:none;position:fixed;inset:0;z-index:999999;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;">
-  <div id="modal-box" style="width:635px;height:50vh;background:#1a2e0e;border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,0.7);display:flex;flex-direction:column;overflow:hidden;position:relative;">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:#243d14;border-bottom:1px solid #2e4a1e;flex-shrink:0;">
+<div id="modal-overlay" style="display:none;position:fixed;inset:0;z-index:999999;background:rgba(0,0,0,.6);align-items:center;justify-content:center;">
+  <div style="width:94vw;background:#1a2e0e;border-radius:clamp(6px,1.5vw,14px);box-shadow:0 8px 32px rgba(0,0,0,.7);display:flex;flex-direction:column;overflow:hidden;">
+
+    <!-- HEADER -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:clamp(6px,1.2vh,14px) clamp(10px,2.5vw,24px);background:#243d14;border-bottom:1px solid #2e4a1e;flex-shrink:0;">
       <div>
-        <div style="color:#66bb6a;font-weight:bold;font-family:Arial;font-size:11pt;letter-spacing:1px;">EDIT DATA PERSONIL</div>
-        <div id="edit-modal-subtitle" style="color:#fff;font-family:Arial;font-size:9pt;margin-top:2px;opacity:0.85;"></div>
+        <div style="color:#66bb6a;font-weight:bold;font-family:Arial;font-size:clamp(13px,2.5vw,20px);letter-spacing:1px;">EDIT DATA PERSONIL</div>
+        <div id="edit-modal-subtitle" style="color:#fff;font-family:Arial;font-size:clamp(11px,2vw,16px);margin-top:2px;opacity:.85;"></div>
       </div>
-      <button onclick="closeEditModal()" style="background:none;border:none;color:#a5d6a7;font-size:18px;cursor:pointer;line-height:1;padding:0 4px;">&times;</button>
+      <button onclick="closeEditModal()" style="background:none;border:none;color:#a5d6a7;font-size:clamp(18px,3.5vw,28px);cursor:pointer;line-height:1;padding:0 4px;">&times;</button>
     </div>
-    <div style="flex:1;overflow-y:auto;padding:16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:12px 24px;align-content:start;">
-      <div class="edit-group"><label class="edit-label">NO. REG</label><input class="edit-input" id="edit-noreg" type="text" placeholder="No. Registrasi"></div>
-      <div class="edit-group"><label class="edit-label">TGL. MASUK</label>
-        <div style="display:flex;gap:6px;">
-          <select id="edit-tgl-tgl" class="edit-input" style="flex:0 0 54px;padding:6px 4px;">
-            <option value="">Tgl</option>
-          </select>
-          <select id="edit-tgl-bln" class="edit-input" style="flex:1;padding:6px 4px;">
-            <option value="">Bulan</option>
-            <option>JANUARI</option><option>FEBRUARI</option><option>MARET</option>
-            <option>APRIL</option><option>MEI</option><option>JUNI</option>
-            <option>JULI</option><option>AGUSTUS</option><option>SEPTEMBER</option>
-            <option>OKTOBER</option><option>NOVEMBER</option><option>DESEMBER</option>
-          </select>
-          <select id="edit-tgl-thn" class="edit-input" style="flex:0 0 70px;padding:6px 4px;">
-            <option value="">Tahun</option>
-          </select>
+
+    <!-- BODY -->
+    <div style="padding:clamp(8px,1.5vh,18px) clamp(10px,2.5vw,24px);display:flex;flex-direction:column;gap:clamp(6px,1.2vh,14px);box-sizing:border-box;width:100%;">
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:clamp(6px,1.2vh,14px) clamp(10px,2.5vw,24px);width:100%;box-sizing:border-box;">
+        <div>
+          <label style="color:#a5d6a7;font-family:Arial;font-size:clamp(10px,1.8vw,13px);display:block;margin-bottom:clamp(3px,0.5vh,6px);font-weight:bold;letter-spacing:.5px;">NO. REG</label>
+          <input id="edit-noreg" type="text" placeholder="No. Registrasi" style="width:100%;box-sizing:border-box;font-size:clamp(11px,2vw,15px);height:clamp(28px,4.5vh,44px);padding:0 clamp(6px,1.2vw,12px);background:#243d14;border:1px solid #2e4a1e;color:#fff;border-radius:clamp(4px,0.8vw,8px);">
+        </div>
+        <div>
+          <label style="color:#a5d6a7;font-family:Arial;font-size:clamp(10px,1.8vw,13px);display:block;margin-bottom:clamp(3px,0.5vh,6px);font-weight:bold;letter-spacing:.5px;">TGL. MASUK</label>
+          <div style="display:flex;gap:clamp(4px,1vw,10px);width:100%;box-sizing:border-box;">
+            <select id="edit-tgl-tgl" style="flex:0 0 clamp(40px,12vw,80px);box-sizing:border-box;height:clamp(28px,4.5vh,44px);padding:0 clamp(4px,0.8vw,8px);font-size:clamp(11px,2vw,15px);background:#243d14;border:1px solid #2e4a1e;color:#fff;border-radius:clamp(4px,0.8vw,8px);"></select>
+            <select id="edit-tgl-bln" style="flex:1;min-width:0;box-sizing:border-box;height:clamp(28px,4.5vh,44px);padding:0 clamp(4px,0.8vw,8px);font-size:clamp(11px,2vw,15px);background:#243d14;border:1px solid #2e4a1e;color:#fff;border-radius:clamp(4px,0.8vw,8px);">
+              <option value="">Bulan</option>
+              <option>JANUARI</option><option>FEBRUARI</option><option>MARET</option>
+              <option>APRIL</option><option>MEI</option><option>JUNI</option>
+              <option>JULI</option><option>AGUSTUS</option><option>SEPTEMBER</option>
+              <option>OKTOBER</option><option>NOVEMBER</option><option>DESEMBER</option>
+            </select>
+            <select id="edit-tgl-thn" style="flex:0 0 clamp(56px,16vw,110px);box-sizing:border-box;height:clamp(28px,4.5vh,44px);padding:0 clamp(4px,0.8vw,8px);font-size:clamp(11px,2vw,15px);background:#243d14;border:1px solid #2e4a1e;color:#fff;border-radius:clamp(4px,0.8vw,8px);"></select>
+          </div>
         </div>
       </div>
-      <div class="edit-group"><label class="edit-label">NO. REKENING</label><input class="edit-input" id="edit-norek" type="text" placeholder="No. Rekening"></div>
-      <div class="edit-group"><label class="edit-label">BANK</label><input class="edit-input" id="edit-bank" type="text" placeholder="Nama Bank"></div>
-      <div class="edit-group"><label class="edit-label">NO. HP</label><input class="edit-input" id="edit-nohp" type="text" placeholder="No. HP"></div>
-      <div class="edit-group"><label class="edit-label">EMAIL</label><input class="edit-input" id="edit-email" type="text" placeholder="Alamat Email"></div>
-    </div>
-    <div style="padding:10px 20px;background:#243d14;border-top:1px solid #2e4a1e;display:flex;justify-content:flex-end;gap:10px;flex-shrink:0;">
-      <button onclick="closeEditModal()" style="padding:7px 20px;background:transparent;border:1px solid #2e4a1e;color:#aaa;border-radius:5px;font-family:Arial;font-size:9pt;cursor:pointer;">BATAL</button>
-      <button onclick="applyEditData()" style="padding:7px 20px;background:#2e7d32;border:none;color:#fff;border-radius:5px;font-family:Arial;font-size:9pt;font-weight:bold;cursor:pointer;">TERAPKAN &amp; SIMPAN</button>
-    </div>
-  </div>
-</div>
 
-<!-- PANEL ADMIN -->
-<div id="admin-panel" style="position:fixed;bottom:0;right:-100vw;width:794px;height:50vh;background:#1a2e0e;box-shadow:-4px 0 24px rgba(0,0,0,0.5);z-index:999998;display:flex;flex-direction:column;transition:right 0.35s cubic-bezier(0.4,0,0.2,1);font-family:Arial,sans-serif;border-radius:12px 0 0 0;overflow:hidden;">
-  <div style="padding:12px 16px;background:#243d14;border-bottom:1px solid #2e4a1e;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
-    <span style="color:#66bb6a;font-weight:bold;font-size:10pt;letter-spacing:1px;">📋 DAFTAR CETAK</span>
-    <button onclick="toggleAdminPanel()" style="background:none;border:none;color:#a5d6a7;font-size:18px;cursor:pointer;">&times;</button>
-  </div>
-  <div style="padding:10px 14px;border-bottom:1px solid #1a3a0e;flex-shrink:0;">
-    <label style="font-size:8px;color:#66bb6a;font-weight:bold;letter-spacing:1px;display:block;margin-bottom:4px;">UNIT</label>
-    <select id="admin-unit-select" onchange="loadAdminNama()" style="width:100%;background:#0d1f08;border:1px solid #2e4a1e;border-radius:5px;color:#fff;font-family:Arial;font-size:9pt;padding:5px 8px;outline:none;">
-      <option value="">— Pilih Unit —</option>
-    </select>
-  </div>
-  <div style="flex:1;overflow-y:auto;padding:10px 14px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-      <label style="font-size:8px;color:#66bb6a;font-weight:bold;letter-spacing:1px;">NAMA</label>
-      <button onclick="pilihSemuaNama()" style="font-size:8px;background:none;border:none;color:#66bb6a;cursor:pointer;text-decoration:underline;">PILIH SEMUA</button>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:clamp(6px,1.2vh,14px) clamp(10px,2.5vw,24px);width:100%;box-sizing:border-box;">
+        <div>
+          <label style="color:#a5d6a7;font-family:Arial;font-size:clamp(10px,1.8vw,13px);display:block;margin-bottom:clamp(3px,0.5vh,6px);font-weight:bold;letter-spacing:.5px;">NO. REKENING</label>
+          <input id="edit-norek" type="text" placeholder="No. Rekening" style="width:100%;box-sizing:border-box;font-size:clamp(11px,2vw,15px);height:clamp(28px,4.5vh,44px);padding:0 clamp(6px,1.2vw,12px);background:#243d14;border:1px solid #2e4a1e;color:#fff;border-radius:clamp(4px,0.8vw,8px);">
+        </div>
+        <div>
+          <label style="color:#a5d6a7;font-family:Arial;font-size:clamp(10px,1.8vw,13px);display:block;margin-bottom:clamp(3px,0.5vh,6px);font-weight:bold;letter-spacing:.5px;">BANK</label>
+          <input id="edit-bank" type="text" placeholder="Nama Bank" style="width:100%;box-sizing:border-box;font-size:clamp(11px,2vw,15px);height:clamp(28px,4.5vh,44px);padding:0 clamp(6px,1.2vw,12px);background:#243d14;border:1px solid #2e4a1e;color:#fff;border-radius:clamp(4px,0.8vw,8px);">
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:clamp(6px,1.2vh,14px) clamp(10px,2.5vw,24px);width:100%;box-sizing:border-box;">
+        <div>
+          <label style="color:#a5d6a7;font-family:Arial;font-size:clamp(10px,1.8vw,13px);display:block;margin-bottom:clamp(3px,0.5vh,6px);font-weight:bold;letter-spacing:.5px;">NO. HP</label>
+          <input id="edit-nohp" type="text" placeholder="No. HP" style="width:100%;box-sizing:border-box;font-size:clamp(11px,2vw,15px);height:clamp(28px,4.5vh,44px);padding:0 clamp(6px,1.2vw,12px);background:#243d14;border:1px solid #2e4a1e;color:#fff;border-radius:clamp(4px,0.8vw,8px);">
+        </div>
+        <div>
+          <label style="color:#a5d6a7;font-family:Arial;font-size:clamp(10px,1.8vw,13px);display:block;margin-bottom:clamp(3px,0.5vh,6px);font-weight:bold;letter-spacing:.5px;">EMAIL</label>
+          <input id="edit-email" type="text" placeholder="Alamat Email" style="width:100%;box-sizing:border-box;font-size:clamp(11px,2vw,15px);height:clamp(28px,4.5vh,44px);padding:0 clamp(6px,1.2vw,12px);background:#243d14;border:1px solid #2e4a1e;color:#fff;border-radius:clamp(4px,0.8vw,8px);">
+        </div>
+      </div>
+
     </div>
-    <div id="admin-nama-list" style="display:flex;flex-direction:column;gap:5px;"></div>
-  </div>
-  <div style="padding:8px 14px;border-top:1px solid #1a3a0e;flex-shrink:0;">
-    <div style="font-size:8px;color:#aaa;font-weight:bold;letter-spacing:1px;margin-bottom:4px;">TERPILIH: <span id="admin-count">0</span> orang</div>
-    <div id="admin-selected-tags" style="display:flex;flex-wrap:wrap;gap:4px;max-height:50px;overflow-y:auto;"></div>
-  </div>
-  <div style="padding:10px 14px;background:#243d14;border-top:1px solid #2e4a1e;display:flex;gap:8px;flex-shrink:0;">
-    <button onclick="adminCetak()" style="flex:1;padding:7px 0;background:#1b5e20;color:#fff;border:none;border-radius:5px;font-family:Arial;font-size:8pt;font-weight:bold;cursor:pointer;">🖨 CETAK</button>
-    <button onclick="simpanDaftarCetak()" style="flex:1;padding:7px 0;background:#2e7d32;color:#fff;border:none;border-radius:5px;font-family:Arial;font-size:8pt;font-weight:bold;cursor:pointer;">💾 SIMPAN</button>
+
+    <!-- FOOTER -->
+    <div style="padding:clamp(6px,1.2vh,14px) clamp(10px,2.5vw,24px);background:#243d14;border-top:1px solid #2e4a1e;display:flex;justify-content:flex-end;gap:clamp(6px,1.5vw,14px);flex-shrink:0;">
+      <button onclick="closeEditModal()" style="padding:clamp(5px,1vh,10px) clamp(10px,2.5vw,22px);background:transparent;border:1px solid #2e4a1e;color:#aaa;border-radius:clamp(4px,0.8vw,8px);font-family:Arial;font-size:clamp(11px,2vw,14px);cursor:pointer;">BATAL</button>
+      <button onclick="applyEditData()" style="padding:clamp(5px,1vh,10px) clamp(10px,2.5vw,22px);background:#2e7d32;border:none;color:#fff;border-radius:clamp(4px,0.8vw,8px);font-family:Arial;font-size:clamp(11px,2vw,14px);font-weight:bold;cursor:pointer;">TERAPKAN &amp; SIMPAN</button>
+    </div>
+
   </div>
 </div>
 
 <div id="custom-alert"><div id="custom-alert-box"></div></div>
 
-<script src="../js/timesheet.js"></script>
-<script src="../js/timesheetDC.js"></script>
+<!-- MODAL ADMIN PASSWORD -->
+<div id="modal-admin" style="display:none;position:fixed;inset:0;z-index:9999999;background:rgba(0,0,0,.7);align-items:center;justify-content:center;">
+  <div style="width:340px;background:#1a0d2e;border:1px solid #6a1b9a;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.8);overflow:hidden;font-family:Arial,sans-serif;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:#2d1048;border-bottom:1px solid #4a1070;">
+      <div style="color:#ce93d8;font-weight:bold;font-size:11pt;letter-spacing:1px;">🔐 LOGIN ADMIN</div>
+      <button onclick="closeAdminModal()" style="background:none;border:none;color:#ce93d8;font-size:18px;cursor:pointer;">&times;</button>
+    </div>
+    <div style="padding:20px 18px;display:flex;flex-direction:column;gap:12px;">
+      <input id="admin-password-input" type="password" placeholder="Password admin..."
+        style="background:#0d0018;border:1.5px solid #445;border-radius:6px;color:#fff;font-family:Arial;font-size:10pt;padding:8px 12px;outline:none;transition:border-color .2s;"
+        onfocus="_adminInputFocus(this,true)" onblur="_adminInputFocus(this,false)"
+        oninput="_adminInputEffect(this)"
+        onkeydown="if(event.key==='Enter')verifyAdminPassword()">
+      <div id="admin-error" style="display:none;color:#e74c3c;font-size:8pt;text-align:center;font-weight:bold;">Password salah!</div>
+      <button id="btn-masuk-admin" onclick="verifyAdminPassword()"
+        style="width:100%;padding:8px 0;background:#8e44ad;border:none;color:#fff;border-radius:6px;font-family:Arial;font-size:10pt;font-weight:bold;cursor:pointer;transition:background .2s;">
+        MASUK
+      </button>
+    </div>
+  </div>
+</div>
 
+<!-- ADMIN PANEL (slide-in) -->
+<div id="admin-panel" style="display:block;position:fixed;top:0;right:-800px;height:100vh;background:#1a0d2e;border-left:1px solid #4a1070;z-index:999998;overflow-y:auto;transition:right .3s ease;box-shadow:-4px 0 24px rgba(0,0,0,.6);font-family:Arial,sans-serif;">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:#2d1048;border-bottom:1px solid #4a1070;position:sticky;top:0;z-index:1;">
+    <div style="color:#ce93d8;font-weight:bold;font-size:11pt;letter-spacing:1px;">⚙ PANEL ADMIN</div>
+    <button onclick="toggleAdminPanel()" style="background:none;border:none;color:#ce93d8;font-size:18px;cursor:pointer;">&times;</button>
+  </div>
+  <div style="padding:16px 18px;display:flex;flex-direction:column;gap:14px;">
+    <div>
+      <label style="font-size:8px;font-weight:bold;color:#ce93d8;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Pilih Unit</label>
+      <select id="admin-unit-select" onchange="buildAdminNamaList()"
+        style="width:100%;background:#0d0018;border:1.5px solid #445;border-radius:6px;color:#fff;font-family:Arial;font-size:9pt;padding:7px 10px;outline:none;">
+        <option value="">— Pilih Unit —</option>
+      </select>
+    </div>
+    <div>
+      <label style="font-size:8px;font-weight:bold;color:#ce93d8;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Daftar Nama</label>
+      <div id="admin-nama-list" style="display:flex;flex-direction:column;gap:4px;max-height:30vh;overflow-y:auto;"></div>
+    </div>
+    <div>
+      <label style="font-size:8px;font-weight:bold;color:#ce93d8;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Terpilih (<span id="admin-count">0</span>)</label>
+      <div id="admin-selected-tags" style="display:flex;flex-wrap:wrap;gap:5px;"></div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button onclick="adminCetak()"
+        style="flex:1;padding:8px 0;background:#8e44ad;border:none;color:#fff;border-radius:6px;font-family:Arial;font-size:9pt;font-weight:bold;cursor:pointer;">
+        🖨 CETAK
+      </button>
+      <button onclick="adminDownloadPdf()"
+        style="flex:1;padding:8px 0;background:#1565c0;border:none;color:#fff;border-radius:6px;font-family:Arial;font-size:9pt;font-weight:bold;cursor:pointer;">
+        ⬇ PDF
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// =====================================================================
+// KONFIGURASI
+// =====================================================================
+const GAS_URL         = 'https://script.google.com/macros/s/AKfycbxCT9hMfzXw6y2ruQD8Wr9L3D83rspDGjCk31nVW96W6bZJKNGU13oKljYUE16sfWgtFg/exec';
+const GAS_PERSONIL_URL = 'https://script.google.com/macros/s/AKfycbwOnFO2TxMuqSsZqcFBBwDQCl-vih098DzGi54XyToJzht5RmgO3PApEyFtTP5cSBGNQA/exec';
+
+const BULAN = ['JANUARI','FEBRUARI','MARET','APRIL','MEI','JUNI',
+               'JULI','AGUSTUS','SEPTEMBER','OKTOBER','NOVEMBER','DESEMBER'];
+
+const SHIFT_MAPPING = {
+  'P'   : { mulai:'07:00', selesai:'15:00' },
+  'S'   : { mulai:'15:00', selesai:'23:00' },
+  'M'   : { mulai:'23:00', selesai:'07:00' },
+  'P12' : { mulai:'07:00', selesai:'19:00', lemburMulai:'16:00', lemburSelesai:'19:00' },
+  'M12' : { mulai:'19:00', selesai:'07:00', lemburMulai:'04:00', lemburSelesai:'07:00' },
+  'MR'  : { mulai:'19:00', selesai:'07:00', lemburMulai:'04:00', lemburSelesai:'07:00' },
+  'OFF' : { mulai:'OFF',  selesai:'OFF',  style:'background:#000 !important;color:#fff !important;font-weight:bold;text-align:center;' },
+  'CUTI': { mulai:'CUTI', selesai:'CUTI', style:'color:#FFD700;font-weight:bold;text-align:center;' },
+  'SAKIT': { mulai:'SAKIT', selesai:'SAKIT', style:'color:#ff6b6b;font-weight:bold;text-align:center;' }
+};
+
+const STATIC_DATA = {
+  "AKMIL"           : ["DWI SARMANTO","DENI WILIANTORO","MIFTAKHUL KHUSNA","TAOFIK"],
+  "BANDONGAN"       : ["AGUS SYAFARUDIN","IWAN SETIAWAN","MUHAMAD KHOIRUL UMAM"],
+  "BOROBUDUR"       : ["EKO SUSANTO","KURNIAWAN SANTOSO","OKTA DINOVAN SAVANTINO","ARIS WIDIYANTO"],
+  "BOTTON"          : ["AHMADMUSTAKIM","ARI HENDIKA PRABOWO","ARIK BOWO"],
+  "CANDIMULYO"      : ["DWI SETIA KURNIAWAN","ARIF GUNAWAN","MUHAMMAD IRFANDI"],
+  "GLAGAH"          : ["ARGO BAGIYONO","RACHMAT KARIM","HERU SUSANTO"],
+  "GRABAG"          : ["HERI PURWANTO","DAVID ZULFIKAR","FATKHUROHMAN","SIYONO"],
+  "KAJORAN"         : ["RUTNO SURDIYANTO","AHMAD TAUFIQ","MUHAMMAD ADI PUTRA PANGESTU"],
+  "KALIANGKRIK"     : ["ARY YULIANTO","BAGAS INDRASTATA","WAHYU DINAR WICAKSONO"],
+  "KARANG GADING"   : ["AHMAD PRIYO WIDODO","ROBBY FAUZI","PRAYAN DWI RATMOKO"],
+  "KC MAGELANG"     : ["AGUNG TRI LUNGGONO","NELSON TURE SILITONGA","ARIF PURWANTO","GIGIH ARYOSENO","LUTHFI ZAENUL MUTTAQIN","SARYONO","EDI LISTIYAWAN","IRFAN SURYADIN","AGUS SUGIYONO","JOKO PRIYONO","MUHAMMAD ROSIDIN","DARMADI"],
+  "KCP SHOPPING"    : ["EKO ROYO HARYONO","M.SULISTYO","NUNGKI SEPTIYANTO"],
+  "KRASAK"          : ["BAGAS ANUGRAH IMAN","WISNU AJI NUGROHO","DIMAS TEGUH PUTRO RAHARJO"],
+  "MAGELANG SELATAN": ["EKO RISTIAWAN","SODIKIN","CHANDRA FANDI PRADANA"],
+  "MAGELANG UTARA"  : ["ADI KURNIAWAN","RONGGO WAHYUDI","DWI ERIYANTO"],
+  "MERTOYUDAN"      : ["IVAN AGUNG NUGROHO","SAEFUDIN","ADI NUR ROHMAN"],
+  "NGABLAK"          : ["WORO DWI SULISTYO","HARDI SANTOSO","AHMAD NUR EFENDI"],
+  "PAKIS"           : ["AJI MARDIANTO","DESTIONO PUTRA RAHAYU","SUPRIYONO"],
+  "PAYAMAN"         : ["DEFRI TRI PUTRA","ERLIN ADITYA","ASMARA TRIHARTANTO"],
+  "REJOWINANGUN"    : ["MOHAMAD SHOIMAN","UNTUNG TRIYONO","DANIEL KRISDIANTORO","TRI SUTARDI"],
+  "SALAMAN"         : ["IMAM WICAKSONO","MUHAMMAD RIFA'I","GUNAWAN ROJA'I","SURYADI"],
+  "SECANG"          : ["AGUS AZIZANA BANGKIT ANUGRAH","NANDA YULIE ALFIAN","UMAM IKHSANUDIN","IMAM SANTOSO"],
+  "SUKARNO HATTA"   : ["AHMAD ROBIYANTO","WAHID WAHYUDI","S. DARMANTO"],
+  "TEGALREJO"       : ["WAHID BUDI W","DWI HERIYANTO","FAISAL ANJUN HUASAN WAWIJDAN","REYNALDI RAMA DANI"],
+  "TEMPURAN"        : ["SUPRIYONO 321110315","RAFLI BAYU SATRIO","ADI NUGROHO"],
+  "WINDUSARI"       : ["ARIFIN","ANSHARI DWI CAHYONO","RACHMAN EFFENDI"]
+};
+
+// =====================================================================
+// UTILS
+// =====================================================================
+let personilData = [];
+
+function singkatNama(nama) {
+  const parts = nama.trim().split(/\s+/);
+  if (parts.length <= 2) return nama;
+  return parts[0] + ' ' + parts[1] + ' ' + parts.slice(2).map(w => w[0] + '.').join('');
+}
+function namaLengkap3(nama) {
+  const parts = nama.trim().split(/\s+/);
+  if (parts.length <= 3) return parts.join(' ');
+  return parts.slice(0,3).join(' ') + ' ' + parts.slice(3).map(w => w[0] + '.').join('');
+}
+function formatTanggal(val) {
+  if (!val) return '';
+  const d = new Date(val);
+  if (isNaN(d.getTime())) return String(val);
+  return d.getDate() + ' ' + BULAN[d.getMonth()] + ' ' + d.getFullYear();
+}
+function showLoading(txt) {
+  document.getElementById('loading-text').textContent = txt || 'Memuat data...';
+  document.getElementById('loading-overlay').classList.add('active');
+}
+function hideLoading() { document.getElementById('loading-overlay').classList.remove('active'); }
+function showAlert(msg, dur) {
+  const el = document.getElementById('custom-alert');
+  document.getElementById('custom-alert-box').textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), dur || 3000);
+}
+function setDlStatus(state, msg) {
+  const el = document.getElementById('dl-status');
+  el.className = state ? 'show ' + state : '';
+  el.innerHTML = state === 'loading'
+    ? '<div class="dl-spinner"></div><span>' + msg + '</span>'
+    : '<span>' + msg + '</span>';
+}
+function enableDownload(ok) {
+  ['btn-pdf','btn-print'].forEach(id => {
+    const b = document.getElementById(id);
+    b.style.opacity = ok ? '1' : '0.5';
+    b.style.pointerEvents = ok ? 'auto' : 'none';
+  });
+}
+function enableEdit(ok) {
+  const b = document.getElementById('btn-edit-data');
+  b.style.opacity = ok ? '1' : '0.5';
+  b.style.pointerEvents = ok ? 'auto' : 'none';
+}
+
+// =====================================================================
+// CDD (Custom Dropdown)
+// =====================================================================
+function createCDD(id, onSelect, defaultText) {
+  const cdd    = document.getElementById(id);
+  const textEl = cdd.querySelector('.cdd-text');
+  const list   = cdd.querySelector('.cdd-list');
+  let selected = null;
+
+  function buildItems(arr, cols) {
+    list.innerHTML = '';
+    const inner = document.createElement('div');
+    inner.className = 'cdd-list-inner';
+    if (cols) inner.style.gridTemplateColumns = 'repeat(' + cols + ', 1fr)';
+    arr.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'cdd-item' + (item.value === selected ? ' selected' : '');
+      div.textContent = item.label;
+      div.dataset.value = item.value;
+      div.title = item.label;
+      div.addEventListener('click', e => {
+        e.stopPropagation();
+        selected = item.value;
+        textEl.textContent = item.label;
+        inner.querySelectorAll('.cdd-item').forEach(d => d.classList.toggle('selected', d.dataset.value === selected));
+        closeCDD(cdd);
+        onSelect(item.value, item.label);
+      });
+      inner.appendChild(div);
+    });
+    list.appendChild(inner);
+  }
+
+  cdd._buildItems = buildItems;
+  cdd._reset = (t) => { selected = null; textEl.textContent = t || defaultText; list.innerHTML = ''; };
+  cdd._getValue = () => selected;
+  cdd._setValue = (val, label) => { selected = val; textEl.textContent = label || val; };
+
+  cdd.querySelector('.cdd-selected').addEventListener('click', e => {
+    e.stopPropagation();
+    if (cdd.classList.contains('cdd-disabled')) return;
+    const isOpen = cdd.classList.contains('open');
+    closeAllCDD();
+    if (!isOpen) {
+      cdd.classList.add('open');
+      const rect  = cdd.getBoundingClientRect();
+      const listEl = cdd.querySelector('.cdd-list');
+      let listW = id === 'cdd-unit' ? Math.min(360, window.innerWidth * .75) : Math.min(240, window.innerWidth * .55);
+      listEl.style.width  = listW + 'px';
+      listEl.style.bottom = (window.innerHeight - rect.top + 6) + 'px';
+      listEl.style.top    = 'auto';
+      listEl.style.left   = Math.max(8, (window.innerWidth - listW) / 2) + 'px';
+      listEl.style.right  = 'auto';
+    }
+  });
+  return cdd;
+}
+function closeAllCDD() { document.querySelectorAll('.cdd.open').forEach(d => d.classList.remove('open')); }
+function closeCDD(el)  { el.classList.remove('open'); }
+document.addEventListener('click', closeAllCDD);
+
+// =====================================================================
+// INIT DROPDOWNS
+// =====================================================================
+let currentBulan = 0, currentTahun = 0;
+
+const cddPeriode = createCDD('cdd-periode', (val) => {
+  const [m, y] = val.split('-').map(Number);
+  currentBulan = m; currentTahun = y;
+  const lastDay = new Date(y, m, 0).getDate();
+  document.getElementById('fill-periode').textContent = '1 s/d ' + lastDay + ' ' + BULAN[m-1] + ' ' + y;
+  fillTanggal(m, y);
+  fillTable();
+}, '— Pilih —');
+
+const cddNama = createCDD('cdd-nama', () => {
+  enableEdit(true);
+  enableDownload(true);
+  setDlStatus('', '');
+  fillTable();
+}, '— Pilih Nama —');
+
+const cddUnit = createCDD('cdd-unit', (val) => {
+  resetTable();
+  const noPrefix = ['KC MAGELANG','KCP SHOPPING'];
+  document.getElementById('fill-lokasi').textContent = noPrefix.includes(val) ? val : 'UNIT ' + val;
+  const names = (STATIC_DATA[val] || []).slice().sort((a,b) => a.localeCompare(b,'id'));
+  cddNama._reset('— Pilih Nama —');
+  cddNama.classList.add('cdd-disabled');
+  enableEdit(false); enableDownload(false);
+  if (names.length) {
+    cddNama._buildItems(names.map(n => ({ value: n, label: n })), 2);
+    cddNama.classList.remove('cdd-disabled');
+  }
+}, '— Pilih Unit —');
+
+function buildPeriode() {
+  const now = new Date();
+  const items = [-1, 0, 1].map(i => {
+    const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+    return { value: (d.getMonth()+1) + '-' + d.getFullYear(), label: BULAN[d.getMonth()] + ' ' + d.getFullYear() };
+  });
+  cddPeriode._buildItems(items, 1);
+  const def = items[1];
+  cddPeriode._setValue(def.value, def.label);
+  const [m, y] = def.value.split('-').map(Number);
+  currentBulan = m; currentTahun = y;
+  const lastDay = new Date(y, m, 0).getDate();
+  document.getElementById('fill-periode').textContent = '1 s/d ' + lastDay + ' ' + BULAN[m-1] + ' ' + y;
+  fillTanggal(m, y);
+}
+
+function buildUnit() {
+  const units = Object.keys(STATIC_DATA).sort((a,b) => a.localeCompare(b,'id'));
+  cddUnit._buildItems(units.map(u => ({ value: u, label: u })), 3);
+}
+
+// =====================================================================
+// LIBUR NASIONAL INDONESIA
+// =====================================================================
+const LIBUR_NASIONAL = {
+  // 2025
+  '2025-1-1'  : 'TAHUN BARU MASEHI',
+  '2025-1-27' : 'ISRA MIRAJ NABI MUHAMMAD',
+  '2025-1-28' : 'TAHUN BARU IMLEK 2576',
+  '2025-1-29' : 'CUTI BERSAMA IMLEK',
+  '2025-3-27' : 'CUTI BERSAMA NYEPI',
+  '2025-3-28' : 'HARI SUCI NYEPI',
+  '2025-3-31' : 'IDUL FITRI 1446 H',
+  '2025-4-1'  : 'IDUL FITRI 1446 H',
+  '2025-4-2'  : 'CUTI BERSAMA IDUL FITRI',
+  '2025-4-3'  : 'CUTI BERSAMA IDUL FITRI',
+  '2025-4-4'  : 'CUTI BERSAMA IDUL FITRI',
+  '2025-4-7'  : 'CUTI BERSAMA IDUL FITRI',
+  '2025-4-18' : 'WAFAT YESUS KRISTUS',
+  '2025-4-20' : 'KEBANGKITAN YESUS KRISTUS',
+  '2025-5-1'  : 'HARI BURUH INTERNASIONAL',
+  '2025-5-12' : 'HARI RAYA WAISAK 2569 BE',
+  '2025-5-13' : 'CUTI BERSAMA WAISAK',
+  '2025-5-29' : 'KENAIKAN YESUS KRISTUS',
+  '2025-6-1'  : 'HARI LAHIR PANCASILA',
+  '2025-6-6'  : 'IDUL ADHA 1446 H',
+  '2025-6-27' : 'TAHUN BARU ISLAM 1447 H',
+  '2025-8-17' : 'PROKLAMASI KEMERDEKAAN RI',
+  '2025-9-5'  : 'MAULID NABI MUHAMMAD SAW',
+  '2025-12-25': 'HARI NATAL',
+  '2025-12-26': 'CUTI BERSAMA NATAL',
+  // 2026
+  '2026-1-1'  : 'TAHUN BARU MASEHI',
+  '2026-1-16' : 'ISRA MIRAJ NABI MUHAMMAD',
+  '2026-2-16' : 'CUTI BERSAMA IMLEK',
+  '2026-2-17' : 'TAHUN BARU IMLEK 2577',
+  '2026-3-18' : 'CUTI BERSAMA NYEPI',
+  '2026-3-19' : 'HARI SUCI NYEPI',
+  '2026-3-20' : 'IDUL FITRI 1447 H',
+  '2026-3-21' : 'IDUL FITRI 1447 H',
+  '2026-3-22' : 'IDUL FITRI 1447 H',
+  '2026-3-23' : 'CUTI BERSAMA IDUL FITRI',
+  '2026-3-24' : 'CUTI BERSAMA IDUL FITRI',
+  '2026-4-3'  : 'WAFAT YESUS KRISTUS',
+  '2026-4-5'  : 'KEBANGKITAN YESUS KRISTUS',
+  '2026-5-1'  : 'HARI BURUH INTERNASIONAL',
+  '2026-5-14' : 'KENAIKAN YESUS KRISTUS',
+  '2026-5-15' : 'CUTI BERSAMA KENAIKAN',
+  '2026-5-27' : 'IDUL ADHA 1447 H',
+  '2026-5-28' : 'CUTI BERSAMA IDUL ADHA',
+  '2026-5-31' : 'HARI RAYA WAISAK 2570 BE',
+  '2026-6-1'  : 'HARI LAHIR PANCASILA',
+  '2026-6-16' : 'TAHUN BARU ISLAM 1448 H',
+  '2026-8-17' : 'PROKLAMASI KEMERDEKAAN RI',
+  '2026-8-25' : 'MAULID NABI MUHAMMAD SAW',
+  '2026-12-24': 'CUTI BERSAMA NATAL',
+  '2026-12-25': 'HARI NATAL',
+};
+function isLibur(year, month, day) {
+  return LIBUR_NASIONAL[year + '-' + month + '-' + day] || null;
+}
+
+function fillTanggal(month, year) {
+  const lastDay = new Date(year, month, 0).getDate();
+  for (let i = 1; i <= 31; i++) {
+    const el = document.getElementById('tgl-' + i);
+    if (!el) continue;
+    const row = el.parentElement;
+    const ketEl = row.querySelectorAll('td')[12];
+    el.classList.remove('tgl-empty','tgl-weekend','tgl-libur');
+    el.style.color = '';
+    if (i <= lastDay) {
+      const dow     = new Date(year, month-1, i).getDay();
+      const namaLibur = isLibur(year, month, i);
+      el.textContent = i;
+      if (namaLibur) {
+        el.classList.add('tgl-libur');
+      } else if (dow === 0 || dow === 6) {
+        el.classList.add('tgl-weekend');
+      }
+      if (ketEl && !ketEl.dataset.filled) {
+        ketEl.textContent = '';
+        ketEl.className = i === 31 ? 's17' : 's15';
+        if (namaLibur) {
+          ketEl.textContent = namaLibur;
+          ketEl.classList.add('keterangan-libur');
+        } else if (dow === 6) {
+          ketEl.textContent = 'SABTU';
+          ketEl.classList.add('keterangan-sabtu');
+        } else if (dow === 0) {
+          ketEl.textContent = 'MINGGU';
+          ketEl.classList.add('keterangan-minggu');
+        }
+      }
+    } else {
+      el.textContent = '';
+      el.classList.add('tgl-empty');
+      if (ketEl) ketEl.textContent = '';
+    }
+  }
+}
+
+// =====================================================================
+// LOAD PERSONIL
+// =====================================================================
+async function loadPersonil() {
+  try {
+    const res = await fetch(GAS_PERSONIL_URL, {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' }
+    });
+    const data = await res.json();
+    // GAS kadang membungkus dalam { data: [...] } atau langsung array
+    personilData = Array.isArray(data) ? data : (data.data || []);
+  } catch(e) { console.warn('Gagal load personil:', e); personilData = []; }
+}
+
+// =====================================================================
+// FILL TABLE
+// =====================================================================
+function fillTable() {
+  const nama  = cddNama._getValue();
+  const unit  = cddUnit._getValue();
+  if (!nama) return;
+
+  const p = personilData.find(d => (d['NAMA'] || '').trim() === nama);
+  const fill = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val || ''; };
+
+  fill('fill-proyek', 'BRI KANCA MAGELANG');
+  fill('fill-nama', singkatNama(nama));
+  const noPrefix = ['KC MAGELANG','KCP SHOPPING'];
+  fill('fill-lokasi', unit ? (noPrefix.includes(unit) ? unit : 'UNIT ' + unit) : '');
+
+  const secEl = document.getElementById('fill-security-nama');
+  if (secEl) secEl.innerHTML = '<span style="color:#004B87;font-weight:bold;font-size:6pt;font-family:Arial;white-space:normal;line-height:1.2;">' + namaLengkap3(nama) + '</span>';
+
+  if (p) {
+    fill('fill-noreg',    p['NO_REG'] || '');
+    fill('fill-tglmasuk', formatTanggal(p['TGL_MASUK']));
+    fill('fill-norek',    p['NO_REK'] || '');
+    fill('fill-bank',     p['BANK'] || p['Bank'] || '');
+    fill('fill-nohp',     p['NO. HP'] || '');
+    fill('fill-email',    p['ALAMAT EMAIL'] || '');
+  }
+
+  if (currentBulan && unit) loadJadwal(currentBulan, currentTahun, unit, nama);
+}
+
+// =====================================================================
+// RESET TABLE
+// =====================================================================
+function resetTable() {
+  for (let i = 1; i <= 31; i++) {
+    const tglEl = document.getElementById('tgl-' + i);
+    if (!tglEl) continue;
+    const cells = tglEl.parentElement.querySelectorAll('td');
+    for (let c = 1; c <= 4; c++) { if (cells[c]) { cells[c].textContent = ''; cells[c].removeAttribute('style'); } }
+    tglEl.removeAttribute('style');
+    if (cells[12]) { cells[12].textContent = ''; cells[12].className = i === 31 ? 's17' : 's15'; delete cells[12].dataset.filled; }
+    if (currentBulan && i <= new Date(currentTahun, currentBulan, 0).getDate()) {
+      const dow = new Date(currentTahun, currentBulan-1, i).getDay();
+      const namaLibur = isLibur(currentTahun, currentBulan, i);
+      tglEl.classList.remove('tgl-weekend','tgl-libur');
+      if (namaLibur) tglEl.classList.add('tgl-libur');
+      else if (dow === 0 || dow === 6) tglEl.classList.add('tgl-weekend');
+      if (cells[12]) {
+        if (namaLibur) { cells[12].textContent = namaLibur; cells[12].classList.add('keterangan-libur'); }
+        else if (dow === 6) { cells[12].textContent = 'SABTU'; cells[12].classList.add('keterangan-sabtu'); }
+        else if (dow === 0) { cells[12].textContent = 'MINGGU'; cells[12].classList.add('keterangan-minggu'); }
+      }
+    }
+  }
+  document.getElementById('fill-harikerja').textContent = '0';
+}
+
+// =====================================================================
+// LOAD JADWAL dari GAS-JADWAL
+// =====================================================================
+async function loadJadwal(bulan, tahun, unit, nama) {
+  resetTable();
+  showLoading('Memuat jadwal...');
+  const timeout = setTimeout(hideLoading, 15000);
+  try {
+    const url = GAS_URL + '?action=getJadwal&mode=PEN&bulan=' + bulan + '&tahun=' + tahun + '&unit=' + encodeURIComponent(unit);
+    const res  = await fetch(url);
+    const data = await res.json();
+    if (!data || data.success === false) { showAlert('Data jadwal tidak tersedia.'); return; }
+
+    const normalize = s => s.trim().toUpperCase().replace(/\s+/g,' ');
+    const personil  = (data.personil || []).find(p => normalize(p.nama || '') === normalize(nama));
+    if (!personil) return;
+
+    fillAbsensiTable(personil.jadwal || [], bulan, tahun);
+  } catch(e) {
+    console.error('loadJadwal error:', e);
+  } finally {
+    clearTimeout(timeout);
+    hideLoading();
+  }
+}
+
+// =====================================================================
+// FILL ABSENSI TABLE
+// =====================================================================
+function fillAbsensiTable(jadwal, bulan, tahun) {
+  const lastDay = new Date(tahun, bulan, 0).getDate();
+  let hk = 0;
+
+  for (let i = 1; i <= 31; i++) {
+    const tglEl = document.getElementById('tgl-' + i);
+    if (!tglEl) continue;
+    const cells = tglEl.parentElement.querySelectorAll('td');
+    if (cells.length < 13) continue;
+
+    const dow        = new Date(tahun, bulan-1, i).getDay();
+    const isWeekend  = dow === 0 || dow === 6;
+    const namaHari   = dow === 6 ? 'SABTU' : dow === 0 ? 'MINGGU' : '';
+    const namaLibur  = i <= lastDay ? isLibur(tahun, bulan, i) : null;
+    const ketEl      = cells[12];
+
+    for (let c = 1; c <= 4; c++) { cells[c].textContent = ''; cells[c].removeAttribute('style'); }
+    tglEl.removeAttribute('style');
+    tglEl.classList.remove('tgl-weekend','tgl-libur');
+    ketEl.textContent = ''; ketEl.className = i === 31 ? 's17' : 's15'; delete ketEl.dataset.filled;
+
+    if (i > lastDay) continue;
+
+    // warna tanggal
+    if (namaLibur) tglEl.classList.add('tgl-libur');
+    else if (isWeekend) tglEl.classList.add('tgl-weekend');
+
+    const kode  = String(jadwal[i-1] || '').trim().toUpperCase();
+    const shift = SHIFT_MAPPING[kode] || null;
+
+    if (!shift) {
+      if (namaLibur) { ketEl.textContent = namaLibur; ketEl.classList.add('keterangan-libur'); }
+      else if (isWeekend) { ketEl.textContent = namaHari; ketEl.classList.add(dow === 6 ? 'keterangan-sabtu' : 'keterangan-minggu'); }
+      continue;
+    }
+
+    if (kode === 'OFF' || kode === 'CUTI' || kode === 'SAKIT') {
+      for (let c = 1; c <= 4; c++) { cells[c].textContent = shift.mulai; cells[c].style.cssText = shift.style || ''; }
+      tglEl.style.cssText = shift.style || '';
+      ketEl.dataset.filled = '1';
+      // *** FIX: OFF → kolom keterangan selalu kosong ***
+      // CUTI/SAKIT tetap tampilkan SABTU/MINGGU/libur seperti biasa
+      if (kode !== 'OFF') {
+        if (namaLibur) { ketEl.textContent = namaLibur; ketEl.classList.add('keterangan-libur'); }
+        else if (isWeekend) { ketEl.textContent = namaHari; ketEl.classList.add(dow === 6 ? 'keterangan-sabtu' : 'keterangan-minggu'); }
+      }
+    } else {
+      cells[1].textContent = shift.mulai;
+      cells[2].textContent = shift.selesai;
+      if (shift.lemburMulai) { cells[3].textContent = shift.lemburMulai; cells[4].textContent = shift.lemburSelesai; }
+      const colorStyle = namaLibur ? 'color:#cc0000;font-weight:bold;' : isWeekend ? 'color:#1b5e20;font-weight:bold;' : '';
+      if (colorStyle) {
+        cells[1].style.cssText = colorStyle; cells[2].style.cssText = colorStyle;
+        if (shift.lemburMulai) { cells[3].style.cssText = colorStyle; cells[4].style.cssText = colorStyle; }
+      }
+      if (namaLibur) { ketEl.textContent = namaLibur; ketEl.classList.add('keterangan-libur'); ketEl.dataset.filled = '1'; }
+      else if (isWeekend) { ketEl.textContent = namaHari; ketEl.classList.add(dow === 6 ? 'keterangan-sabtu' : 'keterangan-minggu'); ketEl.dataset.filled = '1'; }
+      hk++;
+    }
+  }
+  document.getElementById('fill-harikerja').textContent = hk;
+}
+
+// =====================================================================
+// DOWNLOAD via GAS-TIMESHEET
+// =====================================================================
+async function doDownload(format) {
+  const nama  = cddNama._getValue();
+  const unit  = cddUnit._getValue();
+  if (!nama || !unit || !currentBulan) return;
+
+  const bulanStr = BULAN[currentBulan-1] + ' ' + currentTahun;
+
+  setDlStatus('loading', 'Menyiapkan PDF...');
+  enableDownload(false);
+
+  const qs = 'action=downloadPdf' +
+    '&nama=' + encodeURIComponent(nama) +
+    '&bulan=' + encodeURIComponent(bulanStr) +
+    '&unit=' + encodeURIComponent(unit);
+
+  try {
+    const res  = await fetch(GAS_URL + '?' + qs);
+    const data = await res.json();
+
+    if (!data || data.status !== 'ok') {
+      setDlStatus('err', '✗ ' + (data ? data.message : 'Tidak ada respon'));
+      return;
+    }
+
+    const byteChars = atob(data.base64);
+    const byteArr   = new Uint8Array(byteChars.length);
+    for (let i = 0; i < byteChars.length; i++) byteArr[i] = byteChars.charCodeAt(i);
+    const blob = new Blob([byteArr], { type: 'application/pdf' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = data.filename;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+
+    setDlStatus('done', '✓ ' + data.filename + ' berhasil diunduh!');
+  } catch(e) {
+    setDlStatus('err', '✗ Gagal: ' + e.message);
+  } finally {
+    enableDownload(true);
+  }
+}
+
+// =====================================================================
+// MODAL EDIT DATA
+// =====================================================================
+function openEditModal() {
+  const nama = cddNama._getValue() || '';
+  const unit = cddUnit._getValue() || '';
+  if (!nama) return;
+  document.getElementById('edit-modal-subtitle').textContent = nama + (unit ? '  —  ' + unit : '');
+
+  // Ambil data LANGSUNG dari personilData, bukan dari DOM
+  // (DOM bisa kosong kalau personilData belum selesai load saat nama dipilih)
+  const p = personilData.find(d => (d['NAMA'] || '').trim().toUpperCase() === nama.trim().toUpperCase());
+
+  document.getElementById('edit-noreg').value = (p && p['NO_REG'])       ? p['NO_REG']       : (document.getElementById('fill-noreg').textContent || '');
+  document.getElementById('edit-norek').value = (p && p['NO_REK'])       ? p['NO_REK']       : (document.getElementById('fill-norek').textContent || '');
+  document.getElementById('edit-bank').value  = (p && (p['BANK']||p['Bank'])) ? (p['BANK']||p['Bank']) : (document.getElementById('fill-bank').textContent  || '');
+  document.getElementById('edit-nohp').value  = (p && p['NO. HP'])       ? p['NO. HP']       : (document.getElementById('fill-nohp').textContent  || '');
+  document.getElementById('edit-email').value = (p && p['ALAMAT EMAIL']) ? p['ALAMAT EMAIL'] : (document.getElementById('fill-email').textContent  || '');
+
+  // Build dropdown tanggal & tahun
+  const selTgl = document.getElementById('edit-tgl-tgl');
+  const selThn = document.getElementById('edit-tgl-thn');
+  selTgl.innerHTML = '<option value="">Tgl</option>';
+  for (let d = 1; d <= 31; d++) selTgl.innerHTML += '<option>' + d + '</option>';
+  const tahunSkrg = new Date().getFullYear();
+  selThn.innerHTML = '<option value="">Tahun</option>';
+  for (let y = tahunSkrg; y >= 1990; y--) selThn.innerHTML += '<option>' + y + '</option>';
+
+  // Parse TGL_MASUK dari personilData mentah (sebelum diformat), lebih aman
+  let tglRaw = '';
+  if (p && p['TGL_MASUK']) {
+    // Coba parse sebagai Date dulu (format ISO: 2020-05-15 atau Date object dari GAS)
+    const d = new Date(p['TGL_MASUK']);
+    if (!isNaN(d.getTime())) {
+      selTgl.value = String(d.getDate());
+      document.getElementById('edit-tgl-bln').value = BULAN[d.getMonth()];
+      selThn.value = String(d.getFullYear());
+    } else {
+      // Fallback: parse dari string "15 MEI 2020" di DOM
+      tglRaw = (document.getElementById('fill-tglmasuk').textContent || '').trim();
+    }
+  } else {
+    tglRaw = (document.getElementById('fill-tglmasuk').textContent || '').trim();
+  }
+  if (tglRaw) {
+    const parts = tglRaw.split(/\s+/);
+    if (parts[0]) selTgl.value = parts[0];
+    if (parts[1]) document.getElementById('edit-tgl-bln').value = parts[1].toUpperCase();
+    if (parts[2]) selThn.value = parts[2];
+  }
+
+  document.getElementById('modal-overlay').style.display = 'flex';
+}
+
+function closeEditModal() { document.getElementById('modal-overlay').style.display = 'none'; }
+
+function applyEditData() {
+  const fillDom = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  const noreg   = document.getElementById('edit-noreg').value.trim();
+  const _t      = document.getElementById('edit-tgl-tgl').value;
+  const _b      = document.getElementById('edit-tgl-bln').value;
+  const _y      = document.getElementById('edit-tgl-thn').value;
+  const tglmasuk = (_t && _b && _y) ? _t + ' ' + _b + ' ' + _y : '';
+  const norek   = document.getElementById('edit-norek').value.trim();
+  const bank    = document.getElementById('edit-bank').value.trim();
+  const nohp    = document.getElementById('edit-nohp').value.trim();
+  const email   = document.getElementById('edit-email').value.trim();
+  const nama    = cddNama._getValue() || '';
+  const lokasi  = cddUnit._getValue() || '';
+
+  const p = personilData.find(d => (d['NAMA'] || '').trim().toUpperCase() === nama.trim().toUpperCase());
+
+  // Update DOM
+  fillDom('fill-noreg', noreg); fillDom('fill-tglmasuk', tglmasuk);
+  fillDom('fill-norek', norek); fillDom('fill-bank', bank);
+  fillDom('fill-nohp',  nohp);  fillDom('fill-email', email);
+
+  // Update cache personilData lokal
+  const idx = personilData.findIndex(d => (d['NAMA'] || '').trim().toUpperCase() === nama.toUpperCase());
+  if (idx >= 0) {
+    personilData[idx]['NO_REG']       = noreg;
+    personilData[idx]['TGL_MASUK']    = tglmasuk;
+    personilData[idx]['NO_REK']       = norek;
+    personilData[idx]['BANK']         = bank;
+    personilData[idx]['NO. HP']       = nohp;
+    personilData[idx]['ALAMAT EMAIL'] = email;
+  }
+
+  closeEditModal();
+  showLoading('Menyimpan data...');
+
+  const payload = JSON.stringify({
+    action:   'SAVE_TIMESHEET',
+    id:       p ? (p['ID'] || '') : '',
+    nama,
+    noreg,
+    lokasi,
+    hp:       nohp,
+    email,
+    tglMasuk: tglmasuk,
+    norek,
+    bank
+  });
+
+  fetch(GAS_PERSONIL_URL + '?action=SAVE_TIMESHEET&data=' + encodeURIComponent(payload))
+  .then(r => r.json())
+  .then(d => {
+    hideLoading();
+    showAlert(d.success ? '✔ Data berhasil disimpan.' : '✘ Gagal: ' + (d.message || 'Unknown error'));
+  })
+  .catch(err => {
+    hideLoading();
+    showAlert('✘ Gagal menyimpan: ' + err.message);
+  });
+}
+// =====================================================================
+// NAVIGASI
+// =====================================================================
+function kembali() { window.history.back(); }
+
+// =====================================================================
+// CETAK
+// =====================================================================
+async function cetakForm() {
+  const nama  = cddNama._getValue();
+  const unit  = cddUnit._getValue();
+  if (!nama || !unit || !currentBulan) return;
+
+  const bulanStr = BULAN[currentBulan-1] + ' ' + currentTahun;
+
+  setDlStatus('loading', 'Menyiapkan cetak...');
+  enableDownload(false);
+
+  const qs = 'action=downloadPdf'
+    + '&nama='  + encodeURIComponent(nama)
+    + '&bulan=' + encodeURIComponent(bulanStr)
+    + '&unit='  + encodeURIComponent(unit);
+
+  try {
+    const res  = await fetch(GAS_URL + '?' + qs);
+    const data = await res.json();
+
+    if (!data || data.status !== 'ok') {
+      setDlStatus('err', '✗ ' + (data ? data.message : 'Tidak ada respon'));
+      return;
+    }
+
+    const byteChars = atob(data.base64);
+    const byteArr   = new Uint8Array(byteChars.length);
+    for (let i = 0; i < byteChars.length; i++) byteArr[i] = byteChars.charCodeAt(i);
+    const blob    = new Blob([byteArr], { type: 'application/pdf' });
+    const blobUrl = URL.createObjectURL(blob);
+    const win     = window.open(blobUrl, '_blank');
+    if (!win) {
+      const a = document.createElement('a');
+      a.href = blobUrl; a.download = data.filename;
+      document.body.appendChild(a); a.click();
+      document.body.removeChild(a);
+    }
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+    setDlStatus('done', '✓ PDF siap — cetak dari tab yang terbuka');
+  } catch(e) {
+    setDlStatus('err', '✗ Gagal: ' + e.message);
+  } finally {
+    enableDownload(true);
+  }
+}
+
+// =====================================================================
+// ADMIN MODE
+// =====================================================================
+function _adminInputFocus(el, focused) {
+  el.style.borderColor = focused ? '#8e44ad' : '#445';
+  el.style.boxShadow   = focused ? '0 0 0 3px rgba(142,68,173,0.25)' : 'none';
+}
+function _adminInputEffect(el) {
+  const err = document.getElementById('admin-error');
+  if (err) { err.style.display = 'none'; err.style.animation = 'none'; }
+  el.style.borderColor = el.value ? '#8e44ad' : '#445';
+}
+function adminMode() {
+  const inp = document.getElementById('admin-password-input');
+  const err = document.getElementById('admin-error');
+  const btn = document.getElementById('btn-masuk-admin');
+  inp.value = '';
+  inp.style.borderColor = '#445';
+  inp.style.boxShadow   = 'none';
+  if (err) { err.style.display = 'none'; }
+  if (btn) { btn.textContent = 'MASUK'; btn.style.background = '#8e44ad'; btn.disabled = false; }
+  document.getElementById('modal-admin').style.display = 'flex';
+  setTimeout(() => inp.focus(), 150);
+}
+function closeAdminModal() {
+  document.getElementById('modal-admin').style.display = 'none';
+}
+async function verifyAdminPassword() {
+  const pw  = document.getElementById('admin-password-input').value.trim();
+  const btn = document.getElementById('btn-masuk-admin');
+  const err = document.getElementById('admin-error');
+  const inp = document.getElementById('admin-password-input');
+  if (!pw) { inp.style.borderColor = '#e74c3c'; inp.style.boxShadow = '0 0 0 3px rgba(231,76,60,0.25)'; inp.focus(); return; }
+  if (btn) { btn.textContent = '⏳'; btn.disabled = true; btn.style.background = '#6c3483'; }
+  try {
+    const res  = await fetch(GAS_PERSONIL_URL + '?action=verifyAdmin&password=' + encodeURIComponent(pw));
+    const data = await res.json();
+    if (data.success) {
+      if (btn) { btn.textContent = '✔'; btn.style.background = '#27ae60'; }
+      inp.style.borderColor = '#27ae60';
+      inp.style.boxShadow   = '0 0 0 3px rgba(39,174,96,0.25)';
+      setTimeout(() => {
+        closeAdminModal();
+        showAlert('✔ Selamat datang, Admin!');
+        toggleAdminPanel();
+      }, 500);
+    } else {
+      if (btn) { btn.textContent = 'MASUK'; btn.disabled = false; btn.style.background = '#8e44ad'; }
+      inp.style.borderColor = '#e74c3c';
+      inp.style.boxShadow   = '0 0 0 3px rgba(231,76,60,0.25)';
+      inp.value = '';
+      inp.focus();
+      if (err) { err.style.display = 'block'; err.style.animation = 'none'; void err.offsetWidth; err.style.animation = 'adminShake 0.4s ease'; }
+    }
+  } catch(e) {
+    if (btn) { btn.textContent = 'MASUK'; btn.disabled = false; btn.style.background = '#8e44ad'; }
+    showAlert('✘ Gagal verifikasi. Cek koneksi.');
+  }
+}
+
+// =====================================================================
+// ADMIN PANEL
+// =====================================================================
+let adminPanelOpen = false;
+let daftarTerpilih = [];
+
+function toggleAdminPanel() {
+  const panel = document.getElementById('admin-panel');
+  adminPanelOpen = !adminPanelOpen;
+  panel.style.right = adminPanelOpen ? '0' : '-800px';
+  if (adminPanelOpen) buildAdminUnitOptions();
+}
+function buildAdminUnitOptions() {
+  const sel = document.getElementById('admin-unit-select');
+  sel.innerHTML = '<option value="">— Pilih Unit —</option>';
+  Object.keys(STATIC_DATA).sort().forEach(unit => {
+    const opt = document.createElement('option');
+    opt.value = unit; opt.textContent = unit;
+    sel.appendChild(opt);
+  });
+}
+function buildAdminNamaList() {
+  const unit = document.getElementById('admin-unit-select').value;
+  const container = document.getElementById('admin-nama-list');
+  container.innerHTML = '';
+  if (!unit || !STATIC_DATA[unit]) return;
+  STATIC_DATA[unit].forEach(nama => {
+    const sudahDipilih = daftarTerpilih.some(d => d.nama === nama && d.unit === unit);
+    const div = document.createElement('div');
+    div.style.cssText = 'display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:5px;background:' + (sudahDipilih ? '#2a3a2a' : '#111827') + ';cursor:pointer;border:1px solid ' + (sudahDipilih ? '#27ae60' : '#2a2a3e') + ';margin-bottom:3px;';
+    div.innerHTML = '<input type="checkbox" ' + (sudahDipilih ? 'checked' : '') + ' style="accent-color:#8e44ad;cursor:pointer;" onchange="togglePilihNama(this,\'' + nama.replace(/'/g, "\\'") + '\',\'' + unit.replace(/'/g, "\\'") + '\')">'
+      + '<span style="color:#fff;font-size:9pt;font-family:Arial;">' + nama + '</span>';
+    container.appendChild(div);
+  });
+}
+function togglePilihNama(cb, nama, unit) {
+  if (cb.checked) {
+    if (!daftarTerpilih.some(d => d.nama === nama && d.unit === unit)) daftarTerpilih.push({ nama, unit });
+  } else {
+    daftarTerpilih = daftarTerpilih.filter(d => !(d.nama === nama && d.unit === unit));
+  }
+  renderDaftarTerpilih();
+  buildAdminNamaList();
+}
+function renderDaftarTerpilih() {
+  const tags  = document.getElementById('admin-selected-tags');
+  const count = document.getElementById('admin-count');
+  count.textContent = daftarTerpilih.length;
+  tags.innerHTML = '';
+  daftarTerpilih.forEach((d, i) => {
+    const tag = document.createElement('span');
+    tag.style.cssText = 'background:#2c2c3e;border:1px solid #445;color:#fff;font-size:7pt;font-family:Arial;padding:2px 6px;border-radius:10px;display:flex;align-items:center;gap:4px;';
+    tag.innerHTML = singkatNama(d.nama) + ' <span onclick="hapusDariDaftar(' + i + ')" style="color:#e74c3c;cursor:pointer;font-size:10px;">✕</span>';
+    tags.appendChild(tag);
+  });
+}
+function hapusDariDaftar(idx) {
+  daftarTerpilih.splice(idx, 1);
+  renderDaftarTerpilih();
+  buildAdminNamaList();
+}
+
+async function adminCetak() {
+  if (!daftarTerpilih.length) { showAlert('Pilih nama terlebih dahulu.'); return; }
+  const periodeVal = cddPeriode._getValue();
+  if (!periodeVal) { showAlert('Pilih periode terlebih dahulu.'); return; }
+  const [bulan, tahun] = periodeVal.split('-').map(Number);
+  const lastDay = new Date(tahun, bulan, 0).getDate();
+  const container = document.createElement('div');
+  showLoading('Memuat data...');
+  for (let i = 0; i < daftarTerpilih.length; i++) {
+    const { nama, unit } = daftarTerpilih[i];
+    try {
+      const url  = GAS_URL + '?action=getJadwal&mode=PEN&bulan=' + bulan + '&tahun=' + tahun + '&unit=' + encodeURIComponent(unit);
+      const res  = await fetch(url);
+      const data = await res.json();
+      let jadwal = [];
+      if (data && data.personil) {
+        const norm = s => s.trim().toUpperCase().replace(/\s+/g,' ');
+        const p = data.personil.find(p => p.nama && norm(p.nama) === norm(nama));
+        if (p && Array.isArray(p.jadwal)) jadwal = p.jadwal;
+      }
+      const page = document.querySelector('.page').cloneNode(true);
+      page.style.cssText = 'width:794px;height:1123px;position:relative;overflow:hidden;box-sizing:border-box;page-break-after:' + (i < daftarTerpilih.length-1 ? 'always' : 'avoid') + ';transform:none;margin:0;';
+      const setEl = (id, val) => { const el = page.querySelector('#' + id); if (el) el.textContent = val || ''; };
+      const pData = personilData.find(d => (d['NAMA']||'').trim().toUpperCase() === nama.toUpperCase());
+      setEl('fill-proyek', 'BRI KANCA MAGELANG');
+      setEl('fill-nama', singkatNama(nama));
+      const noPrefix = ['KC MAGELANG','KCP SHOPPING'];
+      setEl('fill-lokasi', noPrefix.includes(unit) ? unit : 'UNIT ' + unit);
+      setEl('fill-periode', '1 s/d ' + lastDay + ' ' + BULAN[bulan-1] + ' ' + tahun);
+      if (pData) {
+        setEl('fill-noreg', pData['NO_REG']||''); setEl('fill-tglmasuk', formatTanggal(pData['TGL_MASUK']));
+        setEl('fill-norek', pData['NO_REK']||''); setEl('fill-bank', pData['BANK']||pData['Bank']||'');
+        setEl('fill-nohp', pData['NO. HP']||''); setEl('fill-email', pData['ALAMAT EMAIL']||'');
+      }
+      const secEl = page.querySelector('#fill-security-nama');
+      if (secEl) secEl.innerHTML = '<span style="color:#004B87;font-weight:bold;font-size:6pt;font-family:Arial;">' + namaLengkap3(nama) + '</span>';
+
+      for (let d = 1; d <= 31; d++) {
+        const tglEl = page.querySelector('#tgl-' + d);
+        if (!tglEl) continue;
+        const cells = tglEl.parentElement.querySelectorAll('td');
+        if (cells.length < 13) continue;
+        const dow = new Date(tahun, bulan-1, d).getDay();
+        const isWeekend = dow === 0 || dow === 6;
+        const namaHari = dow===6?'SABTU':dow===0?'MINGGU':'';
+        const namaLiburA = d <= lastDay ? isLibur(tahun, bulan, d) : null;
+        for (let c = 1; c <= 4; c++) { cells[c].textContent=''; cells[c].removeAttribute('style'); }
+        tglEl.removeAttribute('style');
+        cells[12].textContent=''; cells[12].className = d===31?'s17':'s15';
+        if (d > lastDay) continue;
+        const kode = String(jadwal[d-1]||'').trim().toUpperCase();
+        const shift = SHIFT_MAPPING[kode]||null;
+        if (!shift) {
+          if (namaLiburA) { cells[12].textContent=namaLiburA; cells[12].classList.add('keterangan-libur'); }
+          else if(isWeekend){cells[12].textContent=namaHari;cells[12].classList.add(dow===6?'keterangan-sabtu':'keterangan-minggu');}
+          continue;
+        }
+        if (kode==='OFF'||kode==='CUTI'||kode==='SAKIT') {
+          for(let c=1;c<=4;c++){cells[c].textContent=shift.mulai;cells[c].style.cssText=shift.style||'';}
+          tglEl.style.cssText=shift.style||'';
+          // *** FIX: OFF → keterangan kosong; CUTI/SAKIT tetap tampil ***
+          if (kode !== 'OFF') {
+            if (namaLiburA) { cells[12].textContent=namaLiburA; cells[12].classList.add('keterangan-libur'); }
+            else if(isWeekend){cells[12].textContent=namaHari;cells[12].classList.add(dow===6?'keterangan-sabtu':'keterangan-minggu');}
+          }
+        } else {
+          cells[1].textContent=shift.mulai; cells[2].textContent=shift.selesai;
+          if(shift.lemburMulai){cells[3].textContent=shift.lemburMulai;cells[4].textContent=shift.lemburSelesai;}
+          const colorStyle = namaLiburA ? 'color:#cc0000;font-weight:bold;' : isWeekend ? 'color:#1b5e20;font-weight:bold;' : '';
+          if(colorStyle){cells[1].style.cssText=colorStyle;cells[2].style.cssText=colorStyle;if(shift.lemburMulai){cells[3].style.cssText=colorStyle;cells[4].style.cssText=colorStyle;}}
+          if(namaLiburA){cells[12].textContent=namaLiburA;cells[12].classList.add('keterangan-libur');}
+          else if(isWeekend){cells[12].textContent=namaHari;cells[12].classList.add(dow===6?'keterangan-sabtu':'keterangan-minggu');}
+        }
+      }
+      container.appendChild(page);
+    } catch(e) { console.error('Error page', nama, e); }
+  }
+  hideLoading();
+  const win = window.open('','_blank');
+  if (!win) { showAlert('Popup diblokir browser. Izinkan popup untuk mencetak.'); return; }
+  const styles = Array.from(document.querySelectorAll('style')).map(s => s.outerHTML).join('\n');
+  win.document.write('<html><head>' + styles + '<style>@page{margin:0;size:A4 portrait;}body{margin:0;padding:0;background:#fff;}.page{position:relative;width:794px;height:1123px;overflow:hidden;box-sizing:border-box;page-break-after:always;page-break-inside:avoid;}.page:last-child{page-break-after:avoid;}*{-webkit-print-color-adjust:exact;print-color-adjust:exact;}</style></head><body>');
+  win.document.write(container.innerHTML);
+  win.document.write('</body></html>');
+  win.document.close();
+  win.onload = () => { win.focus(); win.print(); };
+}
+// =====================================================================
+// ADMIN DOWNLOAD PDF
+// =====================================================================
+async function adminDownloadPdf() {
+  if (!daftarTerpilih.length) { showAlert('Pilih nama terlebih dahulu.'); return; }
+  const periodeVal = cddPeriode._getValue();
+  if (!periodeVal) { showAlert('Pilih periode terlebih dahulu.'); return; }
+  const [bulan, tahun] = periodeVal.split('-').map(Number);
+  const bulanStr = BULAN[bulan-1] + ' ' + tahun;
+
+  setDlStatus('loading', 'Menyiapkan PDF gabungan...');
+
+  const payload = JSON.stringify({
+    action: 'downloadPdfBulk',
+    daftar: daftarTerpilih,   // [{nama, unit}, ...]
+    bulan:  bulanStr
+  });
+
+  try {
+    const res  = await fetch(GAS_URL + '?action=downloadPdfBulk&data=' + encodeURIComponent(payload));
+    const data = await res.json();
+    if (!data || data.status !== 'ok') {
+      setDlStatus('err', '✗ ' + (data ? data.message : 'Tidak ada respon'));
+      return;
+    }
+    const byteChars = atob(data.base64);
+    const byteArr   = new Uint8Array(byteChars.length);
+    for (let i = 0; i < byteChars.length; i++) byteArr[i] = byteChars.charCodeAt(i);
+    const blob = new Blob([byteArr], { type: 'application/pdf' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = data.filename;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    setDlStatus('done', '✓ ' + data.filename + ' berhasil diunduh!');
+  } catch(e) {
+    setDlStatus('err', '✗ Gagal: ' + e.message);
+  }
+}
+  setDlStatus('done', '✓ Semua PDF (' + daftarTerpilih.length + ') selesai diunduh!');
+}
+// =====================================================================
+// INIT
+// =====================================================================
+document.addEventListener('DOMContentLoaded', () => {
+  buildPeriode();
+  buildUnit();
+  loadPersonil();
+  document.getElementById('fill-proyek').textContent = 'BRI KANCA MAGELANG';
+});
+</script>
 </body>
 </html>
