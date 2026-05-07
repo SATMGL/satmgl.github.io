@@ -297,9 +297,12 @@
   buildPeriode();
 
   const cddNama = createCDD('cdd-nama', (val) => {
-    const btnEdit  = document.getElementById('btn-edit-data');
-    const btnPrint = document.getElementById('btn-print');
-    if (btnEdit)  { btnEdit.style.opacity  = '1'; btnEdit.style.pointerEvents  = 'auto'; }    if (btnPrint) { btnPrint.style.opacity = '1'; btnPrint.style.pointerEvents = 'auto'; }
+    const btnEdit     = document.getElementById('btn-edit-data');
+    const btnPrint    = document.getElementById('btn-print');
+    const btnDownload = document.getElementById('btn-download');
+    if (btnEdit)     { btnEdit.style.opacity     = '1'; btnEdit.style.pointerEvents     = 'auto'; }
+    if (btnPrint)    { btnPrint.style.opacity    = '1'; btnPrint.style.pointerEvents    = 'auto'; }
+    if (btnDownload) { btnDownload.style.opacity = '1'; btnDownload.style.pointerEvents = 'auto'; }
     fillTable();
   }, '— Pilih Nama —');
 
@@ -1165,8 +1168,106 @@
   }
 
   // =====================================================================
-  // DOWNLOAD PDF
+  // DOWNLOAD PDF / PNG
   // =====================================================================
+  function toggleDownloadMenu(e) {
+    e.stopPropagation();
+    const menu = document.getElementById('download-menu');
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+  }
+  document.addEventListener('click', () => {
+    const menu = document.getElementById('download-menu');
+    if (menu) menu.style.display = 'none';
+  });
+
+  async function downloadAs(format) {
+    document.getElementById('download-menu').style.display = 'none';
+
+    const nama   = (document.getElementById('fill-nama')   || {}).textContent || 'timesheet';
+    const period = (document.getElementById('fill-periode') || {}).textContent || '';
+    const safeName = (nama + (period ? '_' + period : '')).replace(/[^a-zA-Z0-9_\-]/g, '_');
+
+    const page = document.querySelector('.page');
+
+    // Inject override ke document.head agar browser menghitung ulang computed styles
+    // sebelum domtoimage membaca — khususnya border-outer & border-frame yang pakai
+    // right/bottom (tidak didukung domtoimage/html2canvas) dikonversi ke width/height.
+    const overrideStyle = document.createElement('style');
+    overrideStyle.id = 'dl-override';
+    overrideStyle.textContent = `
+      .page {
+        transform: none !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        width: 794px !important;
+        height: 1123px !important;
+      }
+      .border-outer {
+        position: absolute !important;
+        top: 4px !important; left: 4px !important;
+        right: auto !important; bottom: auto !important;
+        width: 786px !important; height: 1115px !important;
+        border: 2px solid #000 !important;
+        box-sizing: border-box !important;
+      }
+      .border-frame {
+        position: absolute !important;
+        top: 12px !important; left: 12px !important;
+        right: auto !important; bottom: auto !important;
+        width: 770px !important; height: 1099px !important;
+        border: 2px solid #000 !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+      table.waffle { border-collapse: collapse !important; }
+      table.waffle td:first-child  { border-left: 2px solid #000 !important; }
+      table.waffle tr:first-child td,
+      table.waffle tr:nth-child(2) td,
+      table.waffle tr:nth-child(3) td { border-top: 2px solid #000 !important; }
+      .s27 { border-left: 2px solid #000 !important; border-right: 2px solid #000 !important; }
+      .s32, .s33, .s34 { border-top: 1px solid #000 !important; }
+    `;
+    document.head.appendChild(overrideStyle);
+
+    showLoading();
+    try {
+      // domtoimage menggunakan rendering engine native browser (SVG foreignObject)
+      // — sama seperti print, sehingga semua CSS termasuk position:absolute ditangani benar
+      const scale   = 3;
+      const dataUrl = await domtoimage.toPng(page, {
+        width  : 794 * scale,
+        height : 1123 * scale,
+        style  : {
+          transform      : 'scale(' + scale + ')',
+          transformOrigin: 'top left',
+          margin         : '0',
+          boxShadow      : 'none'
+        }
+      });
+
+      if (format === 'png') {
+        const link = document.createElement('a');
+        link.download = safeName + '.png';
+        link.href = dataUrl;
+        link.click();
+      } else {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        pdf.addImage(dataUrl, 'PNG', 0, 0, 210, 297);
+        pdf.save(safeName + '.pdf');
+      }
+    } catch(err) {
+      showAlert('\u2718 Gagal download: ' + err.message);
+      console.error(err);
+    } finally {
+      const ov = document.getElementById('dl-override');
+      if (ov) ov.remove();
+      hideLoading();
+    }
+  }
+
   // =====================================================================
   // CETAK
   // =====================================================================
