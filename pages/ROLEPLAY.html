@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ROLEPLAY HELPER</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden}
+  body{
+    font-family:'Segoe UI',sans-serif;background:#eef2f7;
+    display:flex;flex-direction:column;align-items:center;
+    padding:clamp(6px,1.5vh,14px) clamp(8px,2vw,16px);
+    gap:clamp(4px,1vh,10px);
+  }
+
+  /* ── WRAPPER ── */
+  .page-wrap{
+    width:100%;max-width:480px;
+    display:flex;flex-direction:column;
+    gap:clamp(4px,1vh,10px);
+    flex:1;min-height:0;
+  }
+
+  /* ── HEADER ── */
+  .header{background:#003f7f;color:white;border-radius:14px;padding:clamp(8px,1.2vh,14px) 1.2rem;width:100%;position:relative;flex-shrink:0}
+  .header h1{font-size:clamp(13px,2vh,17px);font-weight:700;letter-spacing:0.3px}
+  .header p{font-size:clamp(10px,1.4vh,12px);opacity:0.7;margin-top:2px}
+  .btn-admin{
+    position:absolute;top:12px;right:12px;
+    background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.3);
+    color:white;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:600;
+    cursor:pointer;display:flex;align-items:center;gap:5px;transition:background 0.2s;
+  }
+  .btn-admin:hover{background:rgba(255,255,255,0.28)}
+
+  /* ── CARD ── */
+  .card{background:white;border-radius:14px;padding:clamp(8px,1.5vh,18px) clamp(10px,2vw,20px);width:100%;box-shadow:0 2px 8px rgba(0,0,0,0.07);flex-shrink:0}
+  .card-title{font-size:clamp(9px,1.3vh,11px);font-weight:700;color:#8aa0b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:clamp(6px,1vh,12px)}
+
+  .field{margin-bottom:clamp(6px,1vh,12px)}
+  label{font-size:clamp(11px,1.6vh,13px);font-weight:600;color:#1a3a5c;display:block;margin-bottom:4px}
+
+  select{
+    width:100%;padding:clamp(6px,1vh,10px) 12px;border:1.5px solid #c8d8ea;border-radius:9px;
+    font-size:clamp(12px,1.8vh,14px);color:#1a3a5c;background:#f8fbff;
+    appearance:none;outline:none;cursor:pointer;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23185fa5' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 10px center;transition:border-color 0.2s;
+  }
+  select:focus{border-color:#185fa5}
+  select:disabled{opacity:0.5;cursor:not-allowed}
+
+  .preview{background:#f0f7ff;border:1.5px solid #b8d4f0;border-radius:9px;padding:10px 14px;margin-top:-4px;margin-bottom:12px;display:none}
+  .preview .plabel{font-size:11px;color:#5a7a9a;margin-bottom:2px}
+  .preview .pvalue{font-size:15px;font-weight:700;color:#1a3a5c}
+
+  /* ── PREVIEW FILL ── */
+  .fill-preview{display:none;margin-top:10px;border:1.5px solid #b8d4f0;border-radius:10px;overflow:hidden}
+  .fill-preview-header{background:#e6f1fb;padding:5px 10px;display:flex;align-items:center;justify-content:space-between}
+  .fill-preview-header span{font-size:11px;font-weight:700;color:#185fa5;text-transform:uppercase;letter-spacing:0.8px}
+  .fill-row{display:flex;align-items:center;justify-content:space-between;padding:clamp(3px,0.6vh,6px) 10px;border-bottom:1px solid #eef2f7;gap:8px}
+  .fill-row:last-child{border-bottom:none}
+  .fill-key{font-size:11px;color:#8aa0b8;flex-shrink:0;width:90px}
+  .fill-val{font-size:12px;font-weight:600;color:#1a3a5c;text-align:right;word-break:break-all}
+
+  /* premise editable row */
+  .fill-row-premise{display:flex;align-items:center;padding:clamp(3px,0.6vh,5px) 10px;border-bottom:1px solid #eef2f7;gap:8px}
+  .fill-row-premise .fill-key{font-size:11px;color:#8aa0b8;flex-shrink:0;width:90px}
+  .premise-input-wrap{flex:1;display:flex;align-items:center;gap:6px}
+  .premise-input{
+    flex:1;font-size:12px;font-weight:600;color:#1a3a5c;
+    border:1.5px solid transparent;border-radius:6px;
+    padding:3px 7px;background:transparent;outline:none;text-align:right;
+    transition:border-color 0.15s,background 0.15s;
+  }
+  .premise-input:focus{border-color:#185fa5;background:#f0f7ff}
+  .premise-save{
+    display:none;padding:3px 8px;border:none;border-radius:6px;
+    background:#003f7f;color:white;font-size:11px;font-weight:700;
+    cursor:pointer;flex-shrink:0;transition:background 0.15s;
+  }
+  .premise-save:hover{background:#185fa5}
+  .premise-save.show{display:block}
+  .premise-status{font-size:10px;flex-shrink:0;min-width:14px;text-align:center}
+
+  .btn{display:block;width:100%;padding:clamp(8px,1.4vh,13px);border-radius:10px;border:none;font-size:clamp(13px,1.9vh,15px);font-weight:700;cursor:pointer;transition:background 0.2s,opacity 0.2s}
+  .btn-primary{background:#003f7f;color:white}
+  .btn-primary:hover:not(:disabled){background:#185fa5}
+  .btn-primary:disabled{opacity:0.35;cursor:not-allowed}
+
+  .url-box{background:#f8fbff;border:1px dashed #b8d4f0;border-radius:8px;padding:6px 10px;margin-top:6px;display:none}
+  .url-box p{font-size:10px;color:#8aa0b8;margin-bottom:2px}
+  .url-box code{font-size:9px;color:#185fa5;word-break:break-all;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+  .loading{display:none;align-items:center;gap:8px;padding:7px 10px;background:#e6f1fb;border-radius:9px;margin-bottom:8px}
+  .loading.show{display:flex}
+  .spinner{width:16px;height:16px;border:2px solid #b8d4f0;border-top-color:#003f7f;border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .loading span{font-size:13px;color:#1a3a5c;font-weight:500}
+
+  .error-box{display:none;padding:10px 12px;background:#fff0f0;border:1.5px solid #f5c0c0;border-radius:9px;margin-bottom:12px}
+  .error-box.show{display:block}
+  .error-box p{font-size:13px;color:#c0392b}
+  .btn-retry{display:inline-block;margin-top:6px;padding:5px 12px;border-radius:7px;background:#003f7f;color:white;border:none;font-size:12px;font-weight:700;cursor:pointer}
+
+  footer{text-align:center;font-size:clamp(9px,1.2vh,11px);color:#aab8c8;width:100%;flex-shrink:0;padding:2px 0}
+
+  /* ── MODAL OVERLAY ── */
+  .modal-overlay{
+    display:none;position:fixed;inset:0;
+    background:rgba(0,20,50,0.55);
+    backdrop-filter:blur(3px);z-index:100;
+    align-items:center;justify-content:center;
+    padding:1.5rem;
+  }
+  .modal-overlay.show{display:flex}
+
+  .modal{
+    background:white;border-radius:20px;width:100%;max-width:480px;
+    max-height:calc(100dvh - 3rem);
+    display:flex;flex-direction:column;
+    box-shadow:0 20px 60px rgba(0,20,50,0.3);
+    animation:fadeUp 0.22s ease;
+  }
+  @keyframes fadeUp{
+    from{opacity:0;transform:translateY(16px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+  .modal-header{
+    flex-shrink:0;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:1.5rem 1.5rem 1.2rem;
+    border-bottom:1px solid #eef2f7;
+  }
+  .modal-body{overflow-y:auto;padding:1.2rem 1.5rem 1.5rem;flex:1}
+
+  .modal-title{font-size:16px;font-weight:700;color:#1a3a5c}
+  .btn-close{background:none;border:none;font-size:20px;cursor:pointer;color:#8aa0b8;line-height:1}
+
+  /* ── PIN VIEW ── */
+  .pin-dots{display:flex;justify-content:center;gap:14px;margin-bottom:1.4rem}
+  .pin-dot{
+    width:18px;height:18px;border-radius:50%;
+    border:2px solid #c8d8ea;background:white;
+    transition:background 0.15s,border-color 0.15s;
+  }
+  .pin-dot.filled{background:#003f7f;border-color:#003f7f}
+  .pin-dot.error{background:#e74c3c;border-color:#e74c3c}
+
+  .pin-error{text-align:center;font-size:13px;color:#e74c3c;font-weight:600;min-height:18px;margin-bottom:10px}
+
+  .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem}
+  .key{
+    padding:16px 0;border:none;border-radius:12px;
+    background:#f0f5fb;font-size:20px;font-weight:700;color:#1a3a5c;
+    cursor:pointer;transition:background 0.15s,transform 0.1s;user-select:none;
+  }
+  .key:active{background:#d4e6f5;transform:scale(0.94)}
+  .key.zero{grid-column:2}
+  .key.del{background:#fff0f0;color:#e74c3c;font-size:16px}
+  .key.del:active{background:#ffd5d5}
+
+  /* ── ADMIN VIEW (unit) ── */
+  .admin-view{display:none}
+  .admin-unit-badge{
+    background:#e6f1fb;border-radius:10px;padding:10px 14px;
+    margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center;
+  }
+  .admin-unit-badge span{font-size:13px;font-weight:700;color:#003f7f}
+  .btn-logout{background:none;border:1.5px solid #c8d8ea;border-radius:7px;padding:4px 10px;font-size:11px;font-weight:600;color:#8aa0b8;cursor:pointer}
+  .btn-logout:hover{border-color:#e74c3c;color:#e74c3c}
+
+  .personil-list{margin-bottom:1rem}
+  .personil-item{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:10px 0;border-bottom:1px solid #eef2f7;
+  }
+  .personil-item:last-child{border-bottom:none}
+  .personil-info .p-nama{font-size:13px;font-weight:700;color:#1a3a5c}
+  .personil-info .p-pn{font-size:11px;color:#8aa0b8;margin-top:1px}
+  .btn-hapus{
+    background:none;border:1.5px solid #f5c0c0;border-radius:7px;
+    padding:4px 10px;font-size:11px;font-weight:700;color:#e74c3c;cursor:pointer;
+    transition:background 0.15s;flex-shrink:0;
+  }
+  .btn-hapus:hover{background:#fff0f0}
+
+  .add-form{background:#f8fbff;border-radius:12px;padding:14px}
+  .add-form .form-title{font-size:12px;font-weight:700;color:#5a7a9a;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px}
+  .add-form input{
+    width:100%;padding:9px 12px;border:1.5px solid #c8d8ea;border-radius:8px;
+    font-size:14px;color:#1a3a5c;background:white;outline:none;margin-bottom:8px;
+  }
+  .add-form input:focus{border-color:#185fa5}
+  .btn-tambah{
+    width:100%;padding:10px;border:none;border-radius:8px;
+    background:#003f7f;color:white;font-size:14px;font-weight:700;cursor:pointer;
+    transition:background 0.2s;
+  }
+  .btn-tambah:hover{background:#185fa5}
+  .btn-tambah:disabled{opacity:0.4;cursor:not-allowed}
+
+  .admin-loading{display:none;text-align:center;padding:8px;font-size:13px;color:#5a7a9a}
+  .admin-loading.show{display:block}
+  .admin-msg{min-height:18px;font-size:12px;text-align:center;margin-top:8px;font-weight:600}
+  .admin-msg.ok{color:#27ae60}
+  .admin-msg.err{color:#e74c3c}
+
+  /* ── SUPER ADMIN VIEW (pengaturan) ── */
+  .superadmin-view{display:none}
+  .superadmin-badge{
+    background:linear-gradient(135deg,#003f7f,#185fa5);
+    border-radius:10px;padding:12px 14px;
+    margin-bottom:1.2rem;display:flex;justify-content:space-between;align-items:center;
+  }
+  .superadmin-badge span{font-size:13px;font-weight:700;color:white}
+  .superadmin-badge small{font-size:11px;color:rgba(255,255,255,0.65);display:block;margin-top:2px}
+
+  .setting-item{
+    padding:12px 0;border-bottom:1px solid #eef2f7;
+  }
+  .setting-item:last-child{border-bottom:none}
+  .setting-label{font-size:13px;font-weight:700;color:#1a3a5c;margin-bottom:3px}
+  .setting-hint{font-size:11px;color:#8aa0b8;margin-bottom:8px;line-height:1.5}
+  .setting-input-row{display:flex;gap:8px;align-items:stretch}
+  .setting-input{
+    flex:1;padding:9px 12px;border:1.5px solid #c8d8ea;border-radius:8px;
+    font-size:13px;color:#1a3a5c;background:white;outline:none;
+    transition:border-color 0.2s;
+  }
+  .setting-input:focus{border-color:#185fa5}
+  .btn-save{
+    padding:9px 14px;border:none;border-radius:8px;
+    background:#003f7f;color:white;font-size:12px;font-weight:700;
+    cursor:pointer;transition:background 0.2s;white-space:nowrap;flex-shrink:0;
+  }
+  .btn-save:hover{background:#185fa5}
+  .btn-save:disabled{opacity:0.4;cursor:not-allowed}
+  .setting-msg{min-height:16px;font-size:11px;font-weight:600;margin-top:5px}
+  .setting-msg.ok{color:#27ae60}
+  .setting-msg.err{color:#e74c3c}
+
+  .sa-loading{
+    display:none;align-items:center;justify-content:center;gap:8px;
+    padding:24px;
+  }
+  .sa-loading.show{display:flex}
+  .sa-loading span{font-size:13px;color:#5a7a9a}
+
+  /* ── MENU VIEW ── */
+  .menu-view{display:none}
+  .menu-welcome{
+    background:linear-gradient(135deg,#003f7f,#185fa5);
+    border-radius:12px;padding:16px;margin-bottom:1.2rem;
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .menu-welcome-text .mw-title{font-size:14px;font-weight:700;color:white}
+  .menu-welcome-text .mw-sub{font-size:11px;color:rgba(255,255,255,0.65);margin-top:2px}
+  .menu-grid{display:flex;flex-direction:column;gap:10px}
+  .menu-item{
+    display:flex;align-items:center;gap:14px;
+    padding:14px;border-radius:12px;border:1.5px solid #c8d8ea;
+    background:#f8fbff;cursor:pointer;transition:all 0.2s;
+    text-align:left;width:100%;
+  }
+  .menu-item:hover{border-color:#185fa5;background:#e6f1fb}
+  .menu-item-icon{
+    width:42px;height:42px;border-radius:10px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:20px;flex-shrink:0;
+  }
+  .menu-item-icon.blue{background:#dbeeff}
+  .menu-item-icon.green{background:#d5f5e3}
+  .menu-item-text .mi-title{font-size:13px;font-weight:700;color:#1a3a5c}
+  .menu-item-text .mi-sub{font-size:11px;color:#8aa0b8;margin-top:2px}
+  .menu-item-arrow{margin-left:auto;color:#c8d8ea;font-size:16px;flex-shrink:0}
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+<div class="header">
+  <h1>🎯 ROLEPLAY HELPER</h1>
+  <p id="headerSub">Memuat data unit...</p>
+  <button class="btn-admin" onclick="bukaAdmin()">⚙️ Admin</button>
+</div>
+
+<div class="card">
+  <div class="card-title">Pilihan Pengisian</div>
+  <div class="loading" id="loadingBox">
+    <div class="spinner"></div>
+    <span id="loadingText">Memuat data dari server...</span>
+  </div>
+  <div class="error-box" id="errorBox">
+    <p id="errorMsg">Gagal memuat data.</p>
+    <button class="btn-retry" onclick="loadAllData()">🔄 Coba Lagi</button>
+  </div>
+  <div class="field">
+    <label>Pilih Unit</label>
+    <select id="unit" onchange="pilihUnit()" disabled>
+      <option value="">-- Memuat... --</option>
+    </select>
+  </div>
+  <div class="field" id="fieldPersonil" style="display:none">
+    <label>Nama FL Yang Roleplay</label>
+    <select id="personil" onchange="pilihPersonil()">
+      <option value="">-- Pilih Nama --</option>
+    </select>
+  </div>
+  <!-- Preview fill compact -->
+  <div class="fill-preview" id="fillPreview">
+    <div class="fill-preview-header">
+      <span>📋 Preview isian form</span>
+    </div>
+    <!-- Premise: editable -->
+    <div class="fill-row-premise">
+      <span class="fill-key">Premises</span>
+      <div class="premise-input-wrap">
+        <input type="text" class="premise-input" id="premiseInput"
+               oninput="premiseChanged()" onblur="premiseBlur()" placeholder="—">
+        <button class="premise-save" id="premiseSaveBtn" onclick="simpanPremise()">Simpan</button>
+        <span class="premise-status" id="premiseStatus"></span>
+      </div>
+    </div>
+    <div class="fill-row">
+      <span class="fill-key">Jenis UKO</span>
+      <span class="fill-val" id="pvJenis">-</span>
+    </div>
+    <div class="fill-row">
+      <span class="fill-key">Nama unit</span>
+      <span class="fill-val" id="pvNama">-</span>
+    </div>
+    <div class="fill-row">
+      <span class="fill-key">Kode unit</span>
+      <span class="fill-val" id="pvKode">-</span>
+    </div>
+    <div class="fill-row">
+      <span class="fill-key">Nama FL</span>
+      <span class="fill-val" id="pvFL">-</span>
+    </div>
+    <div class="fill-row">
+      <span class="fill-key">PN FL</span>
+      <span class="fill-val" id="pvPN">-</span>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <button class="btn btn-primary" id="btnBuka" onclick="bukaForm()" disabled>
+    🚀 Buka Form (Pre-filled)
+  </button>
+  <div class="url-box" id="urlBox">
+    <p>Link yang akan dibuka:</p>
+    <code id="urlText"></code>
+  </div>
+</div>
+
+<footer id="footerTxt">ROLEPLAY HELPER</footer>
+</div><!-- end page-wrap -->
+
+<!-- ── MODAL ── -->
+<div class="modal-overlay" id="modalOverlay" onclick="tutupModalLuar(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">🔐 Masukkan PIN Admin</span>
+      <button class="btn-close" onclick="tutupAdmin()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- PIN VIEW -->
+      <div id="pinView">
+        <div class="pin-dots">
+          <div class="pin-dot" id="dot0"></div>
+          <div class="pin-dot" id="dot1"></div>
+          <div class="pin-dot" id="dot2"></div>
+          <div class="pin-dot" id="dot3"></div>
+        </div>
+        <div class="pin-error" id="pinError"></div>
+        <div class="keypad">
+          <button class="key" onclick="tekanAngka('1')">1</button>
+          <button class="key" onclick="tekanAngka('2')">2</button>
+          <button class="key" onclick="tekanAngka('3')">3</button>
+          <button class="key" onclick="tekanAngka('4')">4</button>
+          <button class="key" onclick="tekanAngka('5')">5</button>
+          <button class="key" onclick="tekanAngka('6')">6</button>
+          <button class="key" onclick="tekanAngka('7')">7</button>
+          <button class="key" onclick="tekanAngka('8')">8</button>
+          <button class="key" onclick="tekanAngka('9')">9</button>
+          <button class="key zero" onclick="tekanAngka('0')">0</button>
+          <button class="key del" onclick="hapusAngka()">⌫</button>
+        </div>
+      </div>
+
+      <!-- MENU VIEW (super admin) -->
+      <div class="menu-view" id="menuView">
+        <div class="menu-welcome">
+          <div class="menu-welcome-text">
+            <div class="mw-title">👋 Selamat datang, Super Admin</div>
+            <div class="mw-sub">Pilih menu yang ingin dikelola</div>
+          </div>
+          <button class="btn-logout" onclick="logoutSuperAdmin()">Keluar</button>
+        </div>
+        <div class="menu-grid">
+          <button class="menu-item" onclick="bukaMenuSetting()">
+            <div class="menu-item-icon blue">⚙️</div>
+            <div class="menu-item-text">
+              <div class="mi-title">Pengaturan Form</div>
+              <div class="mi-sub">Edit URL, kode entry, dan isian tetap</div>
+            </div>
+            <div class="menu-item-arrow">›</div>
+          </button>
+          <button class="menu-item" onclick="bukaMenuPersonil()">
+            <div class="menu-item-icon green">👥</div>
+            <div class="menu-item-text">
+              <div class="mi-title">Kelola Personil</div>
+              <div class="mi-sub">Tambah atau hapus FL per unit</div>
+            </div>
+            <div class="menu-item-arrow">›</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- SUPER ADMIN VIEW (pengaturan) -->
+      <div class="superadmin-view" id="superadminView">
+        <div class="superadmin-badge">
+          <div>
+            <span>⚙️ Pengaturan Form</span>
+            <small>Konfigurasi URL &amp; Entry</small>
+          </div>
+          <button class="btn-logout" onclick="kembaliKeMenu()">← Kembali</button>
+        </div>
+        <div class="sa-loading" id="saLoading">
+          <div class="spinner"></div>
+          <span>Memuat pengaturan...</span>
+        </div>
+        <div id="settingsList"></div>
+      </div>
+
+      <!-- UNIT ADMIN VIEW (kelola personil) -->
+      <div class="admin-view" id="adminView">
+        <div class="admin-unit-badge">
+          <span id="adminUnitNama">—</span>
+          <!-- FIX: tombol Kembali untuk super admin, Keluar untuk unit admin -->
+          <button class="btn-logout" id="btnBackOrLogout" onclick="handleBackOrLogout()">Keluar</button>
+        </div>
+        <!-- Pilih unit (hanya tampil untuk super admin) -->
+        <div id="saUnitPicker" style="display:none;margin-bottom:12px">
+          <select id="saUnitSelect" onchange="gantiUnitAdmin()">
+            <option value="">-- Pilih Unit --</option>
+          </select>
+        </div>
+        <div class="admin-loading" id="adminLoading">Memuat...</div>
+        <div class="personil-list" id="personilList"></div>
+        <div class="add-form">
+          <div class="form-title">+ Tambah Personil</div>
+          <input type="text" id="inputNama" placeholder="Nama lengkap" autocomplete="off">
+          <input type="text" id="inputPN" placeholder="PN (contoh: 00351759)" autocomplete="off" inputmode="numeric">
+          <button class="btn-tambah" id="btnTambah" onclick="tambahPersonil()">Tambah</button>
+          <div class="admin-msg" id="adminMsg"></div>
+        </div>
+      </div>
+
+    </div><!-- end modal-body -->
+  </div>
+</div>
+
+<script>
+  // ── CONFIG ──────────────────────────────────────────────────
+  const API_URL = "https://script.google.com/macros/s/AKfycbzwGeAkn7y2OzdNCKPxffRNNGpsRt5F4odPyQ51Cmun30XvJuv1mTe8jTQBRIbukI_O/exec";
+
+  // ── STATE ────────────────────────────────────────────────────
+  let allData      = [];
+  let settingsList = [];
+  let cfg          = {};
+  let pinBuffer    = "";
+  let adminPin     = "";
+  let adminUnit    = null;
+  let isSuperAdmin = false;
+
+  // ── INIT ─────────────────────────────────────────────────────
+  document.addEventListener("DOMContentLoaded", loadAllData);
+
+  async function loadAllData() {
+    setLoading(true); setError(false);
+    try {
+      const [dataRes, settingsRes] = await Promise.all([
+        fetch(`${API_URL}?action=getAllData`),
+        fetch(`${API_URL}?action=getSettings`)
+      ]);
+      const dataJson     = await dataRes.json();
+      const settingsJson = await settingsRes.json();
+
+      if (!dataJson.success)     throw new Error(dataJson.error     || "Gagal mengambil data unit");
+      if (!settingsJson.success) throw new Error(settingsJson.error || "Gagal mengambil settings");
+
+      allData      = dataJson.data     || [];
+      settingsList = settingsJson.data || [];
+      cfg = {};
+      settingsList.forEach(s => { cfg[s.key] = s.nilai; });
+
+      populateUnitSelect();
+      setLoading(false);
+      document.getElementById("unit").disabled = false;
+      document.getElementById("headerSub").textContent = `${allData.length} unit tersedia`;
+      document.getElementById("footerTxt").textContent = allData.map(u => u.nama).join(" · ") || "ROLEPLAY HELPER";
+      // Isi premise input dari setting
+      document.getElementById("premiseInput").value = cfg["fixed_premises"] || "";
+    } catch (err) {
+      setLoading(false);
+      setError(true, "Gagal memuat data: " + err.message);
+    }
+  }
+
+  function setLoading(on) {
+    document.getElementById("loadingBox").classList.toggle("show", on);
+  }
+  function setError(on, msg) {
+    document.getElementById("errorBox").classList.toggle("show", on);
+    if (msg) document.getElementById("errorMsg").textContent = msg;
+  }
+
+  // ── UNIT SELECT ───────────────────────────────────────────────
+  function populateUnitSelect() {
+    const sel = document.getElementById("unit");
+    sel.innerHTML = '<option value="">-- Pilih Unit --</option>';
+    allData.forEach((u, i) => {
+      const opt = document.createElement("option");
+      opt.value = i;
+      opt.textContent = u.nama + (u.jenis ? ` (${u.jenis})` : "");
+      sel.appendChild(opt);
+    });
+  }
+
+  function pilihUnit() {
+    const idx  = document.getElementById("unit").value;
+    const pSel = document.getElementById("personil");
+    document.getElementById("fillPreview").style.display = "none";
+    if (idx === "") {
+      document.getElementById("fieldPersonil").style.display = "none";
+      update();
+      return;
+    }
+    const unit = allData[parseInt(idx)];
+    pSel.innerHTML = '<option value="">-- Pilih Nama --</option>';
+    (unit.personil || []).forEach(p => {
+      const opt = document.createElement("option");
+      opt.value = p.nama; opt.dataset.pn = p.pn; opt.textContent = p.nama;
+      pSel.appendChild(opt);
+    });
+    document.getElementById("fieldPersonil").style.display = "block";
+    update();
+  }
+
+  function pilihPersonil() {
+    update();
+  }
+
+  // ── BUILD URL ─────────────────────────────────────────────────
+  function buildURL() {
+    const idx  = parseInt(document.getElementById("unit").value);
+    const unit = allData[idx];
+    const sel  = document.getElementById("personil");
+    const opt  = sel.options[sel.selectedIndex];
+    const params = new URLSearchParams();
+
+    const premiseVal = document.getElementById("premiseInput").value.trim() || cfg["fixed_premises"] || "";
+    if (cfg["entry_premises"] && premiseVal)
+      params.append(cfg["entry_premises"], premiseVal);
+
+    if (cfg["entry_jenis"]) params.append(cfg["entry_jenis"], unit.jenis || "");
+    if (cfg["entry_nama"])  params.append(cfg["entry_nama"],  unit.nama  || "");
+    if (cfg["entry_kode"])  params.append(cfg["entry_kode"],  unit.kode  || "");
+
+    if (cfg["entry_namaFL"]) params.append(cfg["entry_namaFL"], sel.value);
+    if (cfg["entry_pnFL"])   params.append(cfg["entry_pnFL"],   opt.dataset.pn || "");
+
+    return (cfg["base_url"] || "") + "?" + params.toString();
+  }
+
+  function update() {
+    const unitVal = document.getElementById("unit").value;
+    const selFL   = document.getElementById("personil");
+    const ok      = unitVal !== "" && selFL.value !== "";
+
+    document.getElementById("btnBuka").disabled = !ok;
+
+    if (ok) {
+      const idx  = parseInt(unitVal);
+      const unit = allData[idx];
+      const opt  = selFL.options[selFL.selectedIndex];
+
+      // Isi preview
+      document.getElementById("pvJenis").textContent = unit.jenis || "-";
+      document.getElementById("pvNama").textContent  = unit.nama  || "-";
+      document.getElementById("pvKode").textContent  = unit.kode  || "-";
+      document.getElementById("pvFL").textContent    = selFL.value;
+      document.getElementById("pvPN").textContent    = opt.dataset.pn || "-";
+      document.getElementById("fillPreview").style.display = "block";
+
+      document.getElementById("urlText").textContent = buildURL();
+      document.getElementById("urlBox").style.display = "block";
+    } else {
+      document.getElementById("fillPreview").style.display = "none";
+      document.getElementById("urlBox").style.display = "none";
+    }
+  }
+
+  function bukaForm() {
+    if (!document.getElementById("btnBuka").disabled) window.open(buildURL(), "_blank");
+  }
+
+  // ── PREMISE EDITABLE ─────────────────────────────────────────
+  let premiseSaveTimer = null;
+
+  function premiseChanged() {
+    document.getElementById("premiseSaveBtn").classList.add("show");
+    document.getElementById("premiseStatus").textContent = "";
+    // Update URL live saat mengetik
+    if (document.getElementById("unit").value !== "" && document.getElementById("personil").value !== "") {
+      document.getElementById("urlText").textContent = buildURL();
+    }
+  }
+
+  function premiseBlur() {
+    // Auto-save setelah 800ms jika tidak klik tombol
+    clearTimeout(premiseSaveTimer);
+    premiseSaveTimer = setTimeout(() => {
+      const val = document.getElementById("premiseInput").value.trim();
+      if (val !== (cfg["fixed_premises"] || "")) simpanPremise();
+    }, 800);
+  }
+
+  async function simpanPremise() {
+    clearTimeout(premiseSaveTimer);
+    const val = document.getElementById("premiseInput").value.trim();
+    const btn = document.getElementById("premiseSaveBtn");
+    const status = document.getElementById("premiseStatus");
+
+    btn.disabled = true;
+    status.textContent = "⏳";
+
+    try {
+      const res  = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "updateSetting", key: "fixed_premises", value: val, pin: "PUBLIC" })
+      });
+      const json = await res.json();
+      if (json.success) {
+        cfg["fixed_premises"] = val;
+        status.textContent = "✓";
+        status.style.color = "#27ae60";
+        btn.classList.remove("show");
+        // Update URL
+        if (document.getElementById("unit").value !== "" && document.getElementById("personil").value !== "") {
+          document.getElementById("urlText").textContent = buildURL();
+        }
+      } else {
+        status.textContent = "✗";
+        status.style.color = "#e74c3c";
+      }
+    } catch {
+      status.textContent = "✗";
+      status.style.color = "#e74c3c";
+    }
+    btn.disabled = false;
+    setTimeout(() => { status.textContent = ""; }, 2500);
+  }
+
+  // ── MODAL ─────────────────────────────────────────────────────
+  function bukaAdmin() {
+    resetPin();
+    showView("pin");
+    document.getElementById("modalTitle").textContent = "🔐 Masukkan PIN Admin";
+    document.getElementById("modalOverlay").classList.add("show");
+  }
+
+  function tutupAdmin() {
+    document.getElementById("modalOverlay").classList.remove("show");
+    resetPin();
+  }
+
+  function tutupModalLuar(e) {
+    if (e.target === document.getElementById("modalOverlay")) tutupAdmin();
+  }
+
+  // FIX: showView sekarang handle semua view termasuk "menu"
+  function showView(view) {
+    document.getElementById("pinView").style.display        = view === "pin"        ? "block" : "none";
+    document.getElementById("menuView").style.display       = view === "menu"       ? "block" : "none";
+    document.getElementById("superadminView").style.display = view === "superadmin" ? "block" : "none";
+    document.getElementById("adminView").style.display      = view === "admin"      ? "block" : "none";
+  }
+
+  // ── KEYPAD ────────────────────────────────────────────────────
+  function tekanAngka(d) {
+    if (pinBuffer.length >= 4) return;
+    pinBuffer += d;
+    renderDots();
+    if (pinBuffer.length === 4) setTimeout(cekPin, 150);
+  }
+
+  function hapusAngka() {
+    if (pinBuffer.length === 0) return;
+    pinBuffer = pinBuffer.slice(0, -1);
+    renderDots(false);
+    document.getElementById("pinError").textContent = "";
+  }
+
+  function renderDots(error = false) {
+    for (let i = 0; i < 4; i++) {
+      const dot = document.getElementById("dot" + i);
+      dot.classList.toggle("filled", i < pinBuffer.length);
+      dot.classList.toggle("error", error);
+    }
+  }
+
+  function resetPin() {
+    pinBuffer = "";
+    renderDots();
+    document.getElementById("pinError").textContent = "";
+  }
+
+  async function cekPin() {
+    try {
+      const res  = await fetch(`${API_URL}?action=verifyPin&pin=${pinBuffer}`);
+      const json = await res.json();
+      if (json.success) {
+        adminPin     = pinBuffer;
+        isSuperAdmin = json.isSuperAdmin;
+        if (isSuperAdmin) {
+          masukSuperAdmin();
+        } else {
+          adminUnit = allData.find(u => u.nama === json.unitNama) || { nama: json.unitNama, personil: [] };
+          masukAdmin();
+        }
+      } else {
+        renderDots(true);
+        document.getElementById("pinError").textContent = "PIN salah, coba lagi";
+        setTimeout(resetPin, 900);
+      }
+    } catch (err) {
+      renderDots(true);
+      document.getElementById("pinError").textContent = "Koneksi gagal";
+      setTimeout(resetPin, 1200);
+    }
+  }
+
+  // ── SUPER ADMIN ───────────────────────────────────────────────
+  // FIX: masukSuperAdmin sekarang buka menu dulu, bukan langsung pengaturan
+  function masukSuperAdmin() {
+    showView("menu");
+    document.getElementById("modalTitle").textContent = "⚙️ Menu Admin";
+  }
+
+  function logoutSuperAdmin() {
+    adminPin = ""; isSuperAdmin = false;
+    resetPin();
+    showView("pin");
+    document.getElementById("modalTitle").textContent = "🔐 Masukkan PIN Admin";
+  }
+
+  // FIX: fungsi bukaMenuSetting yang sebelumnya tidak ada
+  function bukaMenuSetting() {
+    showView("superadmin");
+    document.getElementById("modalTitle").textContent = "⚙️ Pengaturan Form";
+    renderSettingsList();
+  }
+
+  // FIX: fungsi bukaMenuPersonil yang sebelumnya tidak ada
+  function bukaMenuPersonil() {
+    showView("admin");
+    document.getElementById("modalTitle").textContent = "👥 Kelola Personil";
+    document.getElementById("adminUnitNama").textContent = "Pilih Unit di bawah";
+    document.getElementById("btnBackOrLogout").textContent = "← Kembali";
+
+    // Tampilkan dropdown unit untuk super admin
+    const picker = document.getElementById("saUnitPicker");
+    picker.style.display = "block";
+
+    // Isi dropdown unit
+    const saSelect = document.getElementById("saUnitSelect");
+    saSelect.innerHTML = '<option value="">-- Pilih Unit --</option>';
+    allData.forEach((u, i) => {
+      const opt = document.createElement("option");
+      opt.value = i;
+      opt.textContent = u.nama;
+      saSelect.appendChild(opt);
+    });
+
+    // Kosongkan list personil sampai unit dipilih
+    adminUnit = null;
+    document.getElementById("personilList").innerHTML =
+      '<p style="font-size:13px;color:#aab8c8;text-align:center;padding:10px 0">Pilih unit terlebih dahulu</p>';
+    document.getElementById("inputNama").value = "";
+    document.getElementById("inputPN").value   = "";
+    document.getElementById("adminMsg").textContent = "";
+  }
+
+  // FIX: fungsi gantiUnitAdmin yang sebelumnya tidak ada
+  function gantiUnitAdmin() {
+    const idx = document.getElementById("saUnitSelect").value;
+    if (idx === "") {
+      adminUnit = null;
+      document.getElementById("adminUnitNama").textContent = "Pilih Unit di bawah";
+      document.getElementById("personilList").innerHTML =
+        '<p style="font-size:13px;color:#aab8c8;text-align:center;padding:10px 0">Pilih unit terlebih dahulu</p>';
+      return;
+    }
+    adminUnit = JSON.parse(JSON.stringify(allData[parseInt(idx)])); // deep copy
+    document.getElementById("adminUnitNama").textContent = adminUnit.nama;
+    renderPersonilList();
+  }
+
+  // FIX: kembali ke menu dari halaman pengaturan
+  function kembaliKeMenu() {
+    showView("menu");
+    document.getElementById("modalTitle").textContent = "⚙️ Menu Admin";
+  }
+
+  // FIX: handle tombol Kembali/Keluar di admin view secara dinamis
+  function handleBackOrLogout() {
+    if (isSuperAdmin) {
+      // Super admin → kembali ke menu
+      document.getElementById("saUnitPicker").style.display = "none";
+      kembaliKeMenu();
+    } else {
+      // Unit admin → logout
+      logout();
+    }
+  }
+
+  function renderSettingsList() {
+    const container = document.getElementById("settingsList");
+    if (!settingsList.length) {
+      container.innerHTML = '<p style="font-size:13px;color:#aab8c8;text-align:center;padding:16px 0">Tidak ada pengaturan</p>';
+      return;
+    }
+    container.innerHTML = settingsList.map(s => `
+      <div class="setting-item">
+        <div class="setting-label">${escHtml(s.keterangan)}</div>
+        <div class="setting-hint">${escHtml(s.petunjuk)}</div>
+        <div class="setting-input-row">
+          <input type="text" class="setting-input" id="sinput_${s.key}" value="${escHtml(s.nilai)}">
+          <button class="btn-save" onclick="simpanSetting('${escHtml(s.key)}', this)">Simpan</button>
+        </div>
+        <div class="setting-msg" id="smsg_${s.key}"></div>
+      </div>
+    `).join("");
+  }
+
+  async function simpanSetting(key, btn) {
+    const input = document.getElementById("sinput_" + key);
+    const val   = input.value.trim();
+    btn.disabled = true;
+    try {
+      const res  = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "updateSetting", key, value: val, pin: adminPin })
+      });
+      const json = await res.json();
+      const msg  = document.getElementById("smsg_" + key);
+      if (json.success) {
+        cfg[key] = val;
+        const s = settingsList.find(x => x.key === key);
+        if (s) s.nilai = val;
+        msg.textContent = "✓ " + json.message;
+        msg.className = "setting-msg ok";
+      } else {
+        msg.textContent = "✗ " + json.error;
+        msg.className = "setting-msg err";
+      }
+      setTimeout(() => { msg.textContent = ""; msg.className = "setting-msg"; }, 3000);
+    } catch (err) {
+      const msg = document.getElementById("smsg_" + key);
+      msg.textContent = "✗ Koneksi gagal";
+      msg.className = "setting-msg err";
+    }
+    btn.disabled = false;
+  }
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  }
+
+  // ── UNIT ADMIN ────────────────────────────────────────────────
+  function masukAdmin() {
+    showView("admin");
+    document.getElementById("modalTitle").textContent = "⚙️ Admin Unit";
+    document.getElementById("adminUnitNama").textContent = adminUnit.nama;
+    document.getElementById("btnBackOrLogout").textContent = "Keluar";
+    document.getElementById("saUnitPicker").style.display = "none"; // Sembunyikan picker untuk unit admin
+    renderPersonilList();
+  }
+
+  function logout() {
+    adminUnit = null; adminPin = ""; isSuperAdmin = false;
+    resetPin();
+    showView("pin");
+    document.getElementById("modalTitle").textContent = "🔐 Masukkan PIN Admin";
+    document.getElementById("inputNama").value = "";
+    document.getElementById("inputPN").value   = "";
+    document.getElementById("adminMsg").textContent = "";
+  }
+
+  function renderPersonilList() {
+    const list = document.getElementById("personilList");
+    if (!adminUnit) {
+      list.innerHTML = '<p style="font-size:13px;color:#aab8c8;text-align:center;padding:10px 0">Pilih unit terlebih dahulu</p>';
+      return;
+    }
+    const p = adminUnit.personil || [];
+    if (p.length === 0) {
+      list.innerHTML = '<p style="font-size:13px;color:#aab8c8;text-align:center;padding:10px 0">Belum ada personil</p>';
+      return;
+    }
+    list.innerHTML = p.map(x => `
+      <div class="personil-item">
+        <div class="personil-info">
+          <div class="p-nama">${escHtml(x.nama)}</div>
+          <div class="p-pn">PN: ${escHtml(x.pn)}</div>
+        </div>
+        <button class="btn-hapus" onclick="hapusPersonil('${escHtml(x.pn)}')">Hapus</button>
+      </div>
+    `).join("");
+  }
+
+  async function hapusPersonil(pn) {
+    if (!adminUnit) { showAdminMsg("Pilih unit terlebih dahulu", false); return; }
+    if (!confirm("Hapus personil dengan PN " + pn + "?")) return;
+    setAdminLoading(true);
+    try {
+      const res  = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "deletePersonil", unitNama: adminUnit.nama, pn, pin: adminPin })
+      });
+      const json = await res.json();
+      if (json.success) {
+        adminUnit.personil = adminUnit.personil.filter(x => x.pn !== pn);
+        // Sinkronisasi ke allData
+        const idx = allData.findIndex(u => u.nama === adminUnit.nama);
+        if (idx >= 0) allData[idx].personil = adminUnit.personil;
+        populateUnitSelect();
+        renderPersonilList();
+        showAdminMsg(json.message, true);
+      } else {
+        showAdminMsg(json.error, false);
+      }
+    } catch (err) {
+      showAdminMsg("Koneksi gagal", false);
+    }
+    setAdminLoading(false);
+  }
+
+  async function tambahPersonil() {
+    if (!adminUnit) { showAdminMsg("Pilih unit terlebih dahulu", false); return; }
+    const nama = document.getElementById("inputNama").value.trim();
+    const pn   = document.getElementById("inputPN").value.trim();
+    if (!nama || !pn) { showAdminMsg("Nama dan PN wajib diisi", false); return; }
+
+    document.getElementById("btnTambah").disabled = true;
+    setAdminLoading(true);
+    try {
+      const res  = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "addPersonil", unitNama: adminUnit.nama, nama, pn, pin: adminPin })
+      });
+      const json = await res.json();
+      if (json.success) {
+        const newP = { nama: nama.toUpperCase(), pn };
+        adminUnit.personil.push(newP);
+        // Sinkronisasi ke allData
+        const idx = allData.findIndex(u => u.nama === adminUnit.nama);
+        if (idx >= 0) allData[idx].personil = adminUnit.personil;
+        populateUnitSelect();
+        renderPersonilList();
+        document.getElementById("inputNama").value = "";
+        document.getElementById("inputPN").value   = "";
+        showAdminMsg(json.message, true);
+      } else {
+        showAdminMsg(json.error, false);
+      }
+    } catch (err) {
+      showAdminMsg("Koneksi gagal", false);
+    }
+    document.getElementById("btnTambah").disabled = false;
+    setAdminLoading(false);
+  }
+
+  function setAdminLoading(on) {
+    document.getElementById("adminLoading").classList.toggle("show", on);
+  }
+
+  function showAdminMsg(msg, ok) {
+    const el = document.getElementById("adminMsg");
+    el.textContent = msg;
+    el.className = "admin-msg " + (ok ? "ok" : "err");
+    setTimeout(() => { el.textContent = ""; el.className = "admin-msg"; }, 3000);
+  }
+</script>
+</body>
+</html>
