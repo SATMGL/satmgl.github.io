@@ -310,10 +310,15 @@
     });
   });
 
-  /* -- fade in on load -- */
-  document.body.style.opacity = '0';
-  document.body.style.transition = 'opacity .3s ease';
-  window.addEventListener('load', () => setTimeout(() => document.body.style.opacity = '1', 20));
+  /* -- reset overlay saat kembali -- */
+  window.addEventListener('pageshow', () => {
+    const ov = document.getElementById('overlay');
+    ov.classList.remove('go');
+    ov.style.transition = 'none';
+    ov.style.transform = 'scaleX(0)';
+    setTimeout(() => { ov.style.transition = ''; }, 50);
+    document.body.style.opacity = '1';
+  });
 </script>
 </body>
 </html>
