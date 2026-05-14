@@ -43,32 +43,53 @@
   header {
     flex-shrink: 0;
     background: var(--blue);
-    padding: 16px 20px 14px;
+    padding: 16px 20px 20px;
     text-align: center;
-    border-radius: 0 0 24px 24px;
+    border-radius: 0 0 28px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    bottom: -18px; left: -30%;
+    width: 160%; height: 48px;
+    background: rgba(255,255,255,.07);
+    border-radius: 50%;
+    animation: wave 4s ease-in-out infinite;
+  }
+  @keyframes wave {
+    0%,100% { transform: translateX(0); }
+    50%      { transform: translateX(4%); }
   }
 
   .logo {
-    width: 42px; height: 42px;
-    border-radius: 12px;
-    background: rgba(255,255,255,.15);
-    border: 1.5px solid rgba(255,255,255,.3);
+    width: 46px; height: 46px;
+    border-radius: 13px;
+    background: rgba(255,255,255,.18);
+    border: 1.5px solid rgba(255,255,255,.35);
     display: inline-flex;
     align-items: center; justify-content: center;
-    font-size: 20px;
-    margin-bottom: 6px;
+    font-size: 22px;
+    margin-bottom: 7px;
+    position: relative; z-index: 1;
+    animation: logoPulse 3s ease-in-out infinite;
+  }
+  @keyframes logoPulse {
+    0%,100% { transform: scale(1);    box-shadow: 0 0 0 0   rgba(255,255,255,.3); }
+    50%      { transform: scale(1.06); box-shadow: 0 0 0 8px rgba(255,255,255,.0); }
   }
 
   header h1 {
     font-size: 16px; font-weight: 700;
-    color: #ffffff;
-    letter-spacing: .3px;
+    color: #ffffff; letter-spacing: .3px;
+    position: relative; z-index: 1;
   }
-
   header p {
     font-size: 11px;
     color: rgba(255,255,255,.65);
     margin-top: 2px;
+    position: relative; z-index: 1;
   }
 
   /* ── GRID MENU ── */
@@ -90,7 +111,6 @@
     width: 100%;
   }
 
-  /* ── CARD ── */
   .card {
     border-radius: var(--radius);
     padding: 8px 10px;
@@ -108,21 +128,47 @@
       0 6px 12px rgba(21,101,192,.12);
     position: relative;
     overflow: hidden;
-    transition: transform .15s ease, box-shadow .15s ease;
-    animation: fadeUp .35s both;
+    transition: transform .2s ease, box-shadow .2s ease;
+    animation: fadeUp .4s both;
   }
 
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.9) inset,
+      0 6px 0 #94bde8,
+      0 10px 20px rgba(21,101,192,.15);
+  }
+
+  /* icon float — terus bergerak di HP (tidak butuh hover) */
+  .card:nth-child(1) .icon { animation: floatA 3s   .0s  ease-in-out infinite; }
+  .card:nth-child(2) .icon { animation: floatA 3.4s .4s  ease-in-out infinite; }
+  .card:nth-child(3) .icon { animation: floatA 3s   .8s  ease-in-out infinite; }
+  .card:nth-child(4) .icon { animation: floatA 3.4s .2s  ease-in-out infinite; }
+  .card:nth-child(5) .icon { animation: floatA 3s   1s   ease-in-out infinite; }
+  .card:nth-child(6) .icon { animation: floatA 3.4s .6s  ease-in-out infinite; }
+  .card:nth-child(7) .icon { animation: floatA 3s   .3s  ease-in-out infinite; }
+  @keyframes floatA {
+    0%,100% { transform: translateY(0px); }
+    50%     { transform: translateY(-4px); }
+  }
+
+  /* shimmer garis bawah card */
   .card::after {
     content: '';
     position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 3px;
+    bottom: 0; left: 0; right: 0; height: 3px;
     border-radius: 0 0 var(--radius) var(--radius);
-    opacity: .7;
+    background: linear-gradient(90deg, var(--card-line), #b8d9f5, var(--card-line));
+    background-size: 200% 100%;
+    animation: shimmer 2.5s ease-in-out infinite;
+  }
+  @keyframes shimmer {
+    0%   { background-position: 100% 0; }
+    100% { background-position: -100% 0; }
   }
 
-  /* garis bawah semua kartu — satu warna */
-  .card::after { background: var(--card-line); }
+  /* garis bawah sudah di-handle di blok hover+shimmer di atas */
 
   .card:nth-child(1) { animation-delay: .05s }
   .card:nth-child(2) { animation-delay: .10s }
@@ -133,8 +179,8 @@
   .card:nth-child(7) { animation-delay: .35s }
 
   @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(18px) scale(.97); }
+    to   { opacity: 1; transform: translateY(0)    scale(1); }
   }
 
   .card:active {
@@ -170,6 +216,7 @@
     flex-shrink: 0;
     text-align: center;
     padding: 4px 14px 6px;
+    animation: fadeUp .4s .4s both;
   }
 
   .admin {
@@ -310,7 +357,17 @@
     });
   });
 
-  /* -- reset overlay saat kembali -- */
+  /* -- touch press bounce -- */
+  document.querySelectorAll('.card').forEach(el => {
+    el.addEventListener('touchstart', function() {
+      this.style.transform = 'scale(.95) translateY(3px)';
+      this.style.transition = 'transform .1s ease';
+    }, { passive: true });
+    el.addEventListener('touchend', function() {
+      this.style.transform = '';
+      this.style.transition = 'transform .2s ease';
+    }, { passive: true });
+  });
   window.addEventListener('pageshow', () => {
     const ov = document.getElementById('overlay');
     ov.classList.remove('go');
