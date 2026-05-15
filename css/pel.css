@@ -79,7 +79,7 @@ main { border-color: var(--tema-primer); }
 div:has(> #btn-bulan),
 div:has(> #btn-unit) {
   border-color: var(--tema-primer) !important;
-  background: var(--tema-muda) !important;
+  background: #ffffff !important;
 }
 
 #btn-bulan,
@@ -116,7 +116,7 @@ div:has(> #btn-unit) {
 #btn-edit {
   border-color: var(--tema-primer) !important;
   color: var(--tema-gelap) !important;
-  background: var(--tema-muda) !important;
+  background: #ffffff !important;
   transition: background 0.15s, color 0.15s;
 }
 #btn-download:not(:disabled):hover,
@@ -128,7 +128,7 @@ div:has(> #btn-unit) {
 #btn-undo,
 #btn-redo {
   border-color: var(--tema-primer) !important;
-  background: var(--tema-muda) !important;
+  background: #ffffff !important;
   color: var(--tema-gelap) !important;
   transition: background 0.15s, color 0.15s;
 }
@@ -144,9 +144,9 @@ div:has(> #btn-unit) {
 
 .jadwal-judul {
   border-color: var(--tema-primer);
-  color: var(--tema-teks-invers) !important;
-  background: linear-gradient(90deg, var(--tema-gelap) 0%, var(--tema-primer) 60%, var(--tema-aksen) 100%);
-  text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  color: var(--tema-gelap) !important;
+  background: #ffffff;
+  text-shadow: none;
   letter-spacing: 0.15em;
 }
 
@@ -154,7 +154,7 @@ div:has(> #btn-unit) {
 
 /* ── Header tabel ─────────────────────────────────── */
 .jadwal table thead th {
-  background: var(--tema-sedang);
+  background: #ffffff;
   color: var(--tema-sangat-gelap);
   border-bottom-color: var(--tema-primer);
   border-right-color: var(--tema-primer);
@@ -166,16 +166,16 @@ div:has(> #btn-unit) {
 
 /* ── Fader ────────────────────────────────────────── */
 .jadwal-fader {
-  background: var(--tema-sedang);
+  background: #ffffff;
   border-top-color: var(--tema-primer);
 }
 .jadwal-fader-track {
   border-color: var(--tema-primer);
-  background: var(--tema-muda);
+  background: #ffffff;
 }
 .jadwal-fader-knob {
   border-color: var(--tema-primer);
-  background: var(--tema-sedang);
+  background: #ffffff;
 }
 .fader-grip { background: var(--tema-primer); }
 
@@ -219,7 +219,7 @@ div:has(> #btn-unit) {
 
 /* ── Running teks ─────────────────────────────────── */
 .running-teks-wrap {
-  background: var(--tema-sedang);
+  background: #ffffff;
   border-top: 1px solid var(--tema-primer);
   border-bottom: 1px solid var(--tema-primer);
 }
@@ -278,7 +278,7 @@ div:has(> #btn-unit) {
   box-sizing: border-box; padding: 0 0.4vw;
   border-color: var(--tema-primer) !important;
   color: var(--tema-gelap) !important;
-  background: var(--tema-muda) !important;
+  background: #ffffff !important;
   transition: background 0.12s, color 0.12s;
 }
 #modal-content button:hover {
@@ -287,7 +287,7 @@ div:has(> #btn-unit) {
 }
 #modal-footer {
   border-color: var(--tema-primer) !important;
-  background: var(--tema-muda) !important;
+  background: #ffffff !important;
   min-height: 5vh; padding: 0.5vh; box-sizing: border-box;
 }
 #modal-footer button {
@@ -295,7 +295,7 @@ div:has(> #btn-unit) {
   padding: 0 3vw; white-space: nowrap; box-sizing: border-box;
   border-color: var(--tema-primer) !important;
   color: var(--tema-gelap) !important;
-  background: var(--tema-muda) !important;
+  background: #ffffff !important;
   transition: background 0.12s, color 0.12s;
 }
 #modal-footer button:hover {
@@ -341,7 +341,7 @@ div:has(> #btn-unit) {
   font-size: clamp(9px, 1.6vh, 14px) !important;
   height: clamp(32px, 5vh, 48px) !important;
   box-sizing: border-box;
-  background: var(--tema-muda) !important;
+  background: #ffffff !important;
   color: var(--tema-gelap) !important;
   transition: background 0.12s, color 0.12s;
 }
@@ -357,7 +357,7 @@ div:has(> #btn-unit) {
 .btn-nilai {
   border-color: var(--tema-primer) !important;
   color: var(--tema-gelap) !important;
-  background: var(--tema-muda) !important;
+  background: #ffffff !important;
   font-size: clamp(9px, 1.6vh, 14px) !important;
   height: clamp(32px, 5vh, 48px) !important;
   box-sizing: border-box;
@@ -370,13 +370,13 @@ div:has(> #btn-unit) {
 
 #modal-nilai-overlay > div > div:last-child {
   border-top-color: var(--tema-primer) !important;
-  background: var(--tema-muda) !important;
+  background: #ffffff !important;
 }
 
 #modal-download-overlay button:not([onclick*="remove"]) {
   border-color: var(--tema-primer) !important;
   color: var(--tema-gelap) !important;
-  background: var(--tema-muda) !important;
+  background: #ffffff !important;
   font-size: clamp(9px, 1.6vh, 14px) !important;
   height: clamp(36px, 6vh, 56px) !important;
   box-sizing: border-box;
@@ -446,7 +446,7 @@ div:has(> #btn-unit) {
   background: var(--tema-sangat-gelap) !important;
 }
 #modal-password-overlay #mp-btn-batal {
-  background: var(--tema-muda) !important;
+  background: #ffffff !important;
   color: var(--tema-gelap) !important;
 }
 #modal-password-overlay #mp-btn-batal:hover {
