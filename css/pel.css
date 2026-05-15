@@ -7,8 +7,8 @@
   --tema-primer      : #f37021;
   --tema-gelap       : #c45510;
   --tema-sangat-gelap: #8a3a08;
-  --tema-muda        : #fff5ee;
-  --tema-sedang      : #fde4cc;
+  --tema-muda        : #ffffff;
+  --tema-sedang      : #f5f5f5;
   --tema-aksen       : #f8934d;
   --tema-teks-invers : #fff;
   --tema-teks-gelap  : #3a1a00;
@@ -16,14 +16,14 @@
 
 /* ── Background halaman ───────────────────────────── */
 body {
-  background: linear-gradient(160deg, #fff5ee 0%, #fde4cc 100%);
+  background: #ffffff;
   min-height: 100vh;
 }
 
 /* ── Header ───────────────────────────────────────── */
 header {
   border-color: var(--tema-primer);
-  background: linear-gradient(90deg, #fff5ee 0%, #fde4cc 60%, #f8934d22 100%);
+  background: #ffffff;
   border-bottom: 2px solid var(--tema-primer);
   box-shadow: 0 2px 8px rgba(243,112,33,0.12);
 }
@@ -40,13 +40,13 @@ header {
 
 #header-judul {
   color: var(--tema-gelap) !important;
-  text-shadow: 0 1px 0 #fde4cc;
+  text-shadow: none;
 }
 
 /* ── Footer ───────────────────────────────────────── */
 footer {
   border-color: var(--tema-primer);
-  background: linear-gradient(90deg, #fff5ee 0%, #fde4cc 100%);
+  background: #ffffff;
   border-top: 2px solid var(--tema-primer);
   box-shadow: 0 -2px 8px rgba(243,112,33,0.10);
 }
@@ -70,7 +70,7 @@ main { border-color: var(--tema-primer); }
 .panel,
 .panel-bottom {
   border-color: var(--tema-primer);
-  background: linear-gradient(90deg, #fff5ee 0%, #fde4cc 100%);
+  background: #ffffff;
   border-top: 2px solid var(--tema-primer);
   border-bottom: 2px solid var(--tema-primer);
 }
