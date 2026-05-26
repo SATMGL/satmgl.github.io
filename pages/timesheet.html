@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Timesheet — BRI Kanca Magelang</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 <style>
 /* =====================================================================
    ROOT & RESET
@@ -1099,10 +1100,21 @@ async function doDownload(format) {
   setDlStatus('loading', 'Menyiapkan PDF...');
   enableDownload(false);
 
-  const qs = 'action=downloadPdf' +
-    '&nama=' + encodeURIComponent(nama) +
-    '&bulan=' + encodeURIComponent(bulanStr) +
-    '&unit=' + encodeURIComponent(unit);
+  // Ambil data diri dari DOM (sudah bisa diedit via modal Edit Data)
+  // Dikirim via GET (flat params) agar tidak ada preflight CORS — GAS tidak support OPTIONS
+  const getDOM = id => { const el = document.getElementById(id); return el ? el.textContent.trim() : ''; };
+  const qs = new URLSearchParams({
+    action:   'downloadPdf',
+    nama:     nama,
+    bulan:    bulanStr,
+    unit:     unit,
+    noreg:    getDOM('fill-noreg'),
+    tglmasuk: getDOM('fill-tglmasuk'),
+    norek:    getDOM('fill-norek'),
+    bank:     getDOM('fill-bank'),
+    nohp:     getDOM('fill-nohp'),
+    email:    getDOM('fill-email'),
+  }).toString();
 
   try {
     const res  = await fetch(GAS_URL + '?' + qs);
@@ -1561,6 +1573,101 @@ async function adminCetak() {
   win.document.write('</body></html>');
   win.document.close();
   win.onload = () => { win.focus(); win.print(); };
+}
+
+// =====================================================================
+// ADMIN UNDUH PDF — multi-nama, satu file PDF gabungan
+// =====================================================================
+async function adminDownloadPdf() {
+  if (!daftarTerpilih.length) { showAlert('Pilih nama terlebih dahulu.'); return; }
+  const periodeVal = cddPeriode._getValue();
+  if (!periodeVal) { showAlert('Pilih periode terlebih dahulu.'); return; }
+  const [bulan, tahun] = periodeVal.split('-').map(Number);
+  const bulanStr = BULAN[bulan - 1] + ' ' + tahun;
+
+  const pdfBytes = [];
+  const gagal    = [];
+
+  for (let i = 0; i < daftarTerpilih.length; i++) {
+    const { nama, unit } = daftarTerpilih[i];
+    showLoading('Mengunduh PDF ' + (i + 1) + '/' + daftarTerpilih.length + ': ' + singkatNama(nama) + '...');
+    try {
+      // Ambil data diri personil dari personilData
+      const pData = personilData.find(d => (d['NAMA'] || '').trim().toUpperCase() === nama.toUpperCase());
+      const lastDay = new Date(tahun, bulan, 0).getDate();
+      const noPrefix = ['KC MAGELANG', 'KCP SHOPPING'];
+
+      // Kirim via GET + flat params (hindari preflight CORS — GAS tidak support OPTIONS)
+      const qs = new URLSearchParams({
+        action:   'downloadPdf',
+        nama:     nama,
+        bulan:    bulanStr,
+        unit:     unit,
+        noreg:    pData ? (pData['NO_REG']                 || '') : '',
+        tglmasuk: pData ? formatTanggal(pData['TGL_MASUK'])       : '',
+        norek:    pData ? (pData['NO_REK']                 || '') : '',
+        bank:     pData ? (pData['BANK'] || pData['Bank']  || '') : '',
+        nohp:     pData ? (pData['NO. HP']                 || '') : '',
+        email:    pData ? (pData['ALAMAT EMAIL']           || '') : '',
+      }).toString();
+
+      const res  = await fetch(GAS_URL + '?' + qs);
+      const data = await res.json();
+      if (!data || data.status !== 'ok') {
+        gagal.push(singkatNama(nama) + ': ' + (data ? data.message : 'no response'));
+        continue;
+      }
+      // decode base64 → Uint8Array
+      const chars = atob(data.base64);
+      const bytes = new Uint8Array(chars.length);
+      for (let j = 0; j < chars.length; j++) bytes[j] = chars.charCodeAt(j);
+      pdfBytes.push(bytes);
+    } catch (e) {
+      gagal.push(singkatNama(nama) + ': ' + e.message);
+      console.error('Error PDF', nama, e);
+    }
+  }
+
+  if (!pdfBytes.length) {
+    hideLoading();
+    showAlert('✘ Tidak ada PDF yang berhasil diunduh.' + (gagal.length ? '\n' + gagal.join('\n') : ''));
+    return;
+  }
+
+  showLoading('Menggabungkan ' + pdfBytes.length + ' halaman...');
+
+  try {
+    const { PDFDocument } = PDFLib;
+    const merged = await PDFDocument.create();
+
+    for (const bytes of pdfBytes) {
+      const src   = await PDFDocument.load(bytes);
+      const pages = await merged.copyPages(src, src.getPageIndices());
+      pages.forEach(p => merged.addPage(p));
+    }
+
+    const mergedBytes = await merged.save();
+    const blob  = new Blob([mergedBytes], { type: 'application/pdf' });
+    const url   = URL.createObjectURL(blob);
+    const a     = document.createElement('a');
+    const namaFile = 'TS_' + BULAN[bulan - 1] + '_' + tahun +
+      (daftarTerpilih.length > 1
+        ? '_' + daftarTerpilih.length + 'org'
+        : '_' + singkatNama(daftarTerpilih[0].nama).replace(/\s+/g, '_')) +
+      '.pdf';
+    a.href = url; a.download = namaFile;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+
+    hideLoading();
+    const pesanOk = '✔ ' + namaFile + ' berhasil diunduh!';
+    const pesanGagal = gagal.length ? '\n⚠ Gagal: ' + gagal.join(', ') : '';
+    showAlert(pesanOk + pesanGagal, 5000);
+  } catch (e) {
+    hideLoading();
+    showAlert('✘ Gagal menggabungkan PDF: ' + e.message);
+    console.error(e);
+  }
 }
 
 // =====================================================================
