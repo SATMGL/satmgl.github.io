@@ -1083,56 +1083,57 @@ function fillAbsensiTable(jadwal, bulan, tahun) {
 }
 
 // =====================================================================
-// DOWNLOAD via GAS-TIMESHEET
+// DOWNLOAD via GAS-TIMESHEET (export langsung dari Google Sheets)
 // =====================================================================
 async function doDownload(format) {
-  const nama  = cddNama._getValue();
-  const unit  = cddUnit._getValue();
+  const nama = cddNama._getValue();
+  const unit = cddUnit._getValue();
   if (!nama || !unit || !currentBulan) return;
 
-  const bulanStr = BULAN[currentBulan-1] + ' ' + currentTahun;
+  const bulanStr = BULAN[currentBulan - 1] + ' ' + currentTahun;
+  const pData    = personilData.find(d => (d['NAMA'] || '').trim().toUpperCase() === nama.toUpperCase());
 
-  setDlStatus('loading', 'Menyiapkan PDF...');
+  setDlStatus('loading', 'Mengambil dari server...');
   enableDownload(false);
 
-  // Ambil data diri dari DOM (sudah bisa diedit via modal Edit Data)
-  // Dikirim via GET (flat params) agar tidak ada preflight CORS — GAS tidak support OPTIONS
-  const getDOM = id => { const el = document.getElementById(id); return el ? el.textContent.trim() : ''; };
-  const qs = new URLSearchParams({
-    action:   'downloadPdf',
-    nama:     nama,
-    bulan:    bulanStr,
-    unit:     unit,
-    noreg:    getDOM('fill-noreg'),
-    tglmasuk: getDOM('fill-tglmasuk'),
-    norek:    getDOM('fill-norek'),
-    bank:     getDOM('fill-bank'),
-    nohp:     getDOM('fill-nohp'),
-    email:    getDOM('fill-email'),
-  }).toString();
-
   try {
+    const qs = new URLSearchParams({
+      action:   'downloadPdf',
+      nama:     nama,
+      bulan:    bulanStr,
+      unit:     unit,
+      noreg:    pData ? (pData['NO_REG']                 || '') : '',
+      tglmasuk: pData ? formatTanggal(pData['TGL_MASUK'])       : '',
+      norek:    pData ? (pData['NO_REK']                 || '') : '',
+      bank:     pData ? (pData['BANK'] || pData['Bank']  || '') : '',
+      nohp:     pData ? (pData['NO. HP']                 || '') : '',
+      email:    pData ? (pData['ALAMAT EMAIL']           || '') : '',
+    }).toString();
+
     const res  = await fetch(GAS_URL + '?' + qs);
     const data = await res.json();
 
     if (!data || data.status !== 'ok') {
-      setDlStatus('err', '✗ ' + (data ? data.message : 'Tidak ada respon'));
+      setDlStatus('err', '\u2717 Gagal: ' + (data ? data.message : 'no response'));
       return;
     }
 
-    const byteChars = atob(data.base64);
-    const byteArr   = new Uint8Array(byteChars.length);
-    for (let i = 0; i < byteChars.length; i++) byteArr[i] = byteChars.charCodeAt(i);
-    const blob = new Blob([byteArr], { type: 'application/pdf' });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href = url; a.download = data.filename;
-    document.body.appendChild(a); a.click();
-    document.body.removeChild(a); URL.revokeObjectURL(url);
+    const chars = atob(data.base64);
+    const bytes = new Uint8Array(chars.length);
+    for (let i = 0; i < chars.length; i++) bytes[i] = chars.charCodeAt(i);
 
-    setDlStatus('done', '✓ ' + data.filename + ' berhasil diunduh!');
+    const blob  = new Blob([bytes], { type: 'application/pdf' });
+    const dlUrl = URL.createObjectURL(blob);
+    const a     = document.createElement('a');
+    a.href = dlUrl;
+    a.download = data.filename || (nama + ' - ' + bulanStr + '.pdf');
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(dlUrl);
+
+    setDlStatus('done', '\u2713 PDF berhasil diunduh!');
   } catch(e) {
-    setDlStatus('err', '✗ Gagal: ' + e.message);
+    setDlStatus('err', '\u2717 Gagal: ' + e.message);
   } finally {
     enableDownload(true);
   }
@@ -1265,38 +1266,48 @@ async function cetakForm() {
   const unit  = cddUnit._getValue();
   if (!nama || !unit || !currentBulan) return;
 
+  const bulanStr = BULAN[currentBulan - 1] + ' ' + currentTahun;
+  const pData    = personilData.find(d => (d['NAMA'] || '').trim().toUpperCase() === nama.toUpperCase());
+
   setDlStatus('loading', 'Menyiapkan cetak...');
   enableDownload(false);
 
   try {
-    // Ambil data jadwal sama seperti doDownload
-    const url  = GAS_URL + '?action=getJadwal&mode=PEN&bulan=' + currentBulan + '&tahun=' + currentTahun + '&unit=' + encodeURIComponent(unit);
-    const res  = await fetch(url);
+    // Kirim ke GAS sama persis seperti doDownload
+    const qs = new URLSearchParams({
+      action:   'downloadPdf',
+      nama:     nama,
+      bulan:    bulanStr,
+      unit:     unit,
+      noreg:    pData ? (pData['NO_REG']                 || '') : '',
+      tglmasuk: pData ? formatTanggal(pData['TGL_MASUK'])       : '',
+      norek:    pData ? (pData['NO_REK']                 || '') : '',
+      bank:     pData ? (pData['BANK'] || pData['Bank']  || '') : '',
+      nohp:     pData ? (pData['NO. HP']                 || '') : '',
+      email:    pData ? (pData['ALAMAT EMAIL']           || '') : '',
+    }).toString();
+
+    const res  = await fetch(GAS_URL + '?' + qs);
     const data = await res.json();
-    let jadwal = [];
-    if (data && data.personil) {
-      const norm = s => s.trim().toUpperCase().replace(/\s+/g,' ');
-      const p = data.personil.find(p => p.nama && norm(p.nama) === norm(nama));
-      if (p && Array.isArray(p.jadwal)) jadwal = p.jadwal;
+
+    if (!data || data.status !== 'ok') {
+      setDlStatus('err', '✗ Gagal: ' + (data ? data.message : 'no response'));
+      return;
     }
 
-    // Isi data ke halaman yang sedang tampil (langsung update .page)
-    fillPage(document.querySelector('.page'), nama, unit, currentBulan, currentTahun, jadwal);
+    // Decode base64 → Blob → object URL
+    const chars = atob(data.base64);
+    const bytes = new Uint8Array(chars.length);
+    for (let i = 0; i < chars.length; i++) bytes[i] = chars.charCodeAt(i);
+    const blob   = new Blob([bytes], { type: 'application/pdf' });
+    const pdfUrl = URL.createObjectURL(blob);
 
-    hideLoading();
-    setDlStatus('done', '✓ Siap — dialog cetak akan terbuka');
+    // Buka blob PDF langsung di tab baru, lalu trigger print di tab itu
+    const win = window.open(pdfUrl, '_blank');
+    if (!win) { showAlert('Popup diblokir. Izinkan popup untuk mencetak.'); URL.revokeObjectURL(pdfUrl); enableDownload(true); return; }
+    setTimeout(function() { try { win.print(); } catch(e) {} }, 1500);
 
-    // Buka tab print dengan konten halaman saat ini
-    const win = window.open('', '_blank');
-    if (!win) { showAlert('Popup diblokir. Izinkan popup untuk mencetak.'); enableDownload(true); return; }
-    const styles = Array.from(document.querySelectorAll('style')).map(s => s.outerHTML).join('\n');
-    const pageClone = document.querySelector('.page').cloneNode(true);
-    pageClone.style.cssText = 'width:794px;height:1123px;position:relative;overflow:hidden;box-sizing:border-box;transform:none;margin:0;';
-    win.document.write('<html><head>' + styles + '<style>@page{margin:0;size:A4 portrait;}body{margin:0;padding:0;background:#fff;}*{-webkit-print-color-adjust:exact;print-color-adjust:exact;}</style></head><body>');
-    win.document.write(pageClone.outerHTML);
-    win.document.write('</body></html>');
-    win.document.close();
-    win.onload = () => { win.focus(); win.print(); };
+    setDlStatus('done', '✓ Dialog cetak terbuka');
   } catch(e) {
     setDlStatus('err', '✗ Gagal: ' + e.message);
   } finally {
@@ -1492,87 +1503,86 @@ async function adminCetak() {
   const periodeVal = cddPeriode._getValue();
   if (!periodeVal) { showAlert('Pilih periode terlebih dahulu.'); return; }
   const [bulan, tahun] = periodeVal.split('-').map(Number);
-  const lastDay = new Date(tahun, bulan, 0).getDate();
-  const container = document.createElement('div');
-  showLoading('Memuat data...');
+  const bulanStr = BULAN[bulan - 1] + ' ' + tahun;
+
+  const pdfBytes = [];
+  const gagal    = [];
+
   for (let i = 0; i < daftarTerpilih.length; i++) {
     const { nama, unit } = daftarTerpilih[i];
+    showLoading('Mengambil PDF ' + (i + 1) + '/' + daftarTerpilih.length + ': ' + singkatNama(nama) + '...');
     try {
-      const pData = personilData.find(d => (d['NAMA']||'').trim().toUpperCase() === nama.toUpperCase());
-      const url  = GAS_URL + '?action=getJadwal&mode=PEN&bulan=' + bulan + '&tahun=' + tahun + '&unit=' + encodeURIComponent(unit);
-      const res  = await fetch(url);
-      const data = await res.json();
-      let jadwal = [];
-      if (data && data.personil) {
-        const norm = s => s.trim().toUpperCase().replace(/\s+/g,' ');
-        const p = data.personil.find(p => p.nama && norm(p.nama) === norm(nama));
-        if (p && Array.isArray(p.jadwal)) jadwal = p.jadwal;
-      }
-      const page = document.querySelector('.page').cloneNode(true);
-      page.style.cssText = 'width:794px;height:1123px;position:relative;overflow:hidden;box-sizing:border-box;page-break-after:' + (i < daftarTerpilih.length-1 ? 'always' : 'avoid') + ';transform:none;margin:0;';
-      const setEl = (id, val) => { const el = page.querySelector('#' + id); if (el) el.textContent = val || ''; };
-      setEl('fill-proyek', 'BRI KANCA MAGELANG');
-      setEl('fill-nama', singkatNama(nama));
-      const noPrefix = ['KC MAGELANG','KCP SHOPPING'];
-      setEl('fill-lokasi', noPrefix.includes(unit) ? unit : 'UNIT ' + unit);
-      setEl('fill-periode', '1 s/d ' + lastDay + ' ' + BULAN[bulan-1] + ' ' + tahun);
-      if (pData) {
-        setEl('fill-noreg', pData['NO_REG']||''); setEl('fill-tglmasuk', formatTanggal(pData['TGL_MASUK']));
-        setEl('fill-norek', pData['NO_REK']||''); setEl('fill-bank', pData['BANK']||pData['Bank']||'');
-        setEl('fill-nohp', pData['NO. HP']||''); setEl('fill-email', pData['ALAMAT EMAIL']||'');
-      }
-      const secEl = page.querySelector('#fill-security-nama');
-      if (secEl) secEl.innerHTML = '<span style="color:#004B87;font-weight:bold;font-size:6pt;font-family:Arial;">' + namaLengkap3(nama) + '</span>';
+      const pData = personilData.find(d => (d['NAMA'] || '').trim().toUpperCase() === nama.toUpperCase());
 
-      for (let d = 1; d <= 31; d++) {
-        const tglEl = page.querySelector('#tgl-' + d);
-        if (!tglEl) continue;
-        const cells = tglEl.parentElement.querySelectorAll('td');
-        if (cells.length < 13) continue;
-        const dow = new Date(tahun, bulan-1, d).getDay();
-        const isWeekend = dow === 0 || dow === 6;
-        const namaHari = dow===6?'SABTU':dow===0?'MINGGU':'';
-        const namaLiburA = d <= lastDay ? isLibur(tahun, bulan, d) : null;
-        for (let c = 1; c <= 4; c++) { cells[c].textContent=''; cells[c].removeAttribute('style'); }
-        tglEl.removeAttribute('style');
-        cells[12].textContent=''; cells[12].className = d===31?'s17':'s15';
-        if (d > lastDay) continue;
-        const kode = String(jadwal[d-1]||'').trim().toUpperCase();
-        const shift = SHIFT_MAPPING[kode]||null;
-        if (!shift) {
-          if (namaLiburA) { cells[12].textContent=namaLiburA; cells[12].classList.add('keterangan-libur'); }
-          else if(isWeekend){cells[12].textContent=namaHari;cells[12].classList.add(dow===6?'keterangan-sabtu':'keterangan-minggu');}
-          continue;
-        }
-        if (kode==='OFF'||kode==='CUTI'||kode==='SAKIT') {
-          for(let c=1;c<=4;c++){cells[c].textContent=shift.mulai;cells[c].style.cssText=shift.style||'';}
-          tglEl.style.cssText=shift.style||'';
-          // *** FIX: OFF → keterangan kosong; CUTI/SAKIT tetap tampil ***
-          if (kode !== 'OFF') {
-            if (namaLiburA) { cells[12].textContent=namaLiburA; cells[12].classList.add('keterangan-libur'); }
-            else if(isWeekend){cells[12].textContent=namaHari;cells[12].classList.add(dow===6?'keterangan-sabtu':'keterangan-minggu');}
-          }
-        } else {
-          cells[1].textContent=shift.mulai; cells[2].textContent=shift.selesai;
-          if(shift.lemburMulai){cells[3].textContent=shift.lemburMulai;cells[4].textContent=shift.lemburSelesai;}
-          const colorStyle = namaLiburA ? 'color:#cc0000;font-weight:bold;' : isWeekend ? 'color:#1b5e20;font-weight:bold;' : '';
-          if(colorStyle){cells[1].style.cssText=colorStyle;cells[2].style.cssText=colorStyle;if(shift.lemburMulai){cells[3].style.cssText=colorStyle;cells[4].style.cssText=colorStyle;}}
-          if(namaLiburA){cells[12].textContent=namaLiburA;cells[12].classList.add('keterangan-libur');}
-          else if(isWeekend){cells[12].textContent=namaHari;cells[12].classList.add(dow===6?'keterangan-sabtu':'keterangan-minggu');}
-        }
+      const qs = new URLSearchParams({
+        action:   'downloadPdf',
+        nama:     nama,
+        bulan:    bulanStr,
+        unit:     unit,
+        noreg:    pData ? (pData['NO_REG']                 || '') : '',
+        tglmasuk: pData ? formatTanggal(pData['TGL_MASUK'])       : '',
+        norek:    pData ? (pData['NO_REK']                 || '') : '',
+        bank:     pData ? (pData['BANK'] || pData['Bank']  || '') : '',
+        nohp:     pData ? (pData['NO. HP']                 || '') : '',
+        email:    pData ? (pData['ALAMAT EMAIL']           || '') : '',
+      }).toString();
+
+      const res  = await fetch(GAS_URL + '?' + qs);
+      const data = await res.json();
+      if (!data || data.status !== 'ok') {
+        gagal.push(singkatNama(nama) + ': ' + (data ? data.message : 'no response'));
+        continue;
       }
-      container.appendChild(page);
-    } catch(e) { console.error('Error page', nama, e); }
+      const chars = atob(data.base64);
+      const bytes = new Uint8Array(chars.length);
+      for (let j = 0; j < chars.length; j++) bytes[j] = chars.charCodeAt(j);
+      pdfBytes.push(bytes);
+    } catch (e) {
+      gagal.push(singkatNama(nama) + ': ' + e.message);
+      console.error('Error cetak', nama, e);
+    }
   }
-  hideLoading();
-  const win = window.open('','_blank');
-  if (!win) { showAlert('Popup diblokir browser. Izinkan popup untuk mencetak.'); return; }
-  const styles = Array.from(document.querySelectorAll('style')).map(s => s.outerHTML).join('\n');
-  win.document.write('<html><head>' + styles + '<style>@page{margin:0;size:A4 portrait;}body{margin:0;padding:0;background:#fff;}.page{position:relative;width:794px;height:1123px;overflow:hidden;box-sizing:border-box;page-break-after:always;page-break-inside:avoid;}.page:last-child{page-break-after:avoid;}*{-webkit-print-color-adjust:exact;print-color-adjust:exact;}</style></head><body>');
-  win.document.write(container.innerHTML);
-  win.document.write('</body></html>');
-  win.document.close();
-  win.onload = () => { win.focus(); win.print(); };
+
+  if (!pdfBytes.length) {
+    hideLoading();
+    showAlert('✘ Tidak ada PDF yang berhasil diambil.' + (gagal.length ? '\n' + gagal.join('\n') : ''));
+    return;
+  }
+
+  showLoading('Menggabungkan ' + pdfBytes.length + ' halaman...');
+
+  try {
+    const { PDFDocument } = PDFLib;
+    const merged = await PDFDocument.create();
+
+    for (const bytes of pdfBytes) {
+      const src   = await PDFDocument.load(bytes);
+      const pages = await merged.copyPages(src, src.getPageIndices());
+      pages.forEach(p => merged.addPage(p));
+    }
+
+    const mergedBytes = await merged.save();
+    const blob   = new Blob([mergedBytes], { type: 'application/pdf' });
+    const pdfUrl = URL.createObjectURL(blob);
+
+    // Buka PDF gabungan di tab baru lalu trigger print
+    const win = window.open(pdfUrl, '_blank');
+    if (!win) {
+      hideLoading();
+      showAlert('Popup diblokir. Izinkan popup untuk mencetak.');
+      URL.revokeObjectURL(pdfUrl);
+      return;
+    }
+    setTimeout(function() { try { win.print(); } catch(e) {} }, 1500);
+
+    hideLoading();
+    const pesanGagal = gagal.length ? '\n⚠ Gagal: ' + gagal.join(', ') : '';
+    showAlert('✔ Dialog cetak terbuka (' + pdfBytes.length + ' halaman)' + pesanGagal, 5000);
+  } catch (e) {
+    hideLoading();
+    showAlert('✘ Gagal menggabungkan PDF: ' + e.message);
+    console.error(e);
+  }
 }
 
 // =====================================================================
