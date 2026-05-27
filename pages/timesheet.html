@@ -617,34 +617,27 @@ const SHIFT_MAPPING = {
   'SAKIT': { mulai:'SAKIT', selesai:'SAKIT', style:'color:#ff6b6b;font-weight:bold;text-align:center;' }
 };
 
-const STATIC_DATA = {
-  "AKMIL"           : ["DWI SARMANTO","DENI WILIANTORO","MIFTAKHUL KHUSNA","TAOFIK"],
-  "BANDONGAN"       : ["AGUS SYAFARUDIN","IWAN SETIAWAN","MUHAMAD KHOIRUL UMAM"],
-  "BOROBUDUR"       : ["EKO SUSANTO","KURNIAWAN SANTOSO","OKTA DINOVAN SAVANTINO","ARIS WIDIYANTO"],
-  "BOTTON"          : ["AHMADMUSTAKIM","ARI HENDIKA PRABOWO","ARIK BOWO"],
-  "CANDIMULYO"      : ["DWI SETIA KURNIAWAN","ARIF GUNAWAN","MUHAMMAD IRFANDI"],
-  "GLAGAH"          : ["ARGO BAGIYONO","RACHMAT KARIM","HERU SUSANTO"],
-  "GRABAG"          : ["HERI PURWANTO","DAVID ZULFIKAR","FATKHUROHMAN","SIYONO"],
-  "KAJORAN"         : ["RUTNO SURDIYANTO","AHMAD TAUFIQ","MUHAMMAD ADI PUTRA PANGESTU"],
-  "KALIANGKRIK"     : ["ARY YULIANTO","BAGAS INDRASTATA","WAHYU DINAR WICAKSONO"],
-  "KARANG GADING"   : ["AHMAD PRIYO WIDODO","ROBBY FAUZI","PRAYAN DWI RATMOKO"],
-  "KC MAGELANG"     : ["AGUNG TRI LUNGGONO","NELSON TURE SILITONGA","ARIF PURWANTO","GIGIH ARYOSENO","LUTHFI ZAENUL MUTTAQIN","SARYONO","EDI LISTIYAWAN","IRFAN SURYADIN","AGUS SUGIYONO","JOKO PRIYONO","MUHAMMAD ROSIDIN","DARMADI"],
-  "KCP SHOPPING"    : ["EKO ROYO HARYONO","M.SULISTYO","NUNGKI SEPTIYANTO"],
-  "KRASAK"          : ["BAGAS ANUGRAH IMAN","WISNU AJI NUGROHO","DIMAS TEGUH PUTRO RAHARJO"],
-  "MAGELANG SELATAN": ["EKO RISTIAWAN","SODIKIN","CHANDRA FANDI PRADANA"],
-  "MAGELANG UTARA"  : ["ADI KURNIAWAN","RONGGO WAHYUDI","DWI ERIYANTO"],
-  "MERTOYUDAN"      : ["IVAN AGUNG NUGROHO","SAEFUDIN","ADI NUR ROHMAN"],
-  "NGABLAK"          : ["WORO DWI SULISTYO","HARDI SANTOSO","AHMAD NUR EFENDI"],
-  "PAKIS"           : ["AJI MARDIANTO","DESTIONO PUTRA RAHAYU","SUPRIYONO"],
-  "PAYAMAN"         : ["DEFRI TRI PUTRA","ERLIN ADITYA","ASMARA TRIHARTANTO"],
-  "REJOWINANGUN"    : ["MOHAMAD SHOIMAN","UNTUNG TRIYONO","DANIEL KRISDIANTORO","TRI SUTARDI"],
-  "SALAMAN"         : ["IMAM WICAKSONO","MUHAMMAD RIFA'I","GUNAWAN ROJA'I","SURYADI"],
-  "SECANG"          : ["AGUS AZIZANA BANGKIT ANUGRAH","NANDA YULIE ALFIAN","UMAM IKHSANUDIN","IMAM SANTOSO"],
-  "SUKARNO HATTA"   : ["AHMAD ROBIYANTO","WAHID WAHYUDI","S. DARMANTO"],
-  "TEGALREJO"       : ["WAHID BUDI W","DWI HERIYANTO","FAISAL ANJUN HUASAN WAWIJDAN","REYNALDI RAMA DANI"],
-  "TEMPURAN"        : ["SUPRIYONO 321110315","RAFLI BAYU SATRIO","ADI NUGROHO"],
-  "WINDUSARI"       : ["ARIFIN","ANSHARI DWI CAHYONO","RACHMAN EFFENDI"]
-};
+// STATIC_DATA hanya menyimpan daftar unit — nama diambil live dari personilData
+const STATIC_DATA = [
+  "AKMIL","BANDONGAN","BOROBUDUR","BOTTON","CANDIMULYO","GLAGAH","GRABAG",
+  "KAJORAN","KALIANGKRIK","KARANG GADING","KC MAGELANG","KCP SHOPPING",
+  "KRASAK","MAGELANG SELATAN","MAGELANG UTARA","MERTOYUDAN","NGABLAK",
+  "PAKIS","PAYAMAN","REJOWINANGUN","SALAMAN","SECANG","SUKARNO HATTA",
+  "TEGALREJO","TEMPURAN","WINDUSARI"
+];
+
+// Helper: ambil nama dari personilData berdasarkan unit, skip STATUS KOSONG
+function getNamaByUnit(unit) {
+  return personilData
+    .filter(d => {
+      const u      = (d['UNIT KERJA'] || d['UNIT KERJA'.toLowerCase()] || '').trim().toUpperCase();
+      const status = (d['STATUS'] || '').trim().toUpperCase();
+      return u === unit.toUpperCase() && status !== 'KOSONG' && status !== 'STATUS KOSONG';
+    })
+    .map(d => (d['NAMA'] || '').trim())
+    .filter(Boolean)
+    .sort((a, b) => a.localeCompare(b, 'id'));
+}
 
 // =====================================================================
 // UTILS
@@ -784,7 +777,7 @@ const cddUnit = createCDD('cdd-unit', (val) => {
   resetTable();
   const noPrefix = ['KC MAGELANG','KCP SHOPPING'];
   document.getElementById('fill-lokasi').textContent = noPrefix.includes(val) ? val : 'UNIT ' + val;
-  const names = (STATIC_DATA[val] || []).slice().sort((a,b) => a.localeCompare(b,'id'));
+  const names = getNamaByUnit(val);
   cddNama._reset('— Pilih Nama —');
   cddNama.classList.add('cdd-disabled');
   enableEdit(false); enableDownload(false);
@@ -811,7 +804,7 @@ function buildPeriode() {
 }
 
 function buildUnit() {
-  const units = Object.keys(STATIC_DATA).sort((a,b) => a.localeCompare(b,'id'));
+  const units = STATIC_DATA.slice().sort((a,b) => a.localeCompare(b,'id'));
   cddUnit._buildItems(units.map(u => ({ value: u, label: u })), 3);
 }
 
@@ -965,7 +958,9 @@ function fillTable() {
     fill('fill-email',    p['ALAMAT EMAIL'] || '');
   }
 
-  if (currentBulan && unit) loadJadwal(currentBulan, currentTahun, unit, nama);
+  if (currentBulan && unit) {
+    loadJadwal(currentBulan, currentTahun, unit, nama);
+  }
 }
 
 // =====================================================================
@@ -1440,7 +1435,7 @@ function toggleAdminPanel() {
 function buildAdminUnitOptions() {
   const sel = document.getElementById('admin-unit-select');
   sel.innerHTML = '<option value="">— Pilih Unit —</option>';
-  Object.keys(STATIC_DATA).sort().forEach(unit => {
+  STATIC_DATA.slice().sort().forEach(unit => {
     const opt = document.createElement('option');
     opt.value = unit; opt.textContent = unit;
     sel.appendChild(opt);
@@ -1450,8 +1445,13 @@ function buildAdminNamaList() {
   const unit = document.getElementById('admin-unit-select').value;
   const container = document.getElementById('admin-nama-list');
   container.innerHTML = '';
-  if (!unit || !STATIC_DATA[unit]) return;
-  STATIC_DATA[unit].forEach(nama => {
+  if (!unit) return;
+  const namaList = getNamaByUnit(unit);
+  if (!namaList.length) {
+    container.innerHTML = '<div style="color:#888;font-size:8pt;font-family:Arial;padding:4px 8px;">Tidak ada data (belum ter-load)</div>';
+    return;
+  }
+  namaList.forEach(nama => {
     const sudahDipilih = daftarTerpilih.some(d => d.nama === nama && d.unit === unit);
     const div = document.createElement('div');
     div.style.cssText = 'display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:5px;background:' + (sudahDipilih ? '#2a3a2a' : '#111827') + ';cursor:pointer;border:1px solid ' + (sudahDipilih ? '#27ae60' : '#2a2a3e') + ';margin-bottom:3px;';
@@ -1498,6 +1498,7 @@ async function adminCetak() {
   for (let i = 0; i < daftarTerpilih.length; i++) {
     const { nama, unit } = daftarTerpilih[i];
     try {
+      const pData = personilData.find(d => (d['NAMA']||'').trim().toUpperCase() === nama.toUpperCase());
       const url  = GAS_URL + '?action=getJadwal&mode=PEN&bulan=' + bulan + '&tahun=' + tahun + '&unit=' + encodeURIComponent(unit);
       const res  = await fetch(url);
       const data = await res.json();
@@ -1510,7 +1511,6 @@ async function adminCetak() {
       const page = document.querySelector('.page').cloneNode(true);
       page.style.cssText = 'width:794px;height:1123px;position:relative;overflow:hidden;box-sizing:border-box;page-break-after:' + (i < daftarTerpilih.length-1 ? 'always' : 'avoid') + ';transform:none;margin:0;';
       const setEl = (id, val) => { const el = page.querySelector('#' + id); if (el) el.textContent = val || ''; };
-      const pData = personilData.find(d => (d['NAMA']||'').trim().toUpperCase() === nama.toUpperCase());
       setEl('fill-proyek', 'BRI KANCA MAGELANG');
       setEl('fill-nama', singkatNama(nama));
       const noPrefix = ['KC MAGELANG','KCP SHOPPING'];
