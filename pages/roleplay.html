@@ -6,7 +6,7 @@
 <title>ROLEPLAY HELPER</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%;overflow:hidden}
+  html,body{min-height:100%}
   body{
     font-family:'Segoe UI',sans-serif;background:#eef2f7;
     display:flex;flex-direction:column;align-items:center;
@@ -105,6 +105,26 @@
   .btn-retry{display:inline-block;margin-top:6px;padding:5px 12px;border-radius:7px;background:#003f7f;color:white;border:none;font-size:12px;font-weight:700;cursor:pointer}
 
   footer{text-align:center;font-size:clamp(9px,1.2vh,11px);color:#aab8c8;width:100%;flex-shrink:0;padding:2px 0}
+
+  /* ── RIWAYAT (data uploadan) ── */
+  .riwayat-controls{display:flex;gap:8px;margin-bottom:10px}
+  .riwayat-controls select,.riwayat-controls input[type=date]{
+    flex:1;min-width:0;padding:clamp(6px,1vh,9px) 10px;border:1.5px solid #c8d8ea;border-radius:9px;
+    font-size:clamp(11px,1.6vh,13px);color:#1a3a5c;background:#f8fbff;outline:none;
+  }
+  .riwayat-controls select:focus,.riwayat-controls input[type=date]:focus{border-color:#185fa5}
+  .riwayat-list{max-height:260px;overflow-y:auto}
+  .riwayat-item{padding:clamp(6px,1vh,9px) 0;border-bottom:1px solid #eef2f7}
+  .riwayat-item:last-child{border-bottom:none}
+  .ri-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .ri-nama{font-size:13px;font-weight:700;color:#1a3a5c}
+  .ri-jam{font-size:10px;color:#aab8c8;flex-shrink:0}
+  .ri-jabatan{font-size:11px;color:#5a7a9a;margin-top:1px}
+  .ri-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:4px;gap:8px}
+  .ri-ket{font-size:11px;color:#27ae60;font-weight:600}
+  .ri-link{font-size:11px;color:#185fa5;font-weight:700;text-decoration:none;flex-shrink:0}
+  .ri-link:hover{text-decoration:underline}
+  .riwayat-empty,.riwayat-loading{font-size:12px;color:#aab8c8;text-align:center;padding:16px 0}
 
   /* ── MODAL OVERLAY ── */
   .modal-overlay{
@@ -357,6 +377,19 @@
 </div>
 
 <footer id="footerTxt">ROLEPLAY HELPER</footer>
+
+<div class="card">
+  <div class="card-title">📊 Riwayat Roleplay</div>
+  <div class="riwayat-controls">
+    <select id="riwayatUnit" onchange="loadRiwayat()">
+      <option value="">-- Unit --</option>
+    </select>
+    <input type="date" id="riwayatTanggal" onchange="loadRiwayat()">
+  </div>
+  <div class="riwayat-list" id="riwayatList">
+    <div class="riwayat-loading">⏳ Memuat...</div>
+  </div>
+</div>
 </div><!-- end page-wrap -->
 
 <!-- ── MODAL ── -->
@@ -506,6 +539,11 @@
       document.getElementById("footerTxt").textContent = allData.map(u => u.nama).join(" · ") || "ROLEPLAY HELPER";
       // Isi premise input dari setting
       document.getElementById("premiseInput").value = cfg["fixed_premises"] || "";
+
+      // Riwayat roleplay (data uploadan)
+      populateRiwayatUnitSelect();
+      document.getElementById("riwayatTanggal").value = todayISO();
+      loadRiwayat();
     } catch (err) {
       setLoading(false);
       setError(true, "Gagal memuat data: " + err.message);
@@ -996,6 +1034,72 @@
     el.textContent = msg;
     el.className = "admin-msg " + (ok ? "ok" : "err");
     setTimeout(() => { el.textContent = ""; el.className = "admin-msg"; }, 3000);
+  }
+
+  // ── RIWAYAT ROLEPLAY (data uploadan) ───────────────────────────
+  function todayISO() {
+    const d  = new Date();
+    const tz = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+    return tz.toISOString().slice(0, 10);
+  }
+
+  function populateRiwayatUnitSelect() {
+    const sel = document.getElementById("riwayatUnit");
+    sel.innerHTML = "";
+    allData.forEach(u => {
+      const opt = document.createElement("option");
+      opt.value = u.kode || "";
+      opt.textContent = u.nama;
+      sel.appendChild(opt);
+    });
+    // Default ke unit yang mengandung "NGABLAK", kalau tidak ada pakai yang pertama
+    const idx = allData.findIndex(u => (u.nama || "").toUpperCase().includes("NGABLAK"));
+    if (idx >= 0) sel.value = allData[idx].kode || "";
+  }
+
+  async function loadRiwayat() {
+    const kode    = document.getElementById("riwayatUnit").value;
+    const tanggal = document.getElementById("riwayatTanggal").value;
+    const list    = document.getElementById("riwayatList");
+    if (!kode) { list.innerHTML = '<div class="riwayat-empty">Pilih unit dulu</div>'; return; }
+
+    list.innerHTML = '<div class="riwayat-loading">⏳ Memuat...</div>';
+    try {
+      const res  = await fetch(`${API_URL}?action=getSubmissions&kode=${encodeURIComponent(kode)}&tanggal=${encodeURIComponent(tanggal)}`);
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error || "Gagal memuat riwayat");
+      renderRiwayat(json.data || []);
+    } catch (err) {
+      list.innerHTML = '<div class="riwayat-empty">Gagal memuat: ' + escHtml(err.message) + '</div>';
+    }
+  }
+
+  function renderRiwayat(data) {
+    const list = document.getElementById("riwayatList");
+    if (!data.length) {
+      list.innerHTML = '<div class="riwayat-empty">Belum ada roleplay di tanggal ini</div>';
+      return;
+    }
+    list.innerHTML = data.map(r => `
+      <div class="riwayat-item">
+        <div class="ri-top">
+          <span class="ri-nama">${escHtml(r.namaFL || "-")}</span>
+          <span class="ri-jam">${escHtml(formatJam(r.timestamp))}</span>
+        </div>
+        <div class="ri-jabatan">${escHtml(r.jabatan || "-")} · PN ${escHtml(r.pn || "-")}</div>
+        <div class="ri-bottom">
+          <span class="ri-ket">${escHtml(r.keterangan || "")}</span>
+          ${r.link ? `<a class="ri-link" href="${escHtml(r.link)}" target="_blank" rel="noopener">▶ Video</a>` : ""}
+        </div>
+      </div>
+    `).join("");
+  }
+
+  function formatJam(ts) {
+    if (!ts) return "";
+    const d = new Date(ts);
+    if (isNaN(d)) return "";
+    return d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
   }
 </script>
 </body>
