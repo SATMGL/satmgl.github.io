@@ -59,13 +59,13 @@
   .fill-preview{display:none;margin-top:10px;border:1.5px solid #b8d4f0;border-radius:10px;overflow:hidden}
   .fill-preview-header{background:#e6f1fb;padding:5px 10px;display:flex;align-items:center;justify-content:space-between}
   .fill-preview-header span{font-size:11px;font-weight:700;color:#185fa5;text-transform:uppercase;letter-spacing:0.8px}
-  .fill-row{display:flex;align-items:center;justify-content:space-between;padding:clamp(3px,0.6vh,6px) 10px;border-bottom:1px solid #eef2f7;gap:8px}
+  .fill-row{display:flex;align-items:flex-start;justify-content:space-between;padding:clamp(4px,0.7vh,7px) 10px;border-bottom:1px solid #eef2f7;gap:8px;flex-wrap:wrap}
   .fill-row:last-child{border-bottom:none}
-  .fill-key{font-size:11px;color:#8aa0b8;flex-shrink:0;width:90px}
-  .fill-val{font-size:12px;font-weight:600;color:#1a3a5c;text-align:right;word-break:break-all}
+  .fill-key{font-size:11px;color:#8aa0b8;flex-shrink:0;width:90px;padding-top:1px}
+  .fill-val{font-size:12px;font-weight:600;color:#1a3a5c;text-align:right;word-break:break-word;white-space:normal;flex:1;min-width:0}
 
   /* premise editable row */
-  .fill-row-premise{display:flex;align-items:center;padding:clamp(3px,0.6vh,5px) 10px;border-bottom:1px solid #eef2f7;gap:8px}
+  .fill-row-premise{display:flex;align-items:flex-start;padding:clamp(4px,0.7vh,7px) 10px;border-bottom:1px solid #eef2f7;gap:8px}
   .fill-row-premise .fill-key{font-size:11px;color:#8aa0b8;flex-shrink:0;width:90px}
   .premise-input-wrap{flex:1;display:flex;align-items:center;gap:6px}
   .premise-input{
@@ -113,7 +113,7 @@
     font-size:clamp(11px,1.6vh,13px);color:#1a3a5c;background:#f8fbff;outline:none;
   }
   .riwayat-controls select:focus,.riwayat-controls input[type=date]:focus{border-color:#185fa5}
-  .riwayat-list{max-height:260px;overflow-y:auto}
+  .riwayat-list{max-height:40vh;overflow-y:auto;overscroll-behavior:contain}
   .riwayat-item{padding:clamp(6px,1vh,9px) 0;border-bottom:1px solid #eef2f7}
   .riwayat-item:last-child{border-bottom:none}
   .ri-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
@@ -537,10 +537,8 @@
       document.getElementById("unit").disabled = false;
       document.getElementById("headerSub").textContent = `${allData.length} unit tersedia`;
       document.getElementById("footerTxt").textContent = allData.map(u => u.nama).join(" · ") || "ROLEPLAY HELPER";
-      // Isi premise input dari setting
       document.getElementById("premiseInput").value = cfg["fixed_premises"] || "";
 
-      // Riwayat roleplay (data uploadan)
       populateRiwayatUnitSelect();
       document.getElementById("riwayatTanggal").value = todayISO();
       loadRiwayat();
