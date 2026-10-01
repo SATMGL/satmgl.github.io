@@ -627,14 +627,26 @@ const STATIC_DATA = [
 ];
 
 // Helper: ambil nama dari personilData berdasarkan unit, skip STATUS KOSONG
+// Ambil nilai kolom dengan nama header fleksibel (abaikan spasi/huruf besar/kecil/underscore)
+function getField(d, candidates) {
+  const norm = k => String(k).toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const want = candidates.map(norm);
+  for (const k of Object.keys(d)) {
+    if (want.includes(norm(k))) return String(d[k] == null ? '' : d[k]).trim();
+  }
+  return '';
+}
+
+// Helper: ambil nama dari personilData berdasarkan unit, skip STATUS KOSONG
 function getNamaByUnit(unit) {
+  const target = unit.trim().toUpperCase().replace(/\s+/g, ' ');
   return personilData
     .filter(d => {
-      const u      = (d['UNIT KERJA'] || d['UNIT KERJA'.toLowerCase()] || '').trim().toUpperCase();
-      const status = (d['STATUS'] || '').trim().toUpperCase();
-      return u === unit.toUpperCase() && status !== 'KOSONG' && status !== 'STATUS KOSONG';
+      const u      = getField(d, ['UNIT KERJA','UNIT','UNITKERJA','LOKASI']).toUpperCase().replace(/\s+/g, ' ');
+      const status = getField(d, ['STATUS']).toUpperCase();
+      return u === target && status !== 'KOSONG' && status !== 'STATUS KOSONG';
     })
-    .map(d => (d['NAMA'] || '').trim())
+    .map(d => getField(d, ['NAMA','NAMA PERSONIL','NAMA LENGKAP']))
     .filter(Boolean)
     .sort((a, b) => a.localeCompare(b, 'id'));
 }
@@ -773,17 +785,29 @@ const cddNama = createCDD('cdd-nama', () => {
   fillTable();
 }, '— Pilih Nama —');
 
-const cddUnit = createCDD('cdd-unit', (val) => {
+const cddUnit = createCDD('cdd-unit', async (val) => {
   resetTable();
   const noPrefix = ['KC MAGELANG','KCP SHOPPING'];
   document.getElementById('fill-lokasi').textContent = noPrefix.includes(val) ? val : 'UNIT ' + val;
-  const names = getNamaByUnit(val);
   cddNama._reset('— Pilih Nama —');
   cddNama.classList.add('cdd-disabled');
   enableEdit(false); enableDownload(false);
+
+  // Tunggu data personil selesai dimuat; coba ulang kalau sebelumnya gagal/kosong
+  const namaText = document.querySelector('#cdd-nama .cdd-text');
+  if (!personilData.length) {
+    namaText.textContent = 'Memuat data...';
+    await loadPersonil();
+  }
+  if (cddUnit._getValue() !== val) return; // unit sudah diganti saat menunggu
+
+  const names = getNamaByUnit(val);
   if (names.length) {
+    namaText.textContent = '— Pilih Nama —';
     cddNama._buildItems(names.map(n => ({ value: n, label: n })), 2);
     cddNama.classList.remove('cdd-disabled');
+  } else {
+    namaText.textContent = personilData.length ? 'Tidak ada nama di unit ini' : 'Gagal: ' + (personilError || 'data kosong') + ' — ketuk unit lagi';
   }
 }, '— Pilih Unit —');
 
@@ -918,16 +942,38 @@ function fillTanggal(month, year) {
 // =====================================================================
 // LOAD PERSONIL
 // =====================================================================
-async function loadPersonil() {
+let personilReady = null, personilLoading = false, personilError = '';
+const PERSONIL_CACHE_KEY = 'timesheet_personil_cache';
+
+// Pakai cache lokal dulu supaya nama langsung muncul, lalu segarkan dari server
+try {
+  const c = JSON.parse(localStorage.getItem(PERSONIL_CACHE_KEY) || 'null');
+  if (Array.isArray(c) && c.length) personilData = c;
+} catch(e) {}
+
+function loadPersonil() {
+  if (personilLoading && personilReady) return personilReady;
+  personilLoading = true;
+  personilReady = _loadPersonil().finally(() => { personilLoading = false; });
+  return personilReady;
+}
+async function _loadPersonil() {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 20000); // batas 20 detik
   try {
-    const res = await fetch(GAS_PERSONIL_URL, {
-      method: 'GET',
-      headers: { 'Accept': 'application/json' }
-    });
+    personilError = '';
+    const res = await fetch(GAS_PERSONIL_URL, { method: 'GET', signal: ctrl.signal });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
-    // GAS kadang membungkus dalam { data: [...] } atau langsung array
-    personilData = Array.isArray(data) ? data : (data.data || []);
-  } catch(e) { console.warn('Gagal load personil:', e); personilData = []; }
+    const arr = Array.isArray(data) ? data : (data.data || data.personil || []);
+    if (arr.length) {
+      personilData = arr;
+      try { localStorage.setItem(PERSONIL_CACHE_KEY, JSON.stringify(arr)); } catch(e) {}
+    }
+  } catch(e) {
+    console.warn('Gagal load personil:', e);
+    personilError = (e && e.name === 'AbortError') ? 'timeout 20 detik' : (e && e.message) || String(e);
+  } finally { clearTimeout(timer); }
 }
 
 // =====================================================================
@@ -991,95 +1037,202 @@ function resetTable() {
 }
 
 // =====================================================================
-// LOAD JADWAL dari GAS-JADWAL
+// SUMBER DATA JADWAL — SATU PINTU (preview, unduh, cetak, admin)
+// Jadwal dibaca lewat kolom BARIS JADWAL (bukan lewat kecocokan nama),
+// lalu dihitung SATU KALI oleh hitungBaris(). Preview menampilkan hasilnya,
+// unduh/cetak mengirim hasil yang sama ke GAS -> PDF identik dengan preview.
 // =====================================================================
+const normNama = s => String(s == null ? '' : s).toUpperCase().replace(/[^A-Z0-9 ]/g, '').replace(/\s+/g, ' ').trim();
+const _jadwalCache = {};
+const JADWAL_TTL   = 2 * 60 * 1000; // 2 menit
+
+function barisJadwalDari(nama) {
+  const p = personilData.find(d => normNama(getField(d, ['NAMA','NAMA PERSONIL','NAMA LENGKAP'])) === normNama(nama));
+  return p ? getField(p, ['BARIS JADWAL','BARISJADWAL']) : '';
+}
+
+// Return { jadwal:[...], baris, namaSheet, peringatan:'' }
+async function ambilJadwalPersonil(nama, bulan, tahun) {
+  const baris = barisJadwalDari(nama);
+  if (!baris || baris === '-') throw new Error('BARIS JADWAL kosong untuk ' + nama);
+
+  const key = baris + '|' + bulan + '|' + tahun;
+  const c   = _jadwalCache[key];
+  let d     = (c && Date.now() - c.t < JADWAL_TTL) ? c.d : null;
+  if (!d) {
+    const res = await fetch(GAS_URL + '?action=getJadwalBaris&mode=PEN&bulan=' + bulan +
+                            '&tahun=' + tahun + '&baris=' + encodeURIComponent(baris));
+    d = await res.json();
+    if (d && d.success) _jadwalCache[key] = { t: Date.now(), d: d };
+  }
+  if (!d || d.success === false) throw new Error((d && d.message) || 'Jadwal tidak tersedia');
+
+  // Pengaman: baris yang salah = jadwal orang lain. Beri peringatan bila nama beda.
+  let peringatan = '';
+  if (normNama(d.nama) !== normNama(nama) && !/^PGS UNKNOWN/i.test(d.nama || '')) {
+    peringatan = singkatNama(nama) + ' \u2194 sheet jadwal baris ' + baris + ' tertulis "' + (d.nama || '-') + '"';
+  }
+  return { jadwal: d.jadwal || [], baris: baris, namaSheet: d.nama || '', peringatan: peringatan };
+}
+
+// Satu-satunya tempat aturan isi tabel ditentukan.
+// Return { rows:[31 objek], hk }
+function hitungBaris(jadwal, bulan, tahun) {
+  const last = new Date(tahun, bulan, 0).getDate();
+  const rows = [];
+  const asing = new Set();
+  let hk = 0;
+  for (let i = 1; i <= 31; i++) {
+    if (i > last) { rows.push({ ada: false }); continue; }
+    const dow     = new Date(tahun, bulan - 1, i).getDay();
+    const libur   = isLibur(tahun, bulan, i);
+    const weekend = dow === 0 || dow === 6;
+    const hari    = dow === 6 ? 'SABTU' : dow === 0 ? 'MINGGU' : '';
+    const kode    = String(jadwal[i - 1] || '').trim().toUpperCase();
+    const shift   = SHIFT_MAPPING[kode] || null;
+    if (kode && !shift) asing.add(kode);
+
+    const r = {
+      ada: true, kode: kode, shift: !!shift,
+      jenis: libur ? 'libur' : weekend ? 'weekend' : '',
+      b: '', c: '', d: '', e: '',
+      ket: libur || hari || '',
+      ketKelas: libur ? 'keterangan-libur' : dow === 6 ? 'keterangan-sabtu' : dow === 0 ? 'keterangan-minggu' : '',
+      libur: !!libur, weekend: weekend
+    };
+    if (shift) {
+      if (kode === 'OFF' || kode === 'CUTI' || kode === 'SAKIT') {
+        r.b = r.c = r.d = r.e = shift.mulai;
+        if (kode === 'OFF') { r.ket = ''; r.ketKelas = ''; }   // OFF: keterangan selalu kosong
+      } else {
+        r.b = shift.mulai;  r.c = shift.selesai;
+        r.d = shift.lemburMulai || ''; r.e = shift.lemburSelesai || '';
+        hk++;
+      }
+    }
+    rows.push(r);
+  }
+  return { rows: rows, hk: hk, asing: [...asing] };
+}
+
+// =====================================================================
+// LOAD JADWAL (preview)
+// =====================================================================
+let _loadSeq = 0;
 async function loadJadwal(bulan, tahun, unit, nama) {
+  const seq = ++_loadSeq;
   resetTable();
   showLoading('Memuat jadwal...');
   const timeout = setTimeout(hideLoading, 15000);
   try {
-    const url = GAS_URL + '?action=getJadwal&mode=PEN&bulan=' + bulan + '&tahun=' + tahun + '&unit=' + encodeURIComponent(unit);
-    const res  = await fetch(url);
-    const data = await res.json();
-    if (!data || data.success === false) { showAlert('Data jadwal tidak tersedia.'); return; }
-
-    const normalize = s => s.trim().toUpperCase().replace(/\s+/g,' ');
-    const personil  = (data.personil || []).find(p => normalize(p.nama || '') === normalize(nama));
-    if (!personil) return;
-
-    fillAbsensiTable(personil.jadwal || [], bulan, tahun);
-  } catch(e) {
+    if (personilReady) await personilReady;          // pastikan BARIS JADWAL terbaru
+    const j = await ambilJadwalPersonil(nama, bulan, tahun);
+    if (seq !== _loadSeq) return;                    // pilihan sudah berganti
+    fillAbsensiTable(j.jadwal, bulan, tahun);
+    const asing = hitungBaris(j.jadwal, bulan, tahun).asing;
+    const msg = [];
+    if (j.peringatan) msg.push('Cek BARIS JADWAL: ' + j.peringatan);
+    if (asing.length) msg.push('Kode shift tidak dikenal: ' + asing.join(', '));
+    if (msg.length) showAlert('\u26A0 ' + msg.join(' | '), 6000);
+  } catch (e) {
+    if (seq !== _loadSeq) return;
     console.error('loadJadwal error:', e);
+    showAlert('\u2718 ' + (e.message || e), 5000);
   } finally {
     clearTimeout(timeout);
-    hideLoading();
+    if (seq === _loadSeq) hideLoading();
   }
 }
 
 // =====================================================================
-// FILL ABSENSI TABLE
+// FILL ABSENSI TABLE — hanya menampilkan hasil hitungBaris()
 // =====================================================================
 function fillAbsensiTable(jadwal, bulan, tahun) {
-  const lastDay = new Date(tahun, bulan, 0).getDate();
-  let hk = 0;
+  const { rows, hk } = hitungBaris(jadwal, bulan, tahun);
 
   for (let i = 1; i <= 31; i++) {
     const tglEl = document.getElementById('tgl-' + i);
     if (!tglEl) continue;
     const cells = tglEl.parentElement.querySelectorAll('td');
     if (cells.length < 13) continue;
-
-    const dow        = new Date(tahun, bulan-1, i).getDay();
-    const isWeekend  = dow === 0 || dow === 6;
-    const namaHari   = dow === 6 ? 'SABTU' : dow === 0 ? 'MINGGU' : '';
-    const namaLibur  = i <= lastDay ? isLibur(tahun, bulan, i) : null;
-    const ketEl      = cells[12];
+    const ketEl = cells[12];
 
     for (let c = 1; c <= 4; c++) { cells[c].textContent = ''; cells[c].removeAttribute('style'); }
     tglEl.removeAttribute('style');
-    tglEl.classList.remove('tgl-weekend','tgl-libur');
+    tglEl.classList.remove('tgl-weekend', 'tgl-libur');
     ketEl.textContent = ''; ketEl.className = i === 31 ? 's17' : 's15'; delete ketEl.dataset.filled;
 
-    if (i > lastDay) continue;
+    const r = rows[i - 1];
+    if (!r || !r.ada) continue;
 
-    // warna tanggal
-    if (namaLibur) tglEl.classList.add('tgl-libur');
-    else if (isWeekend) tglEl.classList.add('tgl-weekend');
+    if (r.jenis === 'libur') tglEl.classList.add('tgl-libur');
+    else if (r.jenis === 'weekend') tglEl.classList.add('tgl-weekend');
 
-    const kode  = String(jadwal[i-1] || '').trim().toUpperCase();
-    const shift = SHIFT_MAPPING[kode] || null;
+    const shift = r.shift ? SHIFT_MAPPING[r.kode] : null;
+    const isOff = r.kode === 'OFF' || r.kode === 'CUTI' || r.kode === 'SAKIT';
 
-    if (!shift) {
-      if (namaLibur) { ketEl.textContent = namaLibur; ketEl.classList.add('keterangan-libur'); }
-      else if (isWeekend) { ketEl.textContent = namaHari; ketEl.classList.add(dow === 6 ? 'keterangan-sabtu' : 'keterangan-minggu'); }
-      continue;
-    }
-
-    if (kode === 'OFF' || kode === 'CUTI' || kode === 'SAKIT') {
-      for (let c = 1; c <= 4; c++) { cells[c].textContent = shift.mulai; cells[c].style.cssText = shift.style || ''; }
+    if (shift && isOff) {
+      for (let c = 1; c <= 4; c++) { cells[c].textContent = r.b; cells[c].style.cssText = shift.style || ''; }
       tglEl.style.cssText = shift.style || '';
       ketEl.dataset.filled = '1';
-      // *** FIX: OFF → kolom keterangan selalu kosong ***
-      // CUTI/SAKIT tetap tampilkan SABTU/MINGGU/libur seperti biasa
-      if (kode !== 'OFF') {
-        if (namaLibur) { ketEl.textContent = namaLibur; ketEl.classList.add('keterangan-libur'); }
-        else if (isWeekend) { ketEl.textContent = namaHari; ketEl.classList.add(dow === 6 ? 'keterangan-sabtu' : 'keterangan-minggu'); }
-      }
-    } else {
-      cells[1].textContent = shift.mulai;
-      cells[2].textContent = shift.selesai;
-      if (shift.lemburMulai) { cells[3].textContent = shift.lemburMulai; cells[4].textContent = shift.lemburSelesai; }
-      const colorStyle = namaLibur ? 'color:#cc0000;font-weight:bold;' : isWeekend ? 'color:#1b5e20;font-weight:bold;' : '';
+    } else if (shift) {
+      cells[1].textContent = r.b;
+      cells[2].textContent = r.c;
+      if (r.d) { cells[3].textContent = r.d; cells[4].textContent = r.e; }
+      const colorStyle = r.libur ? 'color:#cc0000;font-weight:bold;' : r.weekend ? 'color:#1b5e20;font-weight:bold;' : '';
       if (colorStyle) {
         cells[1].style.cssText = colorStyle; cells[2].style.cssText = colorStyle;
-        if (shift.lemburMulai) { cells[3].style.cssText = colorStyle; cells[4].style.cssText = colorStyle; }
+        if (r.d) { cells[3].style.cssText = colorStyle; cells[4].style.cssText = colorStyle; }
       }
-      if (namaLibur) { ketEl.textContent = namaLibur; ketEl.classList.add('keterangan-libur'); ketEl.dataset.filled = '1'; }
-      else if (isWeekend) { ketEl.textContent = namaHari; ketEl.classList.add(dow === 6 ? 'keterangan-sabtu' : 'keterangan-minggu'); ketEl.dataset.filled = '1'; }
-      hk++;
+    }
+
+    if (r.ket) {
+      ketEl.textContent = r.ket;
+      if (r.ketKelas) ketEl.classList.add(r.ketKelas);
+      if (shift && !isOff) ketEl.dataset.filled = '1';
     }
   }
   document.getElementById('fill-harikerja').textContent = hk;
+}
+
+// =====================================================================
+// AMBIL PDF DARI SERVER — dipakai doDownload, cetakForm, adminCetak,
+// adminDownloadPdf. Mengirim rows hasil hitungBaris() yang SAMA dengan preview.
+// peringatan (opsional): array penampung; bila tidak diberi, tampil sebagai alert.
+// =====================================================================
+async function ambilPdfServer(nama, unit, bulan, tahun, peringatan) {
+  const j = await ambilJadwalPersonil(nama, bulan, tahun);
+  if (j.peringatan) {
+    if (peringatan) peringatan.push(j.peringatan);
+    else showAlert('\u26A0 Cek BARIS JADWAL: ' + j.peringatan, 6000);
+  }
+  const { rows, hk, asing } = hitungBaris(j.jadwal, bulan, tahun);
+  if (asing.length) {
+    const t = singkatNama(nama) + ': kode tidak dikenal ' + asing.join(', ');
+    if (peringatan) peringatan.push(t); else showAlert('\u26A0 ' + t, 6000);
+  }
+  const p = personilData.find(d => normNama(getField(d, ['NAMA','NAMA PERSONIL','NAMA LENGKAP'])) === normNama(nama));
+
+  const res = await fetch(GAS_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },   // hindari preflight CORS
+    body: JSON.stringify({
+      action: 'downloadPdf',
+      nama: nama, unit: unit, bulan: BULAN[bulan - 1] + ' ' + tahun,
+      dataDiri: {
+        noreg:    p ? (p['NO_REG']  || '') : '',
+        tglmasuk: p ? formatTanggal(p['TGL_MASUK']) : '',
+        norek:    p ? (p['NO_REK']  || '') : '',
+        bank:     p ? (p['BANK'] || p['Bank'] || '') : '',
+        nohp:     p ? (p['NO. HP']  || '') : '',
+        email:    p ? (p['ALAMAT EMAIL'] || '') : ''
+      },
+      rows: rows, hk: hk
+    })
+  });
+  const data = await res.json();
+  if (!data || data.status !== 'ok') throw new Error(data ? data.message : 'no response');
+  return data;   // { status, base64, filename }
 }
 
 // =====================================================================
@@ -1097,21 +1250,7 @@ async function doDownload(format) {
   enableDownload(false);
 
   try {
-    const qs = new URLSearchParams({
-      action:   'downloadPdf',
-      nama:     nama,
-      bulan:    bulanStr,
-      unit:     unit,
-      noreg:    pData ? (pData['NO_REG']                 || '') : '',
-      tglmasuk: pData ? formatTanggal(pData['TGL_MASUK'])       : '',
-      norek:    pData ? (pData['NO_REK']                 || '') : '',
-      bank:     pData ? (pData['BANK'] || pData['Bank']  || '') : '',
-      nohp:     pData ? (pData['NO. HP']                 || '') : '',
-      email:    pData ? (pData['ALAMAT EMAIL']           || '') : '',
-    }).toString();
-
-    const res  = await fetch(GAS_URL + '?' + qs);
-    const data = await res.json();
+    const data = await ambilPdfServer(nama, unit, currentBulan, currentTahun);
 
     if (!data || data.status !== 'ok') {
       setDlStatus('err', '\u2717 Gagal: ' + (data ? data.message : 'no response'));
@@ -1274,21 +1413,7 @@ async function cetakForm() {
 
   try {
     // Kirim ke GAS sama persis seperti doDownload
-    const qs = new URLSearchParams({
-      action:   'downloadPdf',
-      nama:     nama,
-      bulan:    bulanStr,
-      unit:     unit,
-      noreg:    pData ? (pData['NO_REG']                 || '') : '',
-      tglmasuk: pData ? formatTanggal(pData['TGL_MASUK'])       : '',
-      norek:    pData ? (pData['NO_REK']                 || '') : '',
-      bank:     pData ? (pData['BANK'] || pData['Bank']  || '') : '',
-      nohp:     pData ? (pData['NO. HP']                 || '') : '',
-      email:    pData ? (pData['ALAMAT EMAIL']           || '') : '',
-    }).toString();
-
-    const res  = await fetch(GAS_URL + '?' + qs);
-    const data = await res.json();
+    const data = await ambilPdfServer(nama, unit, currentBulan, currentTahun);
 
     if (!data || data.status !== 'ok') {
       setDlStatus('err', '✗ Gagal: ' + (data ? data.message : 'no response'));
@@ -1312,62 +1437,6 @@ async function cetakForm() {
     setDlStatus('err', '✗ Gagal: ' + e.message);
   } finally {
     enableDownload(true);
-  }
-}
-
-// Helper: isi data ke elemen .page tertentu
-function fillPage(page, nama, unit, bulan, tahun, jadwal) {
-  if (!page) return;
-  const lastDay = new Date(tahun, bulan, 0).getDate();
-  const setEl = (id, val) => { const el = page.querySelector('#' + id); if (el) el.textContent = val || ''; };
-  const pData = personilData.find(d => (d['NAMA']||'').trim().toUpperCase() === nama.toUpperCase());
-  setEl('fill-proyek', 'BRI KANCA MAGELANG');
-  setEl('fill-nama', singkatNama(nama));
-  const noPrefix = ['KC MAGELANG','KCP SHOPPING'];
-  setEl('fill-lokasi', noPrefix.includes(unit) ? unit : 'UNIT ' + unit);
-  setEl('fill-periode', '1 s/d ' + lastDay + ' ' + BULAN[bulan-1] + ' ' + tahun);
-  if (pData) {
-    setEl('fill-noreg', pData['NO_REG']||''); setEl('fill-tglmasuk', formatTanggal(pData['TGL_MASUK']));
-    setEl('fill-norek', pData['NO_REK']||''); setEl('fill-bank', pData['BANK']||pData['Bank']||'');
-    setEl('fill-nohp', pData['NO. HP']||''); setEl('fill-email', pData['ALAMAT EMAIL']||'');
-  }
-  const secEl = page.querySelector('#fill-security-nama');
-  if (secEl) secEl.innerHTML = '<span style="color:#004B87;font-weight:bold;font-size:6pt;font-family:Arial;">' + namaLengkap3(nama) + '</span>';
-  for (let d = 1; d <= 31; d++) {
-    const tglEl = page.querySelector('#tgl-' + d);
-    if (!tglEl) continue;
-    const cells = tglEl.parentElement.querySelectorAll('td');
-    if (cells.length < 13) continue;
-    const dow = new Date(tahun, bulan-1, d).getDay();
-    const isWeekend = dow === 0 || dow === 6;
-    const namaHari = dow===6?'SABTU':dow===0?'MINGGU':'';
-    const namaLiburA = d <= lastDay ? isLibur(tahun, bulan, d) : null;
-    for (let c = 1; c <= 4; c++) { cells[c].textContent=''; cells[c].removeAttribute('style'); }
-    tglEl.removeAttribute('style');
-    cells[12].textContent=''; cells[12].className = d===31?'s17':'s15';
-    if (d > lastDay) continue;
-    const kode = String(jadwal[d-1]||'').trim().toUpperCase();
-    const shift = SHIFT_MAPPING[kode]||null;
-    if (!shift) {
-      if (namaLiburA) { cells[12].textContent=namaLiburA; cells[12].classList.add('keterangan-libur'); }
-      else if(isWeekend){cells[12].textContent=namaHari;cells[12].classList.add(dow===6?'keterangan-sabtu':'keterangan-minggu');}
-      continue;
-    }
-    if (kode==='OFF'||kode==='CUTI'||kode==='SAKIT') {
-      for(let c=1;c<=4;c++){cells[c].textContent=shift.mulai;cells[c].style.cssText=shift.style||'';}
-      tglEl.style.cssText=shift.style||'';
-      if (kode !== 'OFF') {
-        if (namaLiburA) { cells[12].textContent=namaLiburA; cells[12].classList.add('keterangan-libur'); }
-        else if(isWeekend){cells[12].textContent=namaHari;cells[12].classList.add(dow===6?'keterangan-sabtu':'keterangan-minggu');}
-      }
-    } else {
-      cells[1].textContent=shift.mulai; cells[2].textContent=shift.selesai;
-      if(shift.lemburMulai){cells[3].textContent=shift.lemburMulai;cells[4].textContent=shift.lemburSelesai;}
-      const colorStyle = namaLiburA ? 'color:#cc0000;font-weight:bold;' : isWeekend ? 'color:#1b5e20;font-weight:bold;' : '';
-      if(colorStyle){cells[1].style.cssText=colorStyle;cells[2].style.cssText=colorStyle;if(shift.lemburMulai){cells[3].style.cssText=colorStyle;cells[4].style.cssText=colorStyle;}}
-      if(namaLiburA){cells[12].textContent=namaLiburA;cells[12].classList.add('keterangan-libur');}
-      else if(isWeekend){cells[12].textContent=namaHari;cells[12].classList.add(dow===6?'keterangan-sabtu':'keterangan-minggu');}
-    }
   }
 }
 
@@ -1507,6 +1576,7 @@ async function adminCetak() {
 
   const pdfBytes = [];
   const gagal    = [];
+  const peringatan = [];
 
   for (let i = 0; i < daftarTerpilih.length; i++) {
     const { nama, unit } = daftarTerpilih[i];
@@ -1514,21 +1584,7 @@ async function adminCetak() {
     try {
       const pData = personilData.find(d => (d['NAMA'] || '').trim().toUpperCase() === nama.toUpperCase());
 
-      const qs = new URLSearchParams({
-        action:   'downloadPdf',
-        nama:     nama,
-        bulan:    bulanStr,
-        unit:     unit,
-        noreg:    pData ? (pData['NO_REG']                 || '') : '',
-        tglmasuk: pData ? formatTanggal(pData['TGL_MASUK'])       : '',
-        norek:    pData ? (pData['NO_REK']                 || '') : '',
-        bank:     pData ? (pData['BANK'] || pData['Bank']  || '') : '',
-        nohp:     pData ? (pData['NO. HP']                 || '') : '',
-        email:    pData ? (pData['ALAMAT EMAIL']           || '') : '',
-      }).toString();
-
-      const res  = await fetch(GAS_URL + '?' + qs);
-      const data = await res.json();
+      const data = await ambilPdfServer(nama, unit, bulan, tahun, peringatan);
       if (!data || data.status !== 'ok') {
         gagal.push(singkatNama(nama) + ': ' + (data ? data.message : 'no response'));
         continue;
@@ -1576,7 +1632,8 @@ async function adminCetak() {
     setTimeout(function() { try { win.print(); } catch(e) {} }, 1500);
 
     hideLoading();
-    const pesanGagal = gagal.length ? '\n⚠ Gagal: ' + gagal.join(', ') : '';
+    const pesanGagal = (gagal.length ? '\n⚠ Gagal: ' + gagal.join(', ') : '') +
+      (peringatan.length ? '\n⚠ Cek BARIS JADWAL: ' + peringatan.join('; ') : '');
     showAlert('✔ Dialog cetak terbuka (' + pdfBytes.length + ' halaman)' + pesanGagal, 5000);
   } catch (e) {
     hideLoading();
@@ -1597,6 +1654,7 @@ async function adminDownloadPdf() {
 
   const pdfBytes = [];
   const gagal    = [];
+  const peringatan = [];
 
   for (let i = 0; i < daftarTerpilih.length; i++) {
     const { nama, unit } = daftarTerpilih[i];
@@ -1608,21 +1666,7 @@ async function adminDownloadPdf() {
       const noPrefix = ['KC MAGELANG', 'KCP SHOPPING'];
 
       // Kirim via GET + flat params (hindari preflight CORS — GAS tidak support OPTIONS)
-      const qs = new URLSearchParams({
-        action:   'downloadPdf',
-        nama:     nama,
-        bulan:    bulanStr,
-        unit:     unit,
-        noreg:    pData ? (pData['NO_REG']                 || '') : '',
-        tglmasuk: pData ? formatTanggal(pData['TGL_MASUK'])       : '',
-        norek:    pData ? (pData['NO_REK']                 || '') : '',
-        bank:     pData ? (pData['BANK'] || pData['Bank']  || '') : '',
-        nohp:     pData ? (pData['NO. HP']                 || '') : '',
-        email:    pData ? (pData['ALAMAT EMAIL']           || '') : '',
-      }).toString();
-
-      const res  = await fetch(GAS_URL + '?' + qs);
-      const data = await res.json();
+      const data = await ambilPdfServer(nama, unit, bulan, tahun, peringatan);
       if (!data || data.status !== 'ok') {
         gagal.push(singkatNama(nama) + ': ' + (data ? data.message : 'no response'));
         continue;
@@ -1671,7 +1715,8 @@ async function adminDownloadPdf() {
 
     hideLoading();
     const pesanOk = '✔ ' + namaFile + ' berhasil diunduh!';
-    const pesanGagal = gagal.length ? '\n⚠ Gagal: ' + gagal.join(', ') : '';
+    const pesanGagal = (gagal.length ? '\n⚠ Gagal: ' + gagal.join(', ') : '') +
+      (peringatan.length ? '\n⚠ Cek BARIS JADWAL: ' + peringatan.join('; ') : '');
     showAlert(pesanOk + pesanGagal, 5000);
   } catch (e) {
     hideLoading();
@@ -1716,7 +1761,28 @@ document.addEventListener('DOMContentLoaded', () => {
   loadPersonil();
   document.getElementById('fill-proyek').textContent = 'BRI KANCA MAGELANG';
   hitungScale();
+  applyUrlParams();
 });
+
+// Link langsung: ...timesheet.html?unit=GRABAG  (opsional: &nama=NAMA LENGKAP)
+function applyUrlParams() {
+  const p = new URLSearchParams(location.search);
+  const unit = (p.get('unit') || '').trim().toUpperCase();
+  if (!unit) return;
+  const uItem = [...document.querySelectorAll('#cdd-unit .cdd-item')]
+    .find(el => el.dataset.value.toUpperCase() === unit);
+  if (!uItem) { console.warn('Unit tidak dikenal:', unit); return; }
+  uItem.click();
+  const nama = (p.get('nama') || '').trim().toUpperCase();
+  if (!nama) return;
+  let tries = 0;
+  const t = setInterval(() => {
+    const nItem = [...document.querySelectorAll('#cdd-nama .cdd-item')]
+      .find(el => el.dataset.value.toUpperCase() === nama);
+    if (nItem) { clearInterval(t); nItem.click(); }
+    else if (++tries > 100) clearInterval(t); // stop setelah ±25 detik
+  }, 250);
+}
 window.addEventListener('resize', hitungScale);
 </script>
 </body>
